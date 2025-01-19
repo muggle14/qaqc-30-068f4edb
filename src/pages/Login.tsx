@@ -58,7 +58,7 @@ const Login = () => {
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-canvas-text mb-2">
-              Outcome Testing
+              OutcomesAI
             </h1>
             <p className="text-canvas-muted">Sign in to continue</p>
           </div>
