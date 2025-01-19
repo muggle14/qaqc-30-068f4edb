@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Layers, Paintbrush, Vector } from "lucide-react";
+import { Layers, Paintbrush, PenTool } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -41,7 +41,7 @@ const Hero = () => {
             delay={0.2}
           />
           <FeatureIcon
-            icon={<Vector className="w-6 h-6" />}
+            icon={<PenTool className="w-6 h-6" />}
             label="Vector Tools"
             delay={0.4}
           />
