@@ -16,16 +16,25 @@ const Login = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const user = sessionStorage.getItem("user");
-    if (user) {
-      console.log("Login: User already authenticated, checking redirect path");
-      const from = location.state?.from?.pathname || "/";
-      console.log("Login: Redirecting authenticated user to:", from);
-      navigate(from, { replace: true });
-    } else {
-      console.log("Login: No authenticated user found, showing login form");
-    }
-  }, []);
+    console.log("Login: Checking authentication status");
+    const checkAuth = () => {
+      const user = sessionStorage.getItem("user");
+      if (user) {
+        console.log("Login: User already authenticated, checking redirect path");
+        const from = location.state?.from?.pathname || "/";
+        console.log("Login: Redirecting authenticated user to:", from);
+        navigate(from, { replace: true });
+      } else {
+        console.log("Login: No authenticated user found, showing login form");
+      }
+    };
+
+    checkAuth();
+    // Clean up any pending navigation when component unmounts
+    return () => {
+      console.log("Login: Cleanup - component unmounting");
+    };
+  }, [navigate, location]); // Restore dependency array
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
