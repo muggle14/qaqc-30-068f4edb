@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MessageSquare, History, Database, Settings, Bolt } from "lucide-react";
+import { MessageSquare, History, Database, Settings, Power } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
@@ -46,9 +46,9 @@ const Index = () => {
             <h1 className="text-4xl font-bold text-canvas-text bg-gray-100 px-6 py-3 rounded-lg">
               Outcomes360
             </h1>
-            <div className="flex items-center gap-1 bg-gray-200 px-3 py-1 rounded-lg self-start">
-              <Bolt className="w-4 h-4 text-gray-600" />
-              <span className="text-sm text-gray-600">AI</span>
+            <div className="flex items-center gap-1 bg-gray-200 px-3 py-1 rounded-lg">
+              <Power className="w-4 h-4 text-gray-600" />
+              <span className="text-sm text-gray-600">AI Powered</span>
             </div>
           </div>
           <p className="text-canvas-muted text-lg">
