@@ -46,14 +46,29 @@ const Login = () => {
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (roleError) {
           console.error("Login: Error fetching user role:", roleError);
+          throw roleError;
         }
 
-        // Store role in session
-        if (roleData) {
+        // If no role exists, create a default 'user' role
+        if (!roleData) {
+          console.log("Login: No role found, creating default user role");
+          const { error: insertError } = await supabase
+            .from('user_roles')
+            .insert([
+              { user_id: user.id, role: 'user' }
+            ]);
+
+          if (insertError) {
+            console.error("Login: Error creating default role:", insertError);
+            throw insertError;
+          }
+
+          sessionStorage.setItem("userRole", 'user');
+        } else {
           sessionStorage.setItem("userRole", roleData.role);
         }
         
