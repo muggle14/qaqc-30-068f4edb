@@ -1,10 +1,17 @@
 import { FileUpload } from "@/components/FileUpload";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 const Index = () => {
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Upload Contact Details</h1>
-      <FileUpload />
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader>
+          <h1 className="text-2xl font-bold">Upload Contact Details</h1>
+        </CardHeader>
+        <CardContent>
+          <FileUpload />
+        </CardContent>
+      </Card>
     </div>
   );
 };
