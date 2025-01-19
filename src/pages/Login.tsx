@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import LoginForm from "@/components/auth/LoginForm";
-import { getStoredUser, setStoredUser, validateCredentials } from "@/utils/auth";
+import { validateCredentials } from "@/utils/auth";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,21 +11,17 @@ const Login = () => {
   const location = useLocation();
   const { toast } = useToast();
 
-  // Check authentication status on mount and location changes
+  // Check authentication status on mount
   useEffect(() => {
-    console.log("Login: Component mounted, checking auth status");
-    const user = getStoredUser();
-    
+    const user = sessionStorage.getItem("user");
     if (user) {
+      console.log("Login: User already authenticated, redirecting to home");
       const from = location.state?.from?.pathname || "/";
-      console.log("Login: User found, redirecting to:", from);
       navigate(from, { replace: true });
+    } else {
+      console.log("Login: No authenticated user found");
     }
-
-    return () => {
-      console.log("Login: Component unmounting");
-    };
-  }, [location, navigate]);
+  }, [navigate, location]);
 
   const handleLogin = async (username: string, password: string) => {
     console.log("Login: Attempting login for username:", username);
@@ -36,7 +32,7 @@ const Login = () => {
 
       if (user) {
         console.log("Login: Authentication successful");
-        setStoredUser(username);
+        sessionStorage.setItem("user", JSON.stringify({ username }));
         
         toast({
           title: "Login Successful",

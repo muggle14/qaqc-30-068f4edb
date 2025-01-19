@@ -10,6 +10,7 @@ export const setStoredUser = (username: string) => {
 };
 
 export const validateCredentials = (username: string, password: string) => {
+  console.log("Auth: Validating credentials for username:", username);
   const testUsers = [
     { username: "admin", password: "testpass123" },
     { username: "admin1", password: "testpass123" },
