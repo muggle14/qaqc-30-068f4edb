@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
@@ -10,11 +10,16 @@ import Admin from "./pages/Admin";
 const queryClient = new QueryClient();
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
   const user = sessionStorage.getItem("user");
+  
   if (!user) {
-    console.log("No user found, redirecting to login");
-    return <Navigate to="/login" replace />;
+    console.log("No user found in session, redirecting to login");
+    // Pass the attempted location to redirect back after login
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
+
+  console.log("User found in session, rendering protected route");
   return <>{children}</>;
 };
 

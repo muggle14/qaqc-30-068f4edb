@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,15 +13,15 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
-  // Check if user is already authenticated
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        console.log("User already authenticated, redirecting to index");
-        navigate("/");
+      const user = sessionStorage.getItem("user");
+      if (user) {
+        console.log("User found in session, redirecting to index");
+        navigate("/", { replace: true });
       }
     };
     checkAuth();
@@ -34,23 +34,25 @@ const Login = () => {
     console.log("Attempting login with:", username);
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
       const user = testUsers.find(
         (u) => u.username === username && u.password === password
       );
 
       if (user) {
-        console.log("Login successful");
+        console.log("Login successful, setting user in session storage");
+        sessionStorage.setItem("user", JSON.stringify({ username }));
+        
         toast({
           title: "Login Successful",
           description: "Welcome back!",
         });
-        sessionStorage.setItem("user", JSON.stringify({ username }));
-        navigate("/", { replace: true }); // Use replace to prevent back navigation to login
+
+        // Redirect to the intended page or home
+        const from = location.state?.from?.pathname || "/";
+        console.log("Redirecting to:", from);
+        navigate(from, { replace: true });
       } else {
-        console.log("Login failed");
+        console.log("Login failed: Invalid credentials");
         toast({
           title: "Login Failed",
           description: "Invalid credentials. Please try again.",
