@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import LoginForm from "@/components/auth/LoginForm";
 import { validateCredentials } from "@/utils/auth";
-import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,37 +39,6 @@ const Login = () => {
         // Store user in session
         const userData = { username, id: user.id };
         sessionStorage.setItem("user", JSON.stringify(userData));
-        
-        // Get user role from Supabase
-        const { data: roleData, error: roleError } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (roleError) {
-          console.error("Login: Error fetching user role:", roleError);
-          throw roleError;
-        }
-
-        // If no role exists, create a default 'user' role
-        if (!roleData) {
-          console.log("Login: No role found, creating default user role");
-          const { error: insertError } = await supabase
-            .from('user_roles')
-            .insert([
-              { user_id: user.id, role: 'user' }
-            ]);
-
-          if (insertError) {
-            console.error("Login: Error creating default role:", insertError);
-            throw insertError;
-          }
-
-          sessionStorage.setItem("userRole", 'user');
-        } else {
-          sessionStorage.setItem("userRole", roleData.role);
-        }
         
         toast({
           title: "Login Successful",
