@@ -17,29 +17,26 @@ const Login = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const user = sessionStorage.getItem("user");
-      if (user) {
-        console.log("User found in session, redirecting to index");
-        navigate("/", { replace: true });
-      }
-    };
-    checkAuth();
-  }, [navigate]);
+    const user = sessionStorage.getItem("user");
+    if (user) {
+      const from = location.state?.from?.pathname || "/";
+      console.log("User already authenticated, redirecting to:", from);
+      navigate(from, { replace: true });
+    }
+  }, [navigate, location]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    console.log("Attempting login with:", username);
-
     try {
+      console.log("Attempting login with:", username);
       const user = testUsers.find(
         (u) => u.username === username && u.password === password
       );
 
       if (user) {
-        console.log("Login successful, setting user in session storage");
+        console.log("Login successful, storing user data");
         sessionStorage.setItem("user", JSON.stringify({ username }));
         
         toast({
@@ -47,9 +44,8 @@ const Login = () => {
           description: "Welcome back!",
         });
 
-        // Redirect to the intended page or home
         const from = location.state?.from?.pathname || "/";
-        console.log("Redirecting to:", from);
+        console.log("Login successful, redirecting to:", from);
         navigate(from, { replace: true });
       } else {
         console.log("Login failed: Invalid credentials");
