@@ -107,12 +107,6 @@ const Login = () => {
               )}
             </Button>
           </form>
-
-          <div className="mt-6 text-center text-sm text-canvas-muted">
-            <p>Test Credentials:</p>
-            <p>Usernames: admin, admin1, admin2</p>
-            <p>Password: testpass123</p>
-          </div>
         </div>
       </motion.div>
     </div>
