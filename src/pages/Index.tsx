@@ -37,7 +37,7 @@ const Index = () => {
       >
         <header className="mb-12 text-center">
           <h1 className="text-4xl font-bold text-canvas-text mb-4">
-            Compliance Dashboard
+            Outcome Testing
           </h1>
           <p className="text-canvas-muted text-lg">
             Monitor, analyze, and ensure compliance across all conversations
