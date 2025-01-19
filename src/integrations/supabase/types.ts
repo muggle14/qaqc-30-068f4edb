@@ -9,6 +9,27 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      upload_details: {
+        Row: {
+          admin_id: string
+          contact_id: string
+          evaluator: string
+          upload_timestamp: string
+        }
+        Insert: {
+          admin_id: string
+          contact_id: string
+          evaluator: string
+          upload_timestamp?: string
+        }
+        Update: {
+          admin_id?: string
+          contact_id?: string
+          evaluator?: string
+          upload_timestamp?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -39,6 +60,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      evaluator_role: "primary" | "secondary" | "tertiary"
     }
     CompositeTypes: {
       [_ in never]: never
