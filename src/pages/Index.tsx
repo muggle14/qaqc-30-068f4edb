@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MessageSquare, History, Database, Settings } from "lucide-react";
+import { MessageSquare, History, Database, Settings, Power } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
@@ -42,9 +42,15 @@ const Index = () => {
         className="max-w-6xl mx-auto"
       >
         <header className="mb-12 text-center">
-          <h1 className="text-4xl font-bold text-canvas-text mb-4">
-            Outcome Testing
-          </h1>
+          <div className="inline-flex items-center gap-2 mb-4">
+            <h1 className="text-4xl font-bold text-white bg-gray-700 px-6 py-3 rounded-lg">
+              Outcomes360
+            </h1>
+            <div className="flex items-center gap-1 bg-gray-200 px-3 py-1 rounded-lg">
+              <Power className="w-4 h-4 text-gray-600" />
+              <span className="text-sm text-gray-600">AI Powered</span>
+            </div>
+          </div>
           <p className="text-canvas-muted text-lg">
             Monitor, analyze, and ensure compliance across all conversations
           </p>
