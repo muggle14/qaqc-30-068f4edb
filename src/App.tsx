@@ -11,7 +11,11 @@ const queryClient = new QueryClient();
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const user = sessionStorage.getItem("user");
-  return user ? <>{children}</> : <Navigate to="/login" />;
+  if (!user) {
+    console.log("No user found, redirecting to login");
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
 };
 
 const App = () => (

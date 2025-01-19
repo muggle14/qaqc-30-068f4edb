@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { testUsers } from "@/config/authConfig";
 import { Lock, User, LogIn } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -14,37 +15,58 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log("User already authenticated, redirecting to index");
+        navigate("/");
+      }
+    };
+    checkAuth();
+  }, [navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     console.log("Attempting login with:", username);
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    const user = testUsers.find(
-      (u) => u.username === username && u.password === password
-    );
+      const user = testUsers.find(
+        (u) => u.username === username && u.password === password
+      );
 
-    if (user) {
-      console.log("Login successful");
+      if (user) {
+        console.log("Login successful");
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
+        sessionStorage.setItem("user", JSON.stringify({ username }));
+        navigate("/", { replace: true }); // Use replace to prevent back navigation to login
+      } else {
+        console.log("Login failed");
+        toast({
+          title: "Login Failed",
+          description: "Invalid credentials. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
       toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
-      sessionStorage.setItem("user", JSON.stringify({ username }));
-      navigate("/");
-    } else {
-      console.log("Login failed");
-      toast({
-        title: "Login Failed",
-        description: "Invalid credentials. Please try again.",
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
