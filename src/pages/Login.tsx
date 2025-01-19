@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import LoginForm from "@/components/auth/LoginForm";
 import { validateCredentials } from "@/utils/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,16 +12,19 @@ const Login = () => {
   const location = useLocation();
   const { toast } = useToast();
 
-  // Check authentication status on mount
   useEffect(() => {
-    const user = sessionStorage.getItem("user");
-    if (user) {
-      console.log("Login: User already authenticated, redirecting to home");
-      const from = location.state?.from?.pathname || "/";
-      navigate(from, { replace: true });
-    } else {
-      console.log("Login: No authenticated user found");
-    }
+    const checkAuth = async () => {
+      const user = sessionStorage.getItem("user");
+      if (user) {
+        console.log("Login: User already authenticated, redirecting to home");
+        const from = location.state?.from?.pathname || "/";
+        navigate(from, { replace: true });
+      } else {
+        console.log("Login: No authenticated user found");
+      }
+    };
+
+    checkAuth();
   }, [navigate, location]);
 
   const handleLogin = async (username: string, password: string) => {
@@ -32,16 +36,34 @@ const Login = () => {
 
       if (user) {
         console.log("Login: Authentication successful");
-        sessionStorage.setItem("user", JSON.stringify({ username }));
+        
+        // Store user in session
+        const userData = { username, id: user.id };
+        sessionStorage.setItem("user", JSON.stringify(userData));
+        
+        // Get user role from Supabase
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+
+        if (roleError) {
+          console.error("Login: Error fetching user role:", roleError);
+        }
+
+        // Store role in session
+        if (roleData) {
+          sessionStorage.setItem("userRole", roleData.role);
+        }
         
         toast({
           title: "Login Successful",
           description: "Welcome back!",
         });
 
-        const from = location.state?.from?.pathname || "/";
-        console.log("Login: Redirecting to:", from);
-        navigate(from, { replace: true });
+        // Always redirect to landing page after successful login
+        navigate("/", { replace: true });
       } else {
         console.log("Login: Authentication failed - invalid credentials");
         toast({

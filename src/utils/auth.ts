@@ -4,20 +4,19 @@ export const getStoredUser = () => {
   return user ? JSON.parse(user) : null;
 };
 
-export const setStoredUser = (username: string) => {
-  console.log("Auth: Storing user:", username);
-  sessionStorage.setItem("user", JSON.stringify({ username }));
-};
-
 export const validateCredentials = (username: string, password: string) => {
   console.log("Auth: Validating credentials for username:", username);
   const testUsers = [
-    { username: "admin", password: "testpass123" },
-    { username: "admin1", password: "testpass123" },
-    { username: "admin2", password: "testpass123" },
+    { username: "admin", password: "testpass123", id: "00000000-0000-0000-0000-000000000000" },
+    { username: "admin1", password: "testpass123", id: "00000000-0000-0000-0000-000000000001" },
+    { username: "admin2", password: "testpass123", id: "00000000-0000-0000-0000-000000000002" },
   ];
   
   return testUsers.find(
     (u) => u.username === username && u.password === password
   );
+};
+
+export const getUserRole = () => {
+  return sessionStorage.getItem("userRole") || 'user';
 };

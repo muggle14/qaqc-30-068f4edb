@@ -9,13 +9,24 @@ import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+interface PrivateRouteProps {
+  children: React.ReactNode;
+  requiredRole?: 'admin' | 'user';
+}
+
+const PrivateRoute = ({ children, requiredRole }: PrivateRouteProps) => {
   const location = useLocation();
   const user = sessionStorage.getItem("user");
+  const userRole = sessionStorage.getItem("userRole");
   
   if (!user) {
     console.log("PrivateRoute: No user found, redirecting to login");
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (requiredRole && userRole !== requiredRole) {
+    console.log(`PrivateRoute: User does not have required role ${requiredRole}, redirecting to home`);
+    return <Navigate to="/" replace />;
   }
 
   console.log("PrivateRoute: User authenticated, rendering protected content");
@@ -41,7 +52,7 @@ const App = () => (
           <Route
             path="/admin"
             element={
-              <PrivateRoute>
+              <PrivateRoute requiredRole="admin">
                 <Admin />
               </PrivateRoute>
             }
