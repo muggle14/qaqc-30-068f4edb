@@ -14,14 +14,22 @@ export const FileUpload = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Reset error state at the start of upload
+    setError(null);
+
     // Check file type
-    if (!file.name.endsWith('.csv') && !file.name.endsWith('.json')) {
+    const fileType = file.name.toLowerCase();
+    if (!fileType.endsWith('.csv') && !fileType.endsWith('.json')) {
       setError("Please upload a CSV or JSON file");
+      toast({
+        variant: "destructive",
+        title: "Invalid file type",
+        description: "Please upload a CSV or JSON file",
+      });
       return;
     }
 
     setIsUploading(true);
-    setError(null);
 
     try {
       const user = await supabase.auth.getUser();
@@ -37,7 +45,7 @@ export const FileUpload = () => {
         let data: Array<{ contactId: string, evaluator: string }> = [];
 
         try {
-          if (file.name.endsWith('.json')) {
+          if (fileType.endsWith('.json')) {
             data = JSON.parse(text as string);
           } else {
             // Basic CSV parsing
@@ -72,6 +80,11 @@ export const FileUpload = () => {
         } catch (parseError) {
           console.error("Error processing file:", parseError);
           setError("Error processing file. Please check the format.");
+          toast({
+            variant: "destructive",
+            title: "Upload Failed",
+            description: "Error processing file. Please check the format.",
+          });
         }
       };
 
@@ -80,6 +93,11 @@ export const FileUpload = () => {
     } catch (error) {
       console.error("Upload error:", error);
       setError("Error uploading file. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Upload Failed",
+        description: "Error uploading file. Please try again.",
+      });
     } finally {
       setIsUploading(false);
     }
@@ -88,7 +106,7 @@ export const FileUpload = () => {
   return (
     <div className="space-y-4">
       {error && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -96,7 +114,7 @@ export const FileUpload = () => {
       
       <Button 
         disabled={isUploading}
-        className="gap-2"
+        className="w-full sm:w-auto"
       >
         {isUploading ? (
           <>
