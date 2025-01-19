@@ -1,54 +1,42 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { testUsers } from "@/config/authConfig";
-import { Lock, User, LogIn } from "lucide-react";
+import LoginForm from "@/components/auth/LoginForm";
+import { getStoredUser, setStoredUser, validateCredentials } from "@/utils/auth";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
 
+  // Check authentication status on mount and location changes
   useEffect(() => {
-    console.log("Login: Checking authentication status");
-    const checkAuth = () => {
-      const user = sessionStorage.getItem("user");
-      if (user) {
-        console.log("Login: User already authenticated, checking redirect path");
-        const from = location.state?.from?.pathname || "/";
-        console.log("Login: Redirecting authenticated user to:", from);
-        navigate(from, { replace: true });
-      } else {
-        console.log("Login: No authenticated user found, showing login form");
-      }
-    };
+    console.log("Login: Component mounted, checking auth status");
+    const user = getStoredUser();
+    
+    if (user) {
+      const from = location.state?.from?.pathname || "/";
+      console.log("Login: User found, redirecting to:", from);
+      navigate(from, { replace: true });
+    }
 
-    checkAuth();
-    // Clean up any pending navigation when component unmounts
     return () => {
-      console.log("Login: Cleanup - component unmounting");
+      console.log("Login: Component unmounting");
     };
-  }, [navigate, location]); // Restore dependency array
+  }, [location, navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (username: string, password: string) => {
+    console.log("Login: Attempting login for username:", username);
     setIsLoading(true);
 
     try {
-      console.log("Login: Attempting login for username:", username);
-      const user = testUsers.find(
-        (u) => u.username === username && u.password === password
-      );
+      const user = validateCredentials(username, password);
 
       if (user) {
-        console.log("Login: Authentication successful, storing user data");
-        sessionStorage.setItem("user", JSON.stringify({ username }));
+        console.log("Login: Authentication successful");
+        setStoredUser(username);
         
         toast({
           title: "Login Successful",
@@ -94,50 +82,7 @@ const Login = () => {
             <p className="text-canvas-muted">Sign in to continue</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-5 w-5 text-canvas-muted" />
-                <Input
-                  type="text"
-                  placeholder="Username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-5 w-5 text-canvas-muted" />
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-tool-primary hover:bg-tool-hover"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                "Signing in..."
-              ) : (
-                <>
-                  <LogIn className="mr-2" />
-                  Sign In
-                </>
-              )}
-            </Button>
-          </form>
+          <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
         </div>
       </motion.div>
     </div>
