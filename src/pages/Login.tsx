@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { testUsers } from "@/config/authConfig";
 import { Lock, User, LogIn } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -19,24 +18,27 @@ const Login = () => {
   useEffect(() => {
     const user = sessionStorage.getItem("user");
     if (user) {
+      console.log("Login: User already authenticated, checking redirect path");
       const from = location.state?.from?.pathname || "/";
-      console.log("User already authenticated, redirecting to:", from);
+      console.log("Login: Redirecting authenticated user to:", from);
       navigate(from, { replace: true });
+    } else {
+      console.log("Login: No authenticated user found, showing login form");
     }
-  }, [navigate, location]);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      console.log("Attempting login with:", username);
+      console.log("Login: Attempting login for username:", username);
       const user = testUsers.find(
         (u) => u.username === username && u.password === password
       );
 
       if (user) {
-        console.log("Login successful, storing user data");
+        console.log("Login: Authentication successful, storing user data");
         sessionStorage.setItem("user", JSON.stringify({ username }));
         
         toast({
@@ -45,10 +47,10 @@ const Login = () => {
         });
 
         const from = location.state?.from?.pathname || "/";
-        console.log("Login successful, redirecting to:", from);
+        console.log("Login: Redirecting to:", from);
         navigate(from, { replace: true });
       } else {
-        console.log("Login failed: Invalid credentials");
+        console.log("Login: Authentication failed - invalid credentials");
         toast({
           title: "Login Failed",
           description: "Invalid credentials. Please try again.",
@@ -56,7 +58,7 @@ const Login = () => {
         });
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login: Error during authentication:", error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",

@@ -14,11 +14,11 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const user = sessionStorage.getItem("user");
   
   if (!user) {
-    console.log("No user found in session, redirecting to login with location:", location);
+    console.log("PrivateRoute: No user found, redirecting to login from:", location.pathname);
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  console.log("User authenticated, rendering protected route");
+  console.log("PrivateRoute: User authenticated, rendering route:", location.pathname);
   return <>{children}</>;
 };
 
