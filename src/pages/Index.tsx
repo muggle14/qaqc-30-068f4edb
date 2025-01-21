@@ -12,9 +12,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+interface EvaluatorStats {
+  [key: string]: number;
+}
+
+interface LatestUploadData {
+  upload_timestamp: string;
+  admin_id: string | null;
+  totalRecords: number;
+  evaluatorStats: EvaluatorStats;
+}
+
 const Index = () => {
   // Query to fetch the latest upload details and statistics
-  const { data: latestUpload } = useQuery({
+  const { data: latestUpload } = useQuery<LatestUploadData>({
     queryKey: ['latest-upload'],
     queryFn: async () => {
       // Fetch the latest upload timestamp
@@ -44,7 +55,7 @@ const Index = () => {
       }
 
       // Calculate evaluator statistics
-      const evaluatorStats = records.reduce((acc, curr) => {
+      const evaluatorStats = records.reduce<EvaluatorStats>((acc, curr) => {
         acc[curr.evaluator] = (acc[curr.evaluator] || 0) + 1;
         return acc;
       }, {});
@@ -109,7 +120,7 @@ const Index = () => {
                     {Object.entries(latestUpload.evaluatorStats).map(([evaluator, count]) => (
                       <TableRow key={evaluator}>
                         <TableCell>{evaluator}</TableCell>
-                        <TableCell className="text-right">{count}</TableCell>
+                        <TableCell className="text-right">{count.toString()}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
