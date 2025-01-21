@@ -11,9 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
-import { ExternalLink, ArrowUpDown } from "lucide-react";
+import { ExternalLink, ArrowUpDown, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface JoinedData {
   contact_id: string;
@@ -157,16 +158,26 @@ const Index = () => {
                     : "Not updated"}
                 </TableCell>
                 <TableCell className="max-w-md">
-                  <HoverCard>
-                    <HoverCardTrigger className="truncate cursor-help">
-                      {row.transcript || "No transcript"}
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80 text-sm">
-                      <div className="max-h-60 overflow-y-auto whitespace-pre-wrap">
-                        {row.transcript || "No transcript available"}
-                      </div>
-                    </HoverCardContent>
-                  </HoverCard>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-between px-2 gap-2 h-8"
+                      >
+                        <span className="truncate">
+                          {row.transcript || "No transcript"}
+                        </span>
+                        <Eye className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-4">
+                      <ScrollArea className="h-[300px] rounded-md border p-4">
+                        <div className="text-sm whitespace-pre-wrap">
+                          {row.transcript || "No transcript available"}
+                        </div>
+                      </ScrollArea>
+                    </PopoverContent>
+                  </Popover>
                 </TableCell>
               </TableRow>
             ))}
