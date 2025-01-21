@@ -9,6 +9,35 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      contact_conversations: {
+        Row: {
+          contact_id: string
+          created_at: string
+          id: string
+          transcript: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          id?: string
+          transcript: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          id?: string
+          transcript?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_contact_id"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "upload_details"
+            referencedColumns: ["contact_id"]
+          },
+        ]
+      }
       upload_details: {
         Row: {
           admin_id: string | null
