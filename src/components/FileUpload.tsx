@@ -16,27 +16,34 @@ export const FileUpload = () => {
 
     // Reset error state at the start of upload
     setError(null);
-
-    // Check file type
-    const fileType = file.name.toLowerCase();
-    if (!fileType.endsWith('.csv') && !fileType.endsWith('.json')) {
-      setError("Please upload a CSV or JSON file");
-      toast({
-        variant: "destructive",
-        title: "Invalid file type",
-        description: "Please upload a CSV or JSON file",
-      });
-      return;
-    }
-
     setIsUploading(true);
 
     try {
-      const user = await supabase.auth.getUser();
-      const adminId = user.data.user?.id;
+      // Check authentication first
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error("Auth error:", authError);
+        throw new Error("Authentication failed");
+      }
 
-      if (!adminId) {
+      if (!user) {
+        console.error("No user found");
         throw new Error("User not authenticated");
+      }
+
+      console.log("User authenticated:", user.id);
+
+      // Check file type
+      const fileType = file.name.toLowerCase();
+      if (!fileType.endsWith('.csv') && !fileType.endsWith('.json')) {
+        setError("Please upload a CSV or JSON file");
+        toast({
+          variant: "destructive",
+          title: "Invalid file type",
+          description: "Please upload a CSV or JSON file",
+        });
+        return;
       }
 
       const reader = new FileReader();
@@ -45,6 +52,8 @@ export const FileUpload = () => {
         let data: Array<{ contactId: string, evaluator: string }> = [];
 
         try {
+          console.log("Processing file:", fileType);
+          
           if (fileType.endsWith('.json')) {
             data = JSON.parse(text as string);
           } else {
@@ -61,17 +70,23 @@ export const FileUpload = () => {
             });
           }
 
+          console.log("Parsed data:", data.length, "records");
+
           // Insert data into Supabase
           const { error: uploadError } = await supabase
             .from('upload_details')
             .insert(data.map(item => ({
               contact_id: item.contactId,
               evaluator: item.evaluator,
-              admin_id: adminId,
+              admin_id: user.id,
             })));
 
-          if (uploadError) throw uploadError;
+          if (uploadError) {
+            console.error("Supabase upload error:", uploadError);
+            throw uploadError;
+          }
 
+          console.log("Upload successful");
           toast({
             title: "Upload Successful",
             description: `Processed ${data.length} records`,
@@ -96,7 +111,7 @@ export const FileUpload = () => {
       toast({
         variant: "destructive",
         title: "Upload Failed",
-        description: "Error uploading file. Please try again.",
+        description: error.message || "Error uploading file. Please try again.",
       });
     } finally {
       setIsUploading(false);
