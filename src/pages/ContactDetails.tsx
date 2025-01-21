@@ -9,71 +9,67 @@ import { LoadingState } from "@/components/contact-details/LoadingState";
 import { NotFoundState } from "@/components/contact-details/NotFoundState";
 
 const ContactDetails = () => {
-  const { contactId } = useParams<{ contactId: string }>();
+  const params = useParams<{ contactId: string }>();
+  const contactId = params.contactId;
 
   console.log("Contact ID from params:", contactId);
 
-  // Early return if contactId is invalid
+  // If contactId is invalid, return early
   if (!contactId || contactId === ":contactId") {
     console.log("Invalid contact ID, showing NotFoundState");
     return <NotFoundState />;
   }
 
+  // Only create the query if we have a valid contactId
   const { data: contactDetails, isLoading } = useQuery({
     queryKey: ["contact-details", contactId],
     queryFn: async () => {
       console.log("Starting data fetch for contact ID:", contactId);
       
-      try {
-        // First fetch upload details
-        const { data: uploadDetails, error: uploadError } = await supabase
-          .from("upload_details")
-          .select()
-          .eq("contact_id", contactId)
-          .maybeSingle();
+      // First fetch upload details
+      const { data: uploadDetails, error: uploadError } = await supabase
+        .from("upload_details")
+        .select()
+        .eq("contact_id", contactId)
+        .maybeSingle();
 
-        console.log("Upload details response:", { data: uploadDetails, error: uploadError });
+      console.log("Upload details response:", { data: uploadDetails, error: uploadError });
 
-        if (uploadError) {
-          console.error("Error fetching upload details:", uploadError);
-          throw uploadError;
-        }
-
-        if (!uploadDetails) {
-          console.log("No upload details found for contact:", contactId);
-          return null;
-        }
-
-        // Then fetch conversation details
-        const { data: conversation, error: conversationError } = await supabase
-          .from("contact_conversations")
-          .select()
-          .eq("contact_id", contactId)
-          .maybeSingle();
-
-        console.log("Conversation response:", { data: conversation, error: conversationError });
-
-        if (conversationError) {
-          console.error("Error fetching conversation:", conversationError);
-          throw conversationError;
-        }
-
-        const result = {
-          contact_id: uploadDetails.contact_id,
-          evaluator: uploadDetails.evaluator,
-          upload_timestamp: uploadDetails.upload_timestamp,
-          updated_at: conversation?.updated_at || null,
-          transcript: conversation?.transcript || null,
-        };
-
-        console.log("Returning formatted result:", result);
-        return result;
-      } catch (error) {
-        console.error("Error in data fetching:", error);
-        throw error;
+      if (uploadError) {
+        console.error("Error fetching upload details:", uploadError);
+        throw uploadError;
       }
+
+      if (!uploadDetails) {
+        console.log("No upload details found for contact:", contactId);
+        return null;
+      }
+
+      // Then fetch conversation details
+      const { data: conversation, error: conversationError } = await supabase
+        .from("contact_conversations")
+        .select()
+        .eq("contact_id", contactId)
+        .maybeSingle();
+
+      console.log("Conversation response:", { data: conversation, error: conversationError });
+
+      if (conversationError) {
+        console.error("Error fetching conversation:", conversationError);
+        throw conversationError;
+      }
+
+      const result = {
+        contact_id: uploadDetails.contact_id,
+        evaluator: uploadDetails.evaluator,
+        upload_timestamp: uploadDetails.upload_timestamp,
+        updated_at: conversation?.updated_at || null,
+        transcript: conversation?.transcript || null,
+      };
+
+      console.log("Returning formatted result:", result);
+      return result;
     },
-    enabled: true, // Always enabled since we check contactId validity above
   });
 
   console.log("Query result:", { isLoading, contactDetails });
