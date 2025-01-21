@@ -4,22 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Upload, FileUp, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const FileUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Reset error state at the start of upload
     setError(null);
     setIsUploading(true);
 
     try {
-      // Check file type
       const fileType = file.name.toLowerCase();
       if (!fileType.endsWith('.csv') && !fileType.endsWith('.json')) {
         setError("Please upload a CSV or JSON file");
@@ -41,17 +41,14 @@ export const FileUpload = () => {
           
           if (fileType.endsWith('.json')) {
             const parsedData = JSON.parse(text as string);
-            // Validate JSON data
             data = parsedData.map((item: any) => ({
               contactId: item.contactId?.toString() || '',
               evaluator: item.evaluator?.toString() || '',
-            })).filter(item => item.contactId && item.evaluator); // Filter out invalid entries
+            })).filter(item => item.contactId && item.evaluator);
           } else {
-            // Enhanced CSV parsing with validation
-            const rows = (text as string).split('\n').filter(row => row.trim()); // Remove empty lines
+            const rows = (text as string).split('\n').filter(row => row.trim());
             const headers = rows[0].toLowerCase().split(',').map(h => h.trim());
             
-            // Validate headers
             const contactIdIndex = headers.indexOf('contactid');
             const evaluatorIndex = headers.indexOf('evaluator');
             
@@ -67,7 +64,7 @@ export const FileUpload = () => {
                   evaluator: values[evaluatorIndex]?.toString() || '',
                 };
               })
-              .filter(item => item.contactId && item.evaluator); // Filter out invalid entries
+              .filter(item => item.contactId && item.evaluator);
           }
 
           if (data.length === 0) {
@@ -76,7 +73,6 @@ export const FileUpload = () => {
 
           console.log("Parsed data:", data.length, "records");
 
-          // Insert data into Supabase with admin_id as null
           const { error: uploadError } = await supabase
             .from('upload_details')
             .insert(
@@ -97,6 +93,9 @@ export const FileUpload = () => {
             title: "Upload Successful",
             description: `Processed ${data.length} records`,
           });
+
+          // Refresh the latest upload query
+          queryClient.invalidateQueries({ queryKey: ['latest-upload'] });
 
         } catch (parseError) {
           console.error("Error processing file:", parseError);
