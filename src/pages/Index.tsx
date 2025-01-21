@@ -171,7 +171,7 @@ const Index = () => {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[400px] p-4 bg-canvas-bg border-canvas-border">
-                      <ScrollArea className="h-[300px] rounded-md border border-canvas-border bg-white p-4">
+                      <ScrollArea className="h-[300px] rounded-md border border-canvas-border bg-white p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                         <div className="text-sm text-canvas-text whitespace-pre-wrap">
                           {row.transcript || "No transcript available"}
                         </div>
