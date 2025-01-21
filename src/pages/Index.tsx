@@ -13,6 +13,7 @@ import {
 import { format } from "date-fns";
 import { ExternalLink, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 interface JoinedData {
   contact_id: string;
@@ -155,8 +156,17 @@ const Index = () => {
                     ? format(new Date(row.updated_at), "PPp")
                     : "Not updated"}
                 </TableCell>
-                <TableCell className="max-w-md truncate">
-                  {row.transcript || "No transcript"}
+                <TableCell className="max-w-md">
+                  <HoverCard>
+                    <HoverCardTrigger className="truncate cursor-help">
+                      {row.transcript || "No transcript"}
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-80 text-sm">
+                      <div className="max-h-60 overflow-y-auto whitespace-pre-wrap">
+                        {row.transcript || "No transcript available"}
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
                 </TableCell>
               </TableRow>
             ))}
