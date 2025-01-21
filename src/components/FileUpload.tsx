@@ -57,13 +57,16 @@ export const FileUpload = () => {
 
           console.log("Parsed data:", data.length, "records");
 
-          // Insert data into Supabase without requiring admin_id
+          // Insert data into Supabase with admin_id as null
           const { error: uploadError } = await supabase
             .from('upload_details')
-            .insert(data.map(item => ({
-              contact_id: item.contactId,
-              evaluator: item.evaluator,
-            })));
+            .insert(
+              data.map(item => ({
+                contact_id: item.contactId,
+                evaluator: item.evaluator,
+                admin_id: null // Explicitly set as null since we made it nullable
+              }))
+            );
 
           if (uploadError) {
             console.error("Supabase upload error:", uploadError);

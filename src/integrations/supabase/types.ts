@@ -11,19 +11,19 @@ export type Database = {
     Tables: {
       upload_details: {
         Row: {
-          admin_id: string
+          admin_id: string | null
           contact_id: string
           evaluator: string
           upload_timestamp: string
         }
         Insert: {
-          admin_id: string
+          admin_id?: string | null
           contact_id: string
           evaluator: string
           upload_timestamp?: string
         }
         Update: {
-          admin_id?: string
+          admin_id?: string | null
           contact_id?: string
           evaluator?: string
           upload_timestamp?: string
