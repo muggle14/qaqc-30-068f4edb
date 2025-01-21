@@ -14,6 +14,10 @@ const ContactDetails = () => {
   const { data: contactDetails, isLoading } = useQuery({
     queryKey: ["contact-details", contactId],
     queryFn: async () => {
+      if (!contactId) {
+        throw new Error("Contact ID is required");
+      }
+
       console.log("Fetching contact details for:", contactId);
       
       const { data: conversations, error: conversationsError } = await supabase
@@ -39,7 +43,8 @@ const ContactDetails = () => {
       }
 
       if (!uploadDetails) {
-        throw new Error("Contact not found");
+        console.log("No upload details found for contact:", contactId);
+        return null;
       }
 
       return {
@@ -48,6 +53,7 @@ const ContactDetails = () => {
         upload_timestamp: uploadDetails.upload_timestamp,
       };
     },
+    enabled: !!contactId, // Only run query if contactId exists
   });
 
   if (isLoading) {
