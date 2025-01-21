@@ -162,7 +162,7 @@ const Index = () => {
                     <PopoverTrigger asChild>
                       <Button 
                         variant="ghost" 
-                        className="w-full justify-between px-2 gap-2 h-8"
+                        className="w-full justify-between px-2 gap-2 h-8 hover:bg-gray-100"
                       >
                         <span className="truncate">
                           {row.transcript || "No transcript"}
@@ -170,9 +170,9 @@ const Index = () => {
                         <Eye className="h-4 w-4 shrink-0 text-muted-foreground" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-4">
-                      <ScrollArea className="h-[300px] rounded-md border p-4">
-                        <div className="text-sm whitespace-pre-wrap">
+                    <PopoverContent className="w-[400px] p-4 bg-canvas-bg border-canvas-border">
+                      <ScrollArea className="h-[300px] rounded-md border border-canvas-border bg-white p-4">
+                        <div className="text-sm text-canvas-text whitespace-pre-wrap">
                           {row.transcript || "No transcript available"}
                         </div>
                       </ScrollArea>
