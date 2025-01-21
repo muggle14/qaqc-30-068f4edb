@@ -28,6 +28,7 @@ const Index = () => {
   const { data: latestUpload } = useQuery<LatestUploadData>({
     queryKey: ['latest-upload'],
     queryFn: async () => {
+      console.log("Fetching latest upload details...");
       // Fetch the latest upload timestamp
       const { data: latest, error: latestError } = await supabase
         .from('upload_details')
@@ -43,6 +44,8 @@ const Index = () => {
 
       if (!latest) return null;
 
+      console.log("Latest upload found:", latest);
+
       // Fetch all records from the latest upload
       const { data: records, error: recordsError } = await supabase
         .from('upload_details')
@@ -54,18 +57,23 @@ const Index = () => {
         throw recordsError;
       }
 
+      console.log("Found records:", records.length);
+
       // Calculate evaluator statistics
       const evaluatorStats = records.reduce<EvaluatorStats>((acc, curr) => {
         acc[curr.evaluator] = (acc[curr.evaluator] || 0) + 1;
         return acc;
       }, {});
 
+      console.log("Calculated evaluator stats:", evaluatorStats);
+
       return {
         ...latest,
         totalRecords: records.length,
         evaluatorStats
       };
-    }
+    },
+    refetchInterval: 5000, // Refetch every 5 seconds to keep data fresh
   });
 
   return (
