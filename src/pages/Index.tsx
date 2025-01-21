@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, ArrowUpDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface JoinedData {
   contact_id: string;
@@ -20,8 +22,13 @@ interface JoinedData {
   updated_at: string | null;
 }
 
+type SortField = 'upload_timestamp' | 'updated_at';
+type SortOrder = 'asc' | 'desc';
+
 const Index = () => {
   const navigate = useNavigate();
+  const [sortField, setSortField] = useState<SortField>('upload_timestamp');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const { data: joinedData, isLoading } = useQuery({
     queryKey: ["joined-data"],
@@ -59,6 +66,27 @@ const Index = () => {
     },
   });
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
+  const sortedData = joinedData ? [...joinedData].sort((a, b) => {
+    const aValue = a[sortField];
+    const bValue = b[sortField];
+
+    if (!aValue && !bValue) return 0;
+    if (!aValue) return 1;
+    if (!bValue) return -1;
+
+    const comparison = new Date(aValue).getTime() - new Date(bValue).getTime();
+    return sortOrder === 'asc' ? comparison : -comparison;
+  }) : [];
+
   const handleRowClick = (contactId: string) => {
     console.log("Navigating to contact details:", contactId);
     navigate(`/contact/${contactId}`);
@@ -82,13 +110,31 @@ const Index = () => {
             <TableRow>
               <TableHead>Contact ID</TableHead>
               <TableHead>Evaluator</TableHead>
-              <TableHead>Upload Date</TableHead>
-              <TableHead>Last Updated</TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('upload_timestamp')}
+                  className="h-8 flex items-center gap-1"
+                >
+                  Upload Date
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleSort('updated_at')}
+                  className="h-8 flex items-center gap-1"
+                >
+                  Last Updated
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
+              </TableHead>
               <TableHead>Transcript Preview</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {joinedData?.map((row) => (
+            {sortedData.map((row) => (
               <TableRow 
                 key={row.contact_id}
                 className="cursor-pointer hover:bg-gray-50"
