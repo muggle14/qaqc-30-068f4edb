@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
+import ContactDetails from "./pages/ContactDetails";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,14 @@ const App = () => (
             element={
               <PrivateRoute>
                 <Admin />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/contact/:contactId"
+            element={
+              <PrivateRoute>
+                <ContactDetails />
               </PrivateRoute>
             }
           />

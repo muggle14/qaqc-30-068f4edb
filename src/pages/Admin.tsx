@@ -25,6 +25,7 @@ interface ConversationData {
   contact_id: string;
   transcript: string;
   created_at: string;
+  updated_at: string | null;
 }
 
 const Admin = () => {
@@ -124,6 +125,10 @@ const Admin = () => {
     }
   };
 
+  const handleRowClick = (contactId: string) => {
+    navigate(`/contact/${contactId}`);
+  };
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
@@ -158,7 +163,11 @@ const Admin = () => {
             </TableHeader>
             <TableBody>
               {contacts.map((contact) => (
-                <TableRow key={contact.contactId}>
+                <TableRow 
+                  key={contact.contactId}
+                  className="cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleRowClick(contact.contactId)}
+                >
                   <TableCell>{contact.contactId}</TableCell>
                   <TableCell>
                     <span
@@ -188,17 +197,27 @@ const Admin = () => {
                 <TableHead>Contact ID</TableHead>
                 <TableHead>Transcript</TableHead>
                 <TableHead>Created At</TableHead>
+                <TableHead>Updated At</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {conversations.map((conversation) => (
-                <TableRow key={conversation.id}>
+                <TableRow 
+                  key={conversation.id}
+                  className="cursor-pointer hover:bg-gray-50"
+                  onClick={() => handleRowClick(conversation.contact_id)}
+                >
                   <TableCell>{conversation.contact_id}</TableCell>
                   <TableCell className="whitespace-pre-wrap max-w-xl">
                     {conversation.transcript}
                   </TableCell>
                   <TableCell>
                     {new Date(conversation.created_at).toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    {conversation.updated_at 
+                      ? new Date(conversation.updated_at).toLocaleString()
+                      : 'N/A'}
                   </TableCell>
                 </TableRow>
               ))}
