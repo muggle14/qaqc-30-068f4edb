@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
 interface ContactData {
   contactId: string;
@@ -20,17 +21,17 @@ interface ContactData {
   timestamp: string;
 }
 
-interface ConversationData {
-  id: string;
+interface CombinedContactData {
   contact_id: string;
-  transcript: string;
-  created_at: string;
+  evaluator: string;
+  upload_timestamp: string;
+  transcript: string | null;
   updated_at: string | null;
 }
 
 const Admin = () => {
   const [contacts, setContacts] = useState<ContactData[]>([]);
-  const [conversations, setConversations] = useState<ConversationData[]>([]);
+  const [combinedData, setCombinedData] = useState<CombinedContactData[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -42,31 +43,49 @@ const Admin = () => {
   }
 
   useEffect(() => {
-    const fetchConversations = async () => {
+    const fetchCombinedData = async () => {
       try {
-        console.log("Fetching conversations...");
+        console.log("Fetching combined data...");
         const { data, error } = await supabase
-          .from('contact_conversations')
-          .select('*');
+          .from('upload_details')
+          .select(`
+            contact_id,
+            evaluator,
+            upload_timestamp,
+            contact_conversations (
+              transcript,
+              updated_at
+            )
+          `);
         
         if (error) {
-          console.error("Error fetching conversations:", error);
+          console.error("Error fetching combined data:", error);
           toast({
             title: "Error",
-            description: "Failed to fetch conversations",
+            description: "Failed to fetch contact data",
             variant: "destructive",
           });
           return;
         }
 
-        console.log("Fetched conversations:", data);
-        setConversations(data);
+        console.log("Fetched combined data:", data);
+        
+        // Transform the data to flatten the structure
+        const transformedData = data.map(item => ({
+          contact_id: item.contact_id,
+          evaluator: item.evaluator,
+          upload_timestamp: item.upload_timestamp,
+          transcript: item.contact_conversations?.[0]?.transcript || null,
+          updated_at: item.contact_conversations?.[0]?.updated_at || null,
+        }));
+
+        setCombinedData(transformedData);
       } catch (error) {
-        console.error("Error in fetchConversations:", error);
+        console.error("Error in fetchCombinedData:", error);
       }
     };
 
-    fetchConversations();
+    fetchCombinedData();
   }, []);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,6 +145,7 @@ const Admin = () => {
   };
 
   const handleRowClick = (contactId: string) => {
+    console.log("Navigating to contact details:", contactId);
     navigate(`/contact/${contactId}`);
   };
 
@@ -148,82 +168,42 @@ const Admin = () => {
         </Button>
       </div>
 
-      <div className="space-y-8">
-        {/* Contacts Table */}
-        <div className="rounded-md border">
-          <h2 className="text-xl font-semibold p-4">Contacts</h2>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Contact ID</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Queue Details</TableHead>
-                <TableHead>Timestamp</TableHead>
+      <div className="rounded-md border">
+        <h2 className="text-xl font-semibold p-4">Contact Records</h2>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Contact ID</TableHead>
+              <TableHead>Evaluator</TableHead>
+              <TableHead>Upload Date</TableHead>
+              <TableHead>Last Updated</TableHead>
+              <TableHead>Transcript Preview</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {combinedData.map((contact) => (
+              <TableRow 
+                key={contact.contact_id}
+                className="cursor-pointer hover:bg-gray-50"
+                onClick={() => handleRowClick(contact.contact_id)}
+              >
+                <TableCell>{contact.contact_id}</TableCell>
+                <TableCell>{contact.evaluator}</TableCell>
+                <TableCell>
+                  {format(new Date(contact.upload_timestamp), "PPp")}
+                </TableCell>
+                <TableCell>
+                  {contact.updated_at 
+                    ? format(new Date(contact.updated_at), "PPp")
+                    : "Not updated"}
+                </TableCell>
+                <TableCell className="max-w-md truncate">
+                  {contact.transcript || "No transcript"}
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {contacts.map((contact) => (
-                <TableRow 
-                  key={contact.contactId}
-                  className="cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleRowClick(contact.contactId)}
-                >
-                  <TableCell>{contact.contactId}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        contact.status === "reviewed"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {contact.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>{contact.queueDetails}</TableCell>
-                  <TableCell>{contact.timestamp}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-
-        {/* Conversations Table */}
-        <div className="rounded-md border">
-          <h2 className="text-xl font-semibold p-4">Conversations</h2>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Contact ID</TableHead>
-                <TableHead>Transcript</TableHead>
-                <TableHead>Created At</TableHead>
-                <TableHead>Updated At</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {conversations.map((conversation) => (
-                <TableRow 
-                  key={conversation.id}
-                  className="cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleRowClick(conversation.contact_id)}
-                >
-                  <TableCell>{conversation.contact_id}</TableCell>
-                  <TableCell className="whitespace-pre-wrap max-w-xl">
-                    {conversation.transcript}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(conversation.created_at).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    {conversation.updated_at 
-                      ? new Date(conversation.updated_at).toLocaleString()
-                      : 'N/A'}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
