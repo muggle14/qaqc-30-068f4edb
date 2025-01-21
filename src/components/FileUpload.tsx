@@ -19,21 +19,6 @@ export const FileUpload = () => {
     setIsUploading(true);
 
     try {
-      // Check authentication first
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError) {
-        console.error("Auth error:", authError);
-        throw new Error("Authentication failed");
-      }
-
-      if (!user) {
-        console.error("No user found");
-        throw new Error("User not authenticated");
-      }
-
-      console.log("User authenticated:", user.id);
-
       // Check file type
       const fileType = file.name.toLowerCase();
       if (!fileType.endsWith('.csv') && !fileType.endsWith('.json')) {
@@ -72,13 +57,12 @@ export const FileUpload = () => {
 
           console.log("Parsed data:", data.length, "records");
 
-          // Insert data into Supabase
+          // Insert data into Supabase without requiring admin_id
           const { error: uploadError } = await supabase
             .from('upload_details')
             .insert(data.map(item => ({
               contact_id: item.contactId,
               evaluator: item.evaluator,
-              admin_id: user.id,
             })));
 
           if (uploadError) {
