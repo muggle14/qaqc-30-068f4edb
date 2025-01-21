@@ -14,18 +14,21 @@ export type Database = {
           admin_id: string | null
           contact_id: string
           evaluator: string
+          id: string
           upload_timestamp: string
         }
         Insert: {
           admin_id?: string | null
           contact_id: string
           evaluator: string
+          id?: string
           upload_timestamp?: string
         }
         Update: {
           admin_id?: string | null
           contact_id?: string
           evaluator?: string
+          id?: string
           upload_timestamp?: string
         }
         Relationships: []

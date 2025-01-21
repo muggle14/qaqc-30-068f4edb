@@ -40,19 +40,38 @@ export const FileUpload = () => {
           console.log("Processing file:", fileType);
           
           if (fileType.endsWith('.json')) {
-            data = JSON.parse(text as string);
+            const parsedData = JSON.parse(text as string);
+            // Validate JSON data
+            data = parsedData.map((item: any) => ({
+              contactId: item.contactId?.toString() || '',
+              evaluator: item.evaluator?.toString() || '',
+            })).filter(item => item.contactId && item.evaluator); // Filter out invalid entries
           } else {
-            // Basic CSV parsing
-            const rows = (text as string).split('\n');
-            const headers = rows[0].split(',');
+            // Enhanced CSV parsing with validation
+            const rows = (text as string).split('\n').filter(row => row.trim()); // Remove empty lines
+            const headers = rows[0].toLowerCase().split(',').map(h => h.trim());
             
-            data = rows.slice(1).map(row => {
-              const values = row.split(',');
-              return {
-                contactId: values[0],
-                evaluator: values[1],
-              };
-            });
+            // Validate headers
+            const contactIdIndex = headers.indexOf('contactid');
+            const evaluatorIndex = headers.indexOf('evaluator');
+            
+            if (contactIdIndex === -1 || evaluatorIndex === -1) {
+              throw new Error("CSV must contain 'contactId' and 'evaluator' columns");
+            }
+
+            data = rows.slice(1)
+              .map(row => {
+                const values = row.split(',').map(v => v.trim());
+                return {
+                  contactId: values[contactIdIndex]?.toString() || '',
+                  evaluator: values[evaluatorIndex]?.toString() || '',
+                };
+              })
+              .filter(item => item.contactId && item.evaluator); // Filter out invalid entries
+          }
+
+          if (data.length === 0) {
+            throw new Error("No valid data found in file");
           }
 
           console.log("Parsed data:", data.length, "records");
@@ -64,7 +83,7 @@ export const FileUpload = () => {
               data.map(item => ({
                 contact_id: item.contactId,
                 evaluator: item.evaluator,
-                admin_id: null // Explicitly set as null since we made it nullable
+                admin_id: null
               }))
             );
 
@@ -81,11 +100,11 @@ export const FileUpload = () => {
 
         } catch (parseError) {
           console.error("Error processing file:", parseError);
-          setError("Error processing file. Please check the format.");
+          setError(parseError.message || "Error processing file. Please check the format.");
           toast({
             variant: "destructive",
             title: "Upload Failed",
-            description: "Error processing file. Please check the format.",
+            description: parseError.message || "Error processing file. Please check the format.",
           });
         }
       };
