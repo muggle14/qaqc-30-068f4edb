@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Table,
@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ContactData {
   contactId: string;
@@ -19,8 +20,16 @@ interface ContactData {
   timestamp: string;
 }
 
+interface ConversationData {
+  id: string;
+  contact_id: string;
+  transcript: string;
+  created_at: string;
+}
+
 const Admin = () => {
   const [contacts, setContacts] = useState<ContactData[]>([]);
+  const [conversations, setConversations] = useState<ConversationData[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -30,6 +39,34 @@ const Admin = () => {
     navigate("/");
     return null;
   }
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        console.log("Fetching conversations...");
+        const { data, error } = await supabase
+          .from('contact_conversations')
+          .select('*');
+        
+        if (error) {
+          console.error("Error fetching conversations:", error);
+          toast({
+            title: "Error",
+            description: "Failed to fetch conversations",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        console.log("Fetched conversations:", data);
+        setConversations(data);
+      } catch (error) {
+        console.error("Error in fetchConversations:", error);
+      }
+    };
+
+    fetchConversations();
+  }, []);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -106,37 +143,68 @@ const Admin = () => {
         </Button>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Contact ID</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Queue Details</TableHead>
-              <TableHead>Timestamp</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {contacts.map((contact) => (
-              <TableRow key={contact.contactId}>
-                <TableCell>{contact.contactId}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      contact.status === "reviewed"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {contact.status}
-                  </span>
-                </TableCell>
-                <TableCell>{contact.queueDetails}</TableCell>
-                <TableCell>{contact.timestamp}</TableCell>
+      <div className="space-y-8">
+        {/* Contacts Table */}
+        <div className="rounded-md border">
+          <h2 className="text-xl font-semibold p-4">Contacts</h2>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Contact ID</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Queue Details</TableHead>
+                <TableHead>Timestamp</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {contacts.map((contact) => (
+                <TableRow key={contact.contactId}>
+                  <TableCell>{contact.contactId}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        contact.status === "reviewed"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {contact.status}
+                    </span>
+                  </TableCell>
+                  <TableCell>{contact.queueDetails}</TableCell>
+                  <TableCell>{contact.timestamp}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Conversations Table */}
+        <div className="rounded-md border">
+          <h2 className="text-xl font-semibold p-4">Conversations</h2>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Contact ID</TableHead>
+                <TableHead>Transcript</TableHead>
+                <TableHead>Created At</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {conversations.map((conversation) => (
+                <TableRow key={conversation.id}>
+                  <TableCell>{conversation.contact_id}</TableCell>
+                  <TableCell className="whitespace-pre-wrap max-w-xl">
+                    {conversation.transcript}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(conversation.created_at).toLocaleString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
