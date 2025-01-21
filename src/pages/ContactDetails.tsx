@@ -9,12 +9,16 @@ import { LoadingState } from "@/components/contact-details/LoadingState";
 import { NotFoundState } from "@/components/contact-details/NotFoundState";
 
 const ContactDetails = () => {
-  const { contactId } = useParams();
+  const params = useParams<{ contactId: string }>();
+  const contactId = params.contactId;
+
+  console.log("Contact ID from params:", contactId); // Debug log
 
   const { data: contactDetails, isLoading } = useQuery({
     queryKey: ["contact-details", contactId],
     queryFn: async () => {
       if (!contactId) {
+        console.error("No contact ID provided");
         throw new Error("Contact ID is required");
       }
 
@@ -53,7 +57,7 @@ const ContactDetails = () => {
         upload_timestamp: uploadDetails.upload_timestamp,
       };
     },
-    enabled: !!contactId, // Only run query if contactId exists
+    enabled: !!contactId,
   });
 
   if (isLoading) {
