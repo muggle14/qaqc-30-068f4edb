@@ -7,7 +7,6 @@ import { OverallSummary } from "@/components/contact-details/OverallSummary";
 import { DetailedSummary } from "@/components/contact-details/DetailedSummary";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { AIAssessment } from "@/components/contact-details/AIAssessment";
-import { PhysicalDisabilityCard } from "@/components/contact-details/PhysicalDisabilityCard";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -102,9 +101,6 @@ const ContactDetails = () => {
               </CardContent>
             </Card>
 
-            <PhysicalDisabilityCard 
-              hasPhysicalDisability={assessmentData?.has_physical_disability || false} 
-            />
             <OverallSummary summary={overallSummary} />
             <DetailedSummary summaryPoints={detailedSummaryPoints} />
           </div>
