@@ -8,7 +8,7 @@ export const ContactInfo = ({
   evaluator,
 }: ContactInfoProps) => {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-4">
       <div>
         <h3 className="font-semibold text-sm text-gray-500">Contact ID</h3>
         <p>{contactId}</p>

@@ -27,21 +27,35 @@ const ContactDetails = () => {
 
   const { contactData } = state;
 
+  // Dummy summary for demonstration
+  const overallSummary = "Customer called regarding billing discrepancy on their recent invoice. Expressed frustration about unexpected charges. Agent provided detailed explanation of charges and offered to review the account for potential adjustments.";
+
   return (
     <div className="container mx-auto p-6">
       <ContactHeader />
       <div className="grid grid-cols-[1fr,2fr] gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Contact Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ContactInfo
-              contactId={contactData.contact_id}
-              evaluator={contactData.evaluator}
-            />
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ContactInfo
+                contactId={contactData.contact_id}
+                evaluator={contactData.evaluator}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Overall Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600">{overallSummary}</p>
+            </CardContent>
+          </Card>
+        </div>
 
         <Card className="h-[calc(100vh-12rem)]">
           <CardHeader>
