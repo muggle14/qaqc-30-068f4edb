@@ -1,4 +1,4 @@
-import { useLocation, Navigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ContactHeader } from "@/components/contact-details/ContactHeader";
@@ -46,12 +46,28 @@ const ContactDetails = () => {
     "Follow-up email confirmation was sent with all discussed details"
   ];
 
+  // Dummy complaints data
+  const complaints = [
+    "Billing transparency issues",
+    "Unexpected late payment fees",
+    "Communication gaps regarding payment due dates",
+    "Confusion about service charges"
+  ];
+
+  // Dummy vulnerability data
+  const vulnerabilities = [
+    "Customer showed signs of financial stress",
+    "Limited understanding of billing cycle",
+    "Expressed difficulty managing payment deadlines",
+    "Potential need for payment plan options"
+  ];
+
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 space-y-6">
       <ContactHeader />
       <div className="grid grid-cols-[1.2fr,1fr] gap-6">
-        <div className="space-y-6">
-          <Card className="w-full">
+        <div className="space-y-6 h-[calc(100vh-12rem)]">
+          <Card>
             <CardHeader>
               <CardTitle>Contact Details</CardTitle>
             </CardHeader>
@@ -63,7 +79,7 @@ const ContactDetails = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="flex-1">
             <CardHeader>
               <CardTitle>Overall Summary</CardTitle>
             </CardHeader>
@@ -72,7 +88,7 @@ const ContactDetails = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="flex-1">
             <CardHeader>
               <CardTitle>Detailed Summary</CardTitle>
             </CardHeader>
@@ -97,6 +113,38 @@ const ContactDetails = () => {
               <div className="space-y-6">
                 <TranscriptView transcript={contactData.transcript} />
               </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Complaints</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <ul className="list-disc pl-4 space-y-2">
+                {complaints.map((complaint, index) => (
+                  <li key={index} className="text-sm text-gray-600">{complaint}</li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Vulnerability</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <ul className="list-disc pl-4 space-y-2">
+                {vulnerabilities.map((vulnerability, index) => (
+                  <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
+                ))}
+              </ul>
             </ScrollArea>
           </CardContent>
         </Card>
