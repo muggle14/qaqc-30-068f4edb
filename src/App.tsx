@@ -8,7 +8,14 @@ import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import ContactDetails from "./pages/ContactDetails";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -52,7 +59,7 @@ const App = () => (
             }
           />
           <Route
-            path="/contact/:contactId"
+            path="/contact/view"
             element={
               <PrivateRoute>
                 <ContactDetails />

@@ -89,9 +89,12 @@ const Index = () => {
     return sortOrder === 'asc' ? comparison : -comparison;
   }) : [];
 
-  const handleRowClick = (contactId: string) => {
-    console.log("Navigating to contact details:", contactId);
-    navigate(`/contact/${contactId}`);
+  const handleRowClick = (contactData: JoinedData) => {
+    console.log("Navigating to contact details with state:", contactData);
+    navigate('/contact/view', { 
+      state: { contactData },
+      replace: true 
+    });
   };
 
   if (isLoading) {
@@ -143,7 +146,7 @@ const Index = () => {
               >
                 <TableCell 
                   className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-                  onClick={() => handleRowClick(row.contact_id)}
+                  onClick={() => handleRowClick(row)}
                 >
                   {row.contact_id}
                   <ExternalLink className="h-4 w-4" />
@@ -170,9 +173,9 @@ const Index = () => {
                         <Eye className="h-4 w-4 shrink-0 text-muted-foreground" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-4 bg-canvas-bg border-canvas-border">
-                      <ScrollArea className="h-[300px] rounded-md border border-canvas-border bg-white p-4 scrollbar scrollbar-track-gray-100 scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
-                        <div className="text-sm text-canvas-text whitespace-pre-wrap">
+                    <PopoverContent className="w-[400px] p-4">
+                      <ScrollArea className="h-[300px] rounded-md border p-4">
+                        <div className="text-sm whitespace-pre-wrap">
                           {row.transcript || "No transcript available"}
                         </div>
                       </ScrollArea>
