@@ -104,50 +104,51 @@ const ContactDetails = () => {
           </Card>
         </div>
 
-        <Card className="h-[calc(100vh-12rem)]">
-          <CardHeader>
-            <CardTitle>Transcript</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[calc(100%-5rem)]">
-            <ScrollArea className="h-full pr-4">
-              <div className="space-y-6">
-                <TranscriptView transcript={contactData.transcript} />
+        <div className="space-y-6">
+          <Card className="h-[calc(100vh-18rem)]">
+            <CardHeader>
+              <CardTitle>Transcript</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[calc(100%-5rem)]">
+              <ScrollArea className="h-full pr-4">
+                <div className="space-y-6">
+                  <TranscriptView transcript={contactData.transcript} />
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-semibold mb-2">Complaints</h3>
+                  <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <ul className="list-disc pl-4 space-y-2">
+                      {complaints.map((complaint, index) => (
+                        <li key={index} className="text-sm text-gray-600">{complaint}</li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">Vulnerability</h3>
+                  <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <ul className="list-disc pl-4 space-y-2">
+                      {vulnerabilities.map((vulnerability, index) => (
+                        <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                </div>
               </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Complaints</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-              <ul className="list-disc pl-4 space-y-2">
-                {complaints.map((complaint, index) => (
-                  <li key={index} className="text-sm text-gray-600">{complaint}</li>
-                ))}
-              </ul>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Vulnerability</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-              <ul className="list-disc pl-4 space-y-2">
-                {vulnerabilities.map((vulnerability, index) => (
-                  <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
-                ))}
-              </ul>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
