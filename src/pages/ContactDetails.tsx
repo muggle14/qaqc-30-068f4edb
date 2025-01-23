@@ -51,7 +51,7 @@ const ContactDetails = () => {
       <ContactHeader />
       <div className="grid grid-cols-[1.2fr,1fr] gap-6">
         <div className="space-y-6">
-          <Card>
+          <Card className="w-full">
             <CardHeader>
               <CardTitle>Contact Details</CardTitle>
             </CardHeader>
