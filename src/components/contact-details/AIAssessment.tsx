@@ -26,7 +26,7 @@ export const AIAssessment = ({ complaints, vulnerabilities }: AIAssessmentProps)
           </div>
 
           <div>
-            <h3 className="font-semibold mb-2">Vulnerability</h3>
+            <h3 className="font-semibold mb-2">Vulnerabilities</h3>
             <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               <ul className="list-disc pl-4 space-y-2">
                 {vulnerabilities.map((vulnerability, index) => (
