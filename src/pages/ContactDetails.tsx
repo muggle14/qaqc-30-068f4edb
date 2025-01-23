@@ -1,10 +1,12 @@
 import { useLocation } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ContactHeader } from "@/components/contact-details/ContactHeader";
 import { ContactInfo } from "@/components/contact-details/ContactInfo";
-import { TranscriptView } from "@/components/contact-details/TranscriptView";
 import { NotFoundState } from "@/components/contact-details/NotFoundState";
+import { OverallSummary } from "@/components/contact-details/OverallSummary";
+import { DetailedSummary } from "@/components/contact-details/DetailedSummary";
+import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
+import { AIAssessment } from "@/components/contact-details/AIAssessment";
 
 interface LocationState {
   contactData: {
@@ -27,10 +29,9 @@ const ContactDetails = () => {
 
   const { contactData } = state;
 
-  // Dummy summary for demonstration
+  // Dummy data (kept as is for consistency)
   const overallSummary = "Customer called regarding billing discrepancy on their recent invoice. Expressed frustration about unexpected charges. Agent provided detailed explanation of charges and offered to review the account for potential adjustments.";
 
-  // Dummy detailed summary points
   const detailedSummaryPoints = [
     "Customer initially reported unexpected charges on their latest invoice",
     "Identified three specific charges that were questioned: monthly service fee ($29.99), equipment rental ($15), and late payment fee ($10)",
@@ -46,7 +47,6 @@ const ContactDetails = () => {
     "Follow-up email confirmation was sent with all discussed details"
   ];
 
-  // Dummy complaints data
   const complaints = [
     "Billing transparency issues",
     "Unexpected late payment fees",
@@ -54,7 +54,6 @@ const ContactDetails = () => {
     "Confusion about service charges"
   ];
 
-  // Dummy vulnerability data
   const vulnerabilities = [
     "Customer showed signs of financial stress",
     "Limited understanding of billing cycle",
@@ -79,75 +78,16 @@ const ContactDetails = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Overall Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">{overallSummary}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Detailed Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[calc(100vh-52rem)] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                <ul className="list-disc pl-4 space-y-2">
-                  {detailedSummaryPoints.map((point, index) => (
-                    <li key={index} className="text-sm text-gray-600">{point}</li>
-                  ))}
-                </ul>
-              </ScrollArea>
-            </CardContent>
-          </Card>
+          <OverallSummary summary={overallSummary} />
+          <DetailedSummary summaryPoints={detailedSummaryPoints} />
         </div>
 
         <div className="space-y-6">
-          <Card className="h-[calc(100vh-18rem)]">
-            <CardHeader>
-              <CardTitle>Transcript</CardTitle>
-            </CardHeader>
-            <CardContent className="h-[calc(100%-5rem)]">
-              <ScrollArea className="h-full pr-4">
-                <div className="space-y-6">
-                  <TranscriptView transcript={contactData.transcript} />
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>AI Assessment & Feedback</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold mb-2">Complaints</h3>
-                  <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    <ul className="list-disc pl-4 space-y-2">
-                      {complaints.map((complaint, index) => (
-                        <li key={index} className="text-sm text-gray-600">{complaint}</li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-2">Vulnerability</h3>
-                  <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    <ul className="list-disc pl-4 space-y-2">
-                      {vulnerabilities.map((vulnerability, index) => (
-                        <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <TranscriptCard transcript={contactData.transcript} />
+          <AIAssessment 
+            complaints={complaints}
+            vulnerabilities={vulnerabilities}
+          />
         </div>
       </div>
     </div>
