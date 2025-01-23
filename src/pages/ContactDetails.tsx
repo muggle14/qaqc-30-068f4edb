@@ -64,8 +64,8 @@ const ContactDetails = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <ContactHeader />
-      <div className="grid grid-cols-[1.2fr,1fr] gap-6">
-        <div className="space-y-6 h-[calc(100vh-12rem)]">
+      <div className="space-y-6">
+        <div className="grid grid-cols-[1.2fr,1fr] gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Contact Details</CardTitle>
@@ -78,17 +78,15 @@ const ContactDetails = () => {
             </CardContent>
           </Card>
 
-          <OverallSummary summary={overallSummary} />
-          <DetailedSummary summaryPoints={detailedSummaryPoints} />
+          <TranscriptCard transcript={contactData.transcript} />
         </div>
 
-        <div className="space-y-6">
-          <TranscriptCard transcript={contactData.transcript} />
-          <AIAssessment 
-            complaints={complaints}
-            vulnerabilities={vulnerabilities}
-          />
-        </div>
+        <OverallSummary summary={overallSummary} />
+        <DetailedSummary summaryPoints={detailedSummaryPoints} />
+        <AIAssessment 
+          complaints={complaints}
+          vulnerabilities={vulnerabilities}
+        />
       </div>
     </div>
   );
