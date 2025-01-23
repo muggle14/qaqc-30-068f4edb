@@ -11,7 +11,7 @@ export const AIAssessment = ({ complaints, vulnerabilities }: AIAssessmentProps)
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-xl">AI Assessment & Feedback</CardTitle>
+        <CardTitle>AI Assessment & Feedback</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-6">
