@@ -9,7 +9,7 @@ interface AIAssessmentProps {
 
 export const AIAssessment = ({ complaints, vulnerabilities }: AIAssessmentProps) => {
   return (
-    <Card className="w-3/4 mx-auto">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-xl">AI Assessment & Feedback</CardTitle>
       </CardHeader>
