@@ -65,7 +65,7 @@ const ContactDetails = () => {
     <div className="container mx-auto p-6 space-y-6">
       <ContactHeader />
       <div className="space-y-6">
-        <div className="grid grid-cols-[1.2fr,1fr] gap-6">
+        <div className="grid grid-cols-[1.2fr,1fr] gap-6 min-h-[600px]">
           <div className="space-y-6">
             <Card>
               <CardHeader>

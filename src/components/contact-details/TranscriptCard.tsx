@@ -8,11 +8,11 @@ interface TranscriptCardProps {
 
 export const TranscriptCard = ({ transcript }: TranscriptCardProps) => {
   return (
-    <Card className="h-[calc(100vh-24rem)]">
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Transcript</CardTitle>
       </CardHeader>
-      <CardContent className="h-[calc(100%-4rem)]">
+      <CardContent className="h-[calc(100%-4rem)] pt-0">
         <ScrollArea className="h-full pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           <TranscriptView transcript={transcript} />
         </ScrollArea>
