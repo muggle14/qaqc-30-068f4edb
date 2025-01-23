@@ -7,6 +7,8 @@ import { OverallSummary } from "@/components/contact-details/OverallSummary";
 import { DetailedSummary } from "@/components/contact-details/DetailedSummary";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { AIAssessment } from "@/components/contact-details/AIAssessment";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LocationState {
   contactData: {
@@ -29,6 +31,26 @@ const ContactDetails = () => {
 
   const { contactData } = state;
 
+  const { data: assessmentData } = useQuery({
+    queryKey: ['assessment', contactData.contact_id],
+    queryFn: async () => {
+      console.log("Fetching assessment data for contact:", contactData.contact_id);
+      const { data, error } = await supabase
+        .from('contact_assessments')
+        .select('*')
+        .eq('contact_id', contactData.contact_id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching assessment data:", error);
+        throw error;
+      }
+
+      console.log("Assessment data fetched:", data);
+      return data;
+    }
+  });
+
   // Dummy data (kept as is for consistency)
   const overallSummary = "Customer called regarding billing discrepancy on their recent invoice. Expressed frustration about unexpected charges. Agent provided detailed explanation of charges and offered to review the account for potential adjustments.";
 
@@ -47,14 +69,14 @@ const ContactDetails = () => {
     "Follow-up email confirmation was sent with all discussed details"
   ];
 
-  const complaints = [
+  const complaints = assessmentData?.complaints || [
     "Billing transparency issues",
     "Unexpected late payment fees",
     "Communication gaps regarding payment due dates",
     "Confusion about service charges"
   ];
 
-  const vulnerabilities = [
+  const vulnerabilities = assessmentData?.vulnerabilities || [
     "Customer showed signs of financial stress",
     "Limited understanding of billing cycle",
     "Expressed difficulty managing payment deadlines",
@@ -89,6 +111,7 @@ const ContactDetails = () => {
         <AIAssessment 
           complaints={complaints}
           vulnerabilities={vulnerabilities}
+          hasPhysicalDisability={assessmentData?.has_physical_disability || false}
         />
       </div>
     </div>

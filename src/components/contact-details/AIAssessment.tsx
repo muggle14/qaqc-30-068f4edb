@@ -1,18 +1,24 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 interface AIAssessmentProps {
   complaints: string[];
   vulnerabilities: string[];
+  hasPhysicalDisability: boolean;
 }
 
-export const AIAssessment = ({ complaints, vulnerabilities }: AIAssessmentProps) => {
+export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisability }: AIAssessmentProps) => {
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle>AI Assessment & Feedback</CardTitle>
-        <div className="text-sm text-gray-600 mt-2">Physical Disability</div>
+        <div className="flex items-center gap-2 mt-2">
+          <div className="text-sm text-gray-600">Physical Disability:</div>
+          <Badge variant={hasPhysicalDisability ? "destructive" : "secondary"}>
+            {hasPhysicalDisability ? "Yes" : "No"}
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-6">

@@ -9,6 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      contact_assessments: {
+        Row: {
+          complaints: string[] | null
+          complaints_rationale: string | null
+          contact_id: string
+          created_at: string | null
+          has_physical_disability: boolean | null
+          id: string
+          updated_at: string | null
+          vulnerabilities: string[] | null
+          vulnerability_rationale: string | null
+        }
+        Insert: {
+          complaints?: string[] | null
+          complaints_rationale?: string | null
+          contact_id: string
+          created_at?: string | null
+          has_physical_disability?: boolean | null
+          id?: string
+          updated_at?: string | null
+          vulnerabilities?: string[] | null
+          vulnerability_rationale?: string | null
+        }
+        Update: {
+          complaints?: string[] | null
+          complaints_rationale?: string | null
+          contact_id?: string
+          created_at?: string | null
+          has_physical_disability?: boolean | null
+          id?: string
+          updated_at?: string | null
+          vulnerabilities?: string[] | null
+          vulnerability_rationale?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_contact_assessment_id"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "upload_details"
+            referencedColumns: ["contact_id"]
+          },
+        ]
+      }
       contact_conversations: {
         Row: {
           contact_id: string
