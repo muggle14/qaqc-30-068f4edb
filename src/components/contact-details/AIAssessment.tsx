@@ -12,6 +12,7 @@ export const AIAssessment = ({ complaints, vulnerabilities }: AIAssessmentProps)
     <Card className="w-full">
       <CardHeader>
         <CardTitle>AI Assessment & Feedback</CardTitle>
+        <div className="text-sm text-gray-600 mt-2">Physical Disability</div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-6">
