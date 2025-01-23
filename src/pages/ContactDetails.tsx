@@ -39,7 +39,7 @@ const ContactDetails = () => {
         .from('contact_assessments')
         .select('*')
         .eq('contact_id', contactData.contact_id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching assessment data:", error);
