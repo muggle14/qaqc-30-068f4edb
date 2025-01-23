@@ -120,7 +120,7 @@ const ContactDetails = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Analysis</CardTitle>
+              <CardTitle>AI Assessment & Feedback</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-6">
