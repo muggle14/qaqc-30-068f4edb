@@ -8,7 +8,7 @@ interface TranscriptCardProps {
 
 export const TranscriptCard = ({ transcript }: TranscriptCardProps) => {
   return (
-    <Card className="h-[calc(100vh-18rem)]">
+    <Card className="h-[calc(100vh-24rem)]">
       <CardHeader>
         <CardTitle>Transcript</CardTitle>
       </CardHeader>
