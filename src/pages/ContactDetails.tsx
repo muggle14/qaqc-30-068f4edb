@@ -65,104 +65,90 @@ const ContactDetails = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <ContactHeader />
-      <Card className="h-[calc(100vh-12rem)]">
-        <CardHeader>
-          <CardTitle>Contact Analysis</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-[1.2fr,1fr] gap-6 h-full">
-            <div className="space-y-6">
-              <Card className="border-0 shadow-none">
-                <CardHeader className="px-0 pt-0">
-                  <CardTitle>Contact Details</CardTitle>
-                </CardHeader>
-                <CardContent className="px-0">
-                  <ContactInfo
-                    contactId={contactData.contact_id}
-                    evaluator={contactData.evaluator}
-                  />
-                </CardContent>
-              </Card>
+      <div className="grid grid-cols-[1.2fr,1fr] gap-6">
+        <div className="space-y-6 h-[calc(100vh-12rem)]">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ContactInfo
+                contactId={contactData.contact_id}
+                evaluator={contactData.evaluator}
+              />
+            </CardContent>
+          </Card>
 
-              <Card className="border-0 shadow-none">
-                <CardHeader className="px-0">
-                  <CardTitle>Overall Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="px-0">
-                  <p className="text-sm text-gray-600">{overallSummary}</p>
-                </CardContent>
-              </Card>
+          <Card className="flex-1">
+            <CardHeader>
+              <CardTitle>Overall Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600">{overallSummary}</p>
+            </CardContent>
+          </Card>
 
-              <Card className="border-0 shadow-none">
-                <CardHeader className="px-0">
-                  <CardTitle>Detailed Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="px-0">
-                  <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    <ul className="list-disc pl-4 space-y-2">
-                      {detailedSummaryPoints.map((point, index) => (
-                        <li key={index} className="text-sm text-gray-600">{point}</li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </div>
+          <Card className="flex-1">
+            <CardHeader>
+              <CardTitle>Detailed Summary</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                <ul className="list-disc pl-4 space-y-2">
+                  {detailedSummaryPoints.map((point, index) => (
+                    <li key={index} className="text-sm text-gray-600">{point}</li>
+                  ))}
+                </ul>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
 
-            <div className="h-full">
-              <Card className="border-0 shadow-none h-full">
-                <CardHeader className="px-0 pt-0">
-                  <CardTitle>Transcript</CardTitle>
-                </CardHeader>
-                <CardContent className="px-0 h-[calc(100%-5rem)]">
-                  <ScrollArea className="h-full pr-4">
-                    <TranscriptView transcript={contactData.transcript} />
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <Card className="h-[calc(100vh-12rem)]">
+          <CardHeader>
+            <CardTitle>Transcript</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[calc(100%-5rem)]">
+            <ScrollArea className="h-full pr-4">
+              <div className="space-y-6">
+                <TranscriptView transcript={contactData.transcript} />
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Evaluation</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-6">
-            <Card className="border-0 shadow-none">
-              <CardHeader className="px-0 pt-0">
-                <CardTitle>Complaints</CardTitle>
-              </CardHeader>
-              <CardContent className="px-0">
-                <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  <ul className="list-disc pl-4 space-y-2">
-                    {complaints.map((complaint, index) => (
-                      <li key={index} className="text-sm text-gray-600">{complaint}</li>
-                    ))}
-                  </ul>
-                </ScrollArea>
-              </CardContent>
-            </Card>
+      <div className="grid grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Complaints</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <ul className="list-disc pl-4 space-y-2">
+                {complaints.map((complaint, index) => (
+                  <li key={index} className="text-sm text-gray-600">{complaint}</li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
-            <Card className="border-0 shadow-none">
-              <CardHeader className="px-0 pt-0">
-                <CardTitle>Vulnerability</CardTitle>
-              </CardHeader>
-              <CardContent className="px-0">
-                <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  <ul className="list-disc pl-4 space-y-2">
-                    {vulnerabilities.map((vulnerability, index) => (
-                      <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
-                    ))}
-                  </ul>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Vulnerability</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              <ul className="list-disc pl-4 space-y-2">
+                {vulnerabilities.map((vulnerability, index) => (
+                  <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
+                ))}
+              </ul>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
