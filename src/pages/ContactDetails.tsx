@@ -125,37 +125,44 @@ const ContactDetails = () => {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Complaints</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-              <ul className="list-disc pl-4 space-y-2">
-                {complaints.map((complaint, index) => (
-                  <li key={index} className="text-sm text-gray-600">{complaint}</li>
-                ))}
-              </ul>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Evaluation</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-6">
+            <Card className="border-0 shadow-none">
+              <CardHeader className="px-0 pt-0">
+                <CardTitle>Complaints</CardTitle>
+              </CardHeader>
+              <CardContent className="px-0">
+                <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  <ul className="list-disc pl-4 space-y-2">
+                    {complaints.map((complaint, index) => (
+                      <li key={index} className="text-sm text-gray-600">{complaint}</li>
+                    ))}
+                  </ul>
+                </ScrollArea>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Vulnerability</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-              <ul className="list-disc pl-4 space-y-2">
-                {vulnerabilities.map((vulnerability, index) => (
-                  <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
-                ))}
-              </ul>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
+            <Card className="border-0 shadow-none">
+              <CardHeader className="px-0 pt-0">
+                <CardTitle>Vulnerability</CardTitle>
+              </CardHeader>
+              <CardContent className="px-0">
+                <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  <ul className="list-disc pl-4 space-y-2">
+                    {vulnerabilities.map((vulnerability, index) => (
+                      <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
+                    ))}
+                  </ul>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
