@@ -12,7 +12,7 @@ export const TranscriptCard = ({ transcript }: TranscriptCardProps) => {
       <CardHeader>
         <CardTitle>Transcript</CardTitle>
       </CardHeader>
-      <CardContent className="h-[calc(100%-5rem)]">
+      <CardContent className="h-[calc(100%-4rem)]">
         <ScrollArea className="h-full pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           <TranscriptView transcript={transcript} />
         </ScrollArea>
