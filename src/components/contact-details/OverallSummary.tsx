@@ -6,7 +6,7 @@ interface OverallSummaryProps {
 
 export const OverallSummary = ({ summary }: OverallSummaryProps) => {
   return (
-    <Card>
+    <Card className="flex-1">
       <CardHeader>
         <CardTitle>Overall Summary</CardTitle>
       </CardHeader>

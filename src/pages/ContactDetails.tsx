@@ -66,23 +66,26 @@ const ContactDetails = () => {
       <ContactHeader />
       <div className="space-y-6">
         <div className="grid grid-cols-[1.2fr,1fr] gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Contact Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ContactInfo
-                contactId={contactData.contact_id}
-                evaluator={contactData.evaluator}
-              />
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ContactInfo
+                  contactId={contactData.contact_id}
+                  evaluator={contactData.evaluator}
+                />
+              </CardContent>
+            </Card>
+
+            <OverallSummary summary={overallSummary} />
+            <DetailedSummary summaryPoints={detailedSummaryPoints} />
+          </div>
 
           <TranscriptCard transcript={contactData.transcript} />
         </div>
 
-        <OverallSummary summary={overallSummary} />
-        <DetailedSummary summaryPoints={detailedSummaryPoints} />
         <AIAssessment 
           complaints={complaints}
           vulnerabilities={vulnerabilities}

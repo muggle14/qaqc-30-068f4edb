@@ -7,12 +7,12 @@ interface DetailedSummaryProps {
 
 export const DetailedSummary = ({ summaryPoints }: DetailedSummaryProps) => {
   return (
-    <Card>
+    <Card className="flex-1">
       <CardHeader>
         <CardTitle>Detailed Summary</CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[calc(100vh-52rem)] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           <ul className="list-disc pl-4 space-y-2">
             {summaryPoints.map((point, index) => (
               <li key={index} className="text-sm text-gray-600">{point}</li>
