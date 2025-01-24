@@ -22,10 +22,17 @@ export const CardHeader = ({
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <Icon className="h-5 w-5 text-gray-500" />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <h3 className="font-semibold text-lg">{title}</h3>
             {isAIAssessment && (
-              <Badge variant={flag ? "destructive" : "secondary"}>
+              <Badge 
+                variant={flag ? "destructive" : "secondary"}
+                className={`text-base px-3 py-1 ${
+                  flag 
+                    ? 'bg-red-100 text-red-700 border-red-200' 
+                    : 'bg-green-100 text-green-700 border-green-200'
+                }`}
+              >
                 {flag ? "Yes" : "No"}
               </Badge>
             )}
@@ -34,7 +41,7 @@ export const CardHeader = ({
         {onFlagChange && (
           <RadioGroup 
             value={flag ? "yes" : "no"} 
-            className="flex items-center space-x-4"
+            className="flex items-center space-x-4 ml-8"
             onValueChange={(value) => onFlagChange(value === "yes")}
           >
             <div className="flex items-center space-x-2">
