@@ -161,6 +161,50 @@ export type Database = {
           },
         ]
       }
+      quality_assessor_feedback: {
+        Row: {
+          complaints_flag: boolean
+          complaints_reasoning: string | null
+          contact_id: string
+          created_at: string | null
+          evaluator: string
+          id: string
+          updated_at: string | null
+          vulnerability_flag: boolean
+          vulnerability_reasoning: string | null
+        }
+        Insert: {
+          complaints_flag?: boolean
+          complaints_reasoning?: string | null
+          contact_id: string
+          created_at?: string | null
+          evaluator: string
+          id?: string
+          updated_at?: string | null
+          vulnerability_flag?: boolean
+          vulnerability_reasoning?: string | null
+        }
+        Update: {
+          complaints_flag?: boolean
+          complaints_reasoning?: string | null
+          contact_id?: string
+          created_at?: string | null
+          evaluator?: string
+          id?: string
+          updated_at?: string | null
+          vulnerability_flag?: boolean
+          vulnerability_reasoning?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_assessor_feedback_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "upload_details"
+            referencedColumns: ["contact_id"]
+          },
+        ]
+      }
       upload_details: {
         Row: {
           admin_id: string | null

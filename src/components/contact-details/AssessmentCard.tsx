@@ -3,6 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { LucideIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface AssessmentCardProps {
   title: string;
@@ -12,6 +13,8 @@ interface AssessmentCardProps {
   reasoning?: string | null;
   bothFlagsTrue: boolean;
   isAIAssessment?: boolean;
+  onFlagChange?: (value: boolean) => void;
+  onReasoningChange?: (value: string) => void;
 }
 
 export const AssessmentCard = ({
@@ -22,6 +25,8 @@ export const AssessmentCard = ({
   reasoning,
   bothFlagsTrue,
   isAIAssessment = false,
+  onFlagChange,
+  onReasoningChange,
 }: AssessmentCardProps) => {
   return (
     <Card className="border-2 border-gray-200 p-4">
@@ -33,9 +38,9 @@ export const AssessmentCard = ({
             {isAIAssessment && (
               <div className="flex items-center space-x-4">
                 <RadioGroup 
-                  defaultValue={flag ? "yes" : "no"} 
+                  value={flag ? "yes" : "no"} 
                   className="flex items-center space-x-4"
-                  disabled
+                  onValueChange={(value) => onFlagChange?.(value === "yes")}
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem 
@@ -73,6 +78,16 @@ export const AssessmentCard = ({
 
         <div className="space-y-2">
           <h4 className="font-medium text-gray-700">Reasoning:</h4>
+          {isAIAssessment ? (
+            <Input
+              value={reasoning || ""}
+              onChange={(e) => onReasoningChange?.(e.target.value)}
+              placeholder="Enter reasoning..."
+              className="w-full"
+            />
+          ) : (
+            <div className="text-sm text-gray-600">{reasoning || "No reasoning provided."}</div>
+          )}
         </div>
 
         <ScrollArea className="h-[150px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
