@@ -10,11 +10,11 @@ export const QualityRelevantSnippets = () => {
       </div>
       <ScrollArea className="h-[150px] pr-4 border rounded-md p-3 bg-gray-50">
         <div className="space-y-2">
-          <div className="text-sm text-gray-600 italic">
-            Quality assessors can add conversation excerpts here to support their evaluation.
-          </div>
-          <div className="text-xs text-gray-500">
-            Use this section to document specific parts of the conversation that demonstrate quality concerns or exemplary service.
+          <div className="text-sm text-gray-600">
+            <p className="italic mb-2">Document conversation evidence:</p>
+            <ul className="space-y-2 list-disc pl-4">
+              <li>Click to add relevant conversation excerpts</li>
+            </ul>
           </div>
         </div>
       </ScrollArea>
