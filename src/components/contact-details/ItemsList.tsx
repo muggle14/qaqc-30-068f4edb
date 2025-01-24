@@ -9,7 +9,7 @@ export const ItemsList = ({ items }: ItemsListProps) => {
   return (
     <Card className="border border-canvas-border">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-medium">Analysis Reasoning</CardTitle>
+        <CardTitle className="text-base font-medium">Reasoning</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         <ScrollArea className="h-[180px] pr-4">
