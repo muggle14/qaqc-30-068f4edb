@@ -12,7 +12,7 @@ export const ItemsList = ({ items }: ItemsListProps) => {
         <CardTitle className="text-base font-medium">Analysis Reasoning</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <ScrollArea className="h-[120px] pr-4">
+        <ScrollArea className="h-[180px] pr-4">
           <ul className="space-y-2">
             {items.map((item, index) => (
               <li key={index} className="text-sm text-gray-600">

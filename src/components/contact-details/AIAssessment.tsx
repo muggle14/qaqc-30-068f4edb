@@ -54,7 +54,7 @@ export const AIAssessment = ({
   const bothFlagsTrue = aiAssessment?.complaints_flag && aiAssessment?.vulnerability_flag;
 
   return (
-    <Card className="w-full">
+    <Card className="w-full min-h-[600px]">
       <CardHeader>
         <CardTitle>AI Assessment & Feedback</CardTitle>
       </CardHeader>
