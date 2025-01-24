@@ -6,7 +6,7 @@ export const QualityRelevantSnippets = () => {
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <CheckCircle2 className="h-4 w-4 text-gray-500" />
-        <h4 className="font-medium text-gray-700">Quality Review Evidence:</h4>
+        <h4 className="font-medium text-gray-700">Review Evidence:</h4>
       </div>
       <ScrollArea className="h-[187.5px] pr-4 border rounded-md p-3 bg-gray-50">
         <div className="space-y-2">
