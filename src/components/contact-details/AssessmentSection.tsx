@@ -47,7 +47,7 @@ export const AssessmentSection = ({
               <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isQualityOpen ? "" : "-rotate-90"}`} />
             </Button>
           </CollapsibleTrigger>
-          <h2 className="text-xl font-semibold">Quality Assessor Feedback</h2>
+          <h2 className="text-xl font-semibold">Assessor Feedback</h2>
         </div>
         <CollapsibleContent className="transition-all">
           <QualityAssessmentCard />
