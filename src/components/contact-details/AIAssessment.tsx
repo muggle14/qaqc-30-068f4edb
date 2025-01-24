@@ -3,9 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PhysicalDisabilitySection } from "./PhysicalDisabilitySection";
 import { AIAssessmentSection } from "./AIAssessmentSection";
-import { AIRelevantSnippets } from "./AIRelevantSnippets";
-import { Separator } from "@/components/ui/separator";
-import { Brain } from "lucide-react";
 
 interface AIAssessmentProps {
   complaints: string[];
@@ -58,44 +55,24 @@ export const AIAssessment = ({
 
   return (
     <Card className="w-full">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-primary" />
-          <CardTitle>AI Assessment & Feedback</CardTitle>
-        </div>
+      <CardHeader>
+        <CardTitle>AI Assessment & Feedback</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">1. Physical Disability Assessment</h3>
-            <PhysicalDisabilitySection
-              physicalDisabilityFlag={aiAssessment?.physical_disability_flag || false}
-              physicalDisabilityReasoning={aiAssessment?.physical_disability_reasoning}
-            />
-          </div>
-
-          <Separator />
-
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">2. AI Analysis Evidence</h3>
-            <AIRelevantSnippets />
-          </div>
-
-          <Separator />
-
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">3. Detailed Assessment</h3>
-            <AIAssessmentSection
-              complaints={complaints}
-              vulnerabilities={vulnerabilities}
-              complaintsFlag={aiAssessment?.complaints_flag || false}
-              vulnerabilityFlag={aiAssessment?.vulnerability_flag || false}
-              complaintsReasoning={aiAssessment?.complaints_reasoning}
-              vulnerabilityReasoning={aiAssessment?.vulnerability_reasoning}
-              bothFlagsTrue={bothFlagsTrue}
-            />
-          </div>
-        </div>
+      <CardContent className="space-y-2">
+        <AIAssessmentSection
+          complaints={complaints}
+          vulnerabilities={vulnerabilities}
+          complaintsFlag={aiAssessment?.complaints_flag || false}
+          vulnerabilityFlag={aiAssessment?.vulnerability_flag || false}
+          complaintsReasoning={aiAssessment?.complaints_reasoning}
+          vulnerabilityReasoning={aiAssessment?.vulnerability_reasoning}
+          bothFlagsTrue={bothFlagsTrue}
+        />
+        
+        <PhysicalDisabilitySection
+          physicalDisabilityFlag={aiAssessment?.physical_disability_flag || false}
+          physicalDisabilityReasoning={aiAssessment?.physical_disability_reasoning}
+        />
       </CardContent>
     </Card>
   );
