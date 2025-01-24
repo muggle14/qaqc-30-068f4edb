@@ -18,6 +18,11 @@ export const AIRelevantSnippets = () => {
           </div>
         </div>
       </ScrollArea>
+
+      <div className="flex items-center gap-2 mt-4">
+        <AlertCircle className="h-4 w-4 text-gray-500" />
+        <h4 className="font-medium text-gray-700">AI Analysis Reasoning:</h4>
+      </div>
     </div>
   );
 };
