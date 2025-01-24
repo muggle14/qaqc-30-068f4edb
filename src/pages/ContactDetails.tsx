@@ -1,13 +1,10 @@
 import { useLocation } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ContactHeader } from "@/components/contact-details/ContactHeader";
-import { ContactInfo } from "@/components/contact-details/ContactInfo";
 import { NotFoundState } from "@/components/contact-details/NotFoundState";
-import { OverallSummary } from "@/components/contact-details/OverallSummary";
-import { DetailedSummary } from "@/components/contact-details/DetailedSummary";
+import { ContactHeader } from "@/components/contact-details/ContactHeader";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
-import { AIAssessment } from "@/components/contact-details/AIAssessment";
-import { QualityAssessmentCard } from "@/components/contact-details/QualityAssessmentCard";
+import { ContactSection } from "@/components/contact-details/ContactSection";
+import { SummarySection } from "@/components/contact-details/SummarySection";
+import { AssessmentSection } from "@/components/contact-details/AssessmentSection";
 
 interface LocationState {
   contactData: {
@@ -30,7 +27,7 @@ const ContactDetails = () => {
 
   const { contactData } = state;
 
-  // Dummy data for complaints and vulnerabilities since they're not in the new table
+  // Dummy data for complaints and vulnerabilities
   const defaultComplaints = [
     "Billing transparency issues",
     "Unexpected late payment fees",
@@ -45,7 +42,6 @@ const ContactDetails = () => {
     "Potential need for payment plan options"
   ];
 
-  // Dummy data (kept as is for consistency)
   const overallSummary = "Customer called regarding billing discrepancy on their recent invoice. Expressed frustration about unexpected charges. Agent provided detailed explanation of charges and offered to review the account for potential adjustments.";
 
   const detailedSummaryPoints = [
@@ -69,34 +65,23 @@ const ContactDetails = () => {
       <div className="space-y-6">
         <div className="grid grid-cols-[1.2fr,1fr] gap-6 min-h-[600px]">
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Contact Details</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ContactInfo
-                  contactId={contactData.contact_id}
-                  evaluator={contactData.evaluator}
-                />
-              </CardContent>
-            </Card>
-
-            <OverallSummary summary={overallSummary} />
-            <DetailedSummary summaryPoints={detailedSummaryPoints} />
+            <ContactSection 
+              contactId={contactData.contact_id}
+              evaluator={contactData.evaluator}
+            />
+            <SummarySection 
+              overallSummary={overallSummary}
+              detailedSummaryPoints={detailedSummaryPoints}
+            />
           </div>
-
           <TranscriptCard transcript={contactData.transcript} />
         </div>
 
-        <div className="space-y-6">
-          <AIAssessment 
-            complaints={defaultComplaints}
-            vulnerabilities={defaultVulnerabilities}
-            hasPhysicalDisability={false}
-            contactId={contactData.contact_id}
-          />
-          <QualityAssessmentCard />
-        </div>
+        <AssessmentSection
+          complaints={defaultComplaints}
+          vulnerabilities={defaultVulnerabilities}
+          contactId={contactData.contact_id}
+        />
       </div>
     </div>
   );
