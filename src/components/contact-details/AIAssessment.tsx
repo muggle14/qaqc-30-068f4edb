@@ -20,7 +20,7 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
           {/* Physical Disability Card - Full width */}
           <Card className="h-[100px] w-full">
             <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <Accessibility className="h-4 w-4 text-gray-500" />
                   <h3 className="font-semibold text-sm">Physical Disability Status</h3>
