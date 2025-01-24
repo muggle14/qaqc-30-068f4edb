@@ -134,6 +134,7 @@ export type Database = {
           contact_id: string
           created_at: string
           id: string
+          snippets_metadata: Json | null
           transcript: string
           updated_at: string | null
         }
@@ -141,6 +142,7 @@ export type Database = {
           contact_id: string
           created_at?: string
           id?: string
+          snippets_metadata?: Json | null
           transcript: string
           updated_at?: string | null
         }
@@ -148,6 +150,7 @@ export type Database = {
           contact_id?: string
           created_at?: string
           id?: string
+          snippets_metadata?: Json | null
           transcript?: string
           updated_at?: string | null
         }

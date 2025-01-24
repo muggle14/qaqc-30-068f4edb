@@ -7,9 +7,14 @@ import { Search } from "lucide-react";
 
 interface TranscriptCardProps {
   transcript: string | null;
+  snippetsMetadata?: {
+    id: string;
+    timestamp: string;
+    content: string;
+  }[] | null;
 }
 
-export const TranscriptCard = ({ transcript }: TranscriptCardProps) => {
+export const TranscriptCard = ({ transcript, snippetsMetadata }: TranscriptCardProps) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
@@ -29,7 +34,11 @@ export const TranscriptCard = ({ transcript }: TranscriptCardProps) => {
       </CardHeader>
       <CardContent className="h-[calc(100%-8rem)] pt-0">
         <ScrollArea className="h-full pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          <TranscriptView transcript={transcript} searchQuery={searchQuery} />
+          <TranscriptView 
+            transcript={transcript} 
+            searchQuery={searchQuery}
+            snippetsMetadata={snippetsMetadata}
+          />
         </ScrollArea>
       </CardContent>
     </Card>
