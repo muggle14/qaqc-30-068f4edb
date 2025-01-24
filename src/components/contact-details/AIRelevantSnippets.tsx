@@ -3,6 +3,12 @@ import { AlertCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+interface Snippet {
+  id: string;
+  timestamp: string;
+  text: string;
+}
+
 interface AIRelevantSnippetsProps {
   contactId: string;
   snippetIds: string[];
@@ -30,9 +36,12 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
     enabled: !!contactId && snippetIds.length > 0
   });
 
-  const relevantSnippets = conversationData?.snippets_metadata?.filter(
-    (snippet: any) => snippetIds.includes(snippet.id)
-  ) || [];
+  // Safely type and filter the snippets
+  const relevantSnippets = Array.isArray(conversationData?.snippets_metadata) 
+    ? (conversationData.snippets_metadata as Snippet[]).filter(
+        (snippet: Snippet) => snippetIds.includes(snippet.id)
+      )
+    : [];
 
   console.log("Relevant snippets:", relevantSnippets);
 
@@ -48,7 +57,7 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
             <p className="italic mb-2">Key conversation moments identified by AI:</p>
             <ul className="space-y-2 list-disc pl-4">
               {relevantSnippets.length > 0 ? (
-                relevantSnippets.map((snippet: any, index: number) => (
+                relevantSnippets.map((snippet: Snippet) => (
                   <li key={snippet.id} className="text-gray-600">
                     <span className="text-xs text-gray-400">ID: {snippet.id}</span>
                     <br />
