@@ -43,13 +43,13 @@ export const AssessmentCard = ({
 
         <Separator className="bg-canvas-border" />
 
+        <ItemsList items={items} />
+
         {isAIAssessment ? (
           <AIRelevantSnippets />
         ) : (
           <QualityRelevantSnippets />
         )}
-
-        <ItemsList items={items} />
       </div>
     </Card>
   );
