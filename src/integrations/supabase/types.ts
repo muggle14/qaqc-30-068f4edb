@@ -9,48 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      contact_assessments: {
+      ai_assess_complaints: {
         Row: {
-          complaints: string[] | null
-          complaints_rationale: string | null
-          contact_id: string
-          created_at: string | null
-          has_physical_disability: boolean | null
           id: string
+          contact_id: string
+          physical_disability_flag: boolean
+          complaints_flag: boolean
+          physical_disability_reasoning: string | null
+          complaints_reasoning: string | null
+          created_at: string | null
           updated_at: string | null
-          vulnerabilities: string[] | null
-          vulnerability_rationale: string | null
         }
         Insert: {
-          complaints?: string[] | null
-          complaints_rationale?: string | null
-          contact_id: string
-          created_at?: string | null
-          has_physical_disability?: boolean | null
           id?: string
+          contact_id: string
+          physical_disability_flag?: boolean
+          complaints_flag?: boolean
+          physical_disability_reasoning?: string | null
+          complaints_reasoning?: string | null
+          created_at?: string | null
           updated_at?: string | null
-          vulnerabilities?: string[] | null
-          vulnerability_rationale?: string | null
         }
         Update: {
-          complaints?: string[] | null
-          complaints_rationale?: string | null
-          contact_id?: string
-          created_at?: string | null
-          has_physical_disability?: boolean | null
           id?: string
+          contact_id?: string
+          physical_disability_flag?: boolean
+          complaints_flag?: boolean
+          physical_disability_reasoning?: string | null
+          complaints_reasoning?: string | null
+          created_at?: string | null
           updated_at?: string | null
-          vulnerabilities?: string[] | null
-          vulnerability_rationale?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "fk_contact_assessment_id"
+            foreignKeyName: "ai_assess_complaints_contact_id_fkey"
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "upload_details"
             referencedColumns: ["contact_id"]
-          },
+          }
         ]
       }
       contact_conversations: {
@@ -243,3 +240,4 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+

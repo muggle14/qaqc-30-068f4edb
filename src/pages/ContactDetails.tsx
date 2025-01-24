@@ -112,6 +112,7 @@ const ContactDetails = () => {
           complaints={complaints}
           vulnerabilities={vulnerabilities}
           hasPhysicalDisability={assessmentData?.has_physical_disability || false}
+          contactId={contactData.contact_id}
         />
       </div>
     </div>
