@@ -8,7 +8,7 @@ export const ContactHeader = () => {
   return (
     <Button
       variant="ghost"
-      className="mb-6 gap-2"
+      className="mb-4 gap-2"
       onClick={() => navigate("/admin")}
     >
       <ArrowLeft className="h-4 w-4" />
