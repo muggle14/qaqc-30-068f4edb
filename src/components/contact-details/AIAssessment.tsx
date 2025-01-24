@@ -89,10 +89,10 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <AlertCircle className="h-5 w-5 text-gray-500" />
-                    <h3 className="font-semibold text-lg">Complaints</h3>
+                    <h3 className="font-semibold text-lg">Complaints:</h3>
                     <Badge 
                       variant={aiAssessment?.complaints_flag ? "destructive" : "secondary"}
-                      className={`text-sm ${bothFlagsTrue ? 'bg-red-500' : ''}`}
+                      className={`text-lg font-semibold ${bothFlagsTrue ? 'bg-red-500' : ''}`}
                     >
                       {aiAssessment?.complaints_flag ? "Yes" : "No"}
                     </Badge>
@@ -119,10 +119,10 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Shield className="h-5 w-5 text-gray-500" />
-                    <h3 className="font-semibold text-lg">Vulnerabilities</h3>
+                    <h3 className="font-semibold text-lg">Vulnerabilities:</h3>
                     <Badge 
                       variant={aiAssessment?.vulnerability_flag ? "destructive" : "secondary"}
-                      className={`text-sm ${bothFlagsTrue ? 'bg-red-500' : ''}`}
+                      className={`text-lg font-semibold ${bothFlagsTrue ? 'bg-red-500' : ''}`}
                     >
                       {aiAssessment?.vulnerability_flag ? "Yes" : "No"}
                     </Badge>
