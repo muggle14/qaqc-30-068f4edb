@@ -6,7 +6,6 @@ import { CardHeader } from "./CardHeader";
 import { ItemsList } from "./ItemsList";
 import { AIRelevantSnippets } from "./AIRelevantSnippets";
 import { QualityRelevantSnippets } from "./QualityRelevantSnippets";
-import { AIReasoningSection } from "./AIReasoningSection";
 
 interface AssessmentCardProps {
   title: string;
@@ -44,9 +43,7 @@ export const AssessmentCard = ({
 
         <Separator className="my-4 bg-gray-300 h-[2px]" />
 
-        {isAIAssessment ? (
-          <AIReasoningSection reasoning={reasoning} />
-        ) : (
+        {!isAIAssessment && (
           <QualityReasoningSection 
             reasoning={reasoning}
             onReasoningChange={onReasoningChange}
