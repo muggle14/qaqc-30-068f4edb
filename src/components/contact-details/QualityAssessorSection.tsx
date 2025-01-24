@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useLocation } from "react-router-dom";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface LocationState {
   contactData: {
@@ -59,80 +58,6 @@ export const QualityAssessorSection = () => {
           <Save className="h-4 w-4" />
           Save Feedback
         </Button>
-      </div>
-
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-4">
-          <h3 className="font-medium">Complaints Flag:</h3>
-          <RadioGroup 
-            value={complaintsFlag ? "yes" : "no"} 
-            className="flex items-center space-x-4"
-            onValueChange={(value) => setComplaintsFlag(value === "yes")}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem 
-                value="no" 
-                id="complaints-no"
-                className={!complaintsFlag ? 'border-green-500 text-green-500' : 'border-gray-300'}
-              />
-              <label 
-                htmlFor="complaints-no" 
-                className={`text-sm ${!complaintsFlag ? 'text-green-500 font-medium' : 'text-gray-500'}`}
-              >
-                No
-              </label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem 
-                value="yes" 
-                id="complaints-yes"
-                className={complaintsFlag ? 'border-red-500 text-red-500' : 'border-gray-300'}
-              />
-              <label 
-                htmlFor="complaints-yes" 
-                className={`text-sm ${complaintsFlag ? 'text-red-500 font-medium' : 'text-gray-500'}`}
-              >
-                Yes
-              </label>
-            </div>
-          </RadioGroup>
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <h3 className="font-medium">Vulnerability Flag:</h3>
-          <RadioGroup 
-            value={vulnerabilityFlag ? "yes" : "no"} 
-            className="flex items-center space-x-4"
-            onValueChange={(value) => setVulnerabilityFlag(value === "yes")}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem 
-                value="no" 
-                id="vulnerability-no"
-                className={!vulnerabilityFlag ? 'border-green-500 text-green-500' : 'border-gray-300'}
-              />
-              <label 
-                htmlFor="vulnerability-no" 
-                className={`text-sm ${!vulnerabilityFlag ? 'text-green-500 font-medium' : 'text-gray-500'}`}
-              >
-                No
-              </label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem 
-                value="yes" 
-                id="vulnerability-yes"
-                className={vulnerabilityFlag ? 'border-red-500 text-red-500' : 'border-gray-300'}
-              />
-              <label 
-                htmlFor="vulnerability-yes" 
-                className={`text-sm ${vulnerabilityFlag ? 'text-red-500 font-medium' : 'text-gray-500'}`}
-              >
-                Yes
-              </label>
-            </div>
-          </RadioGroup>
-        </div>
       </div>
       
       <div className="grid grid-cols-2 gap-6">
