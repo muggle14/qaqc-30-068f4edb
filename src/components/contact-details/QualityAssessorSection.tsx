@@ -16,7 +16,7 @@ export const QualityAssessorSection = () => {
         flag={false}
         reasoning={"Agent demonstrated strong customer service skills"}
         bothFlagsTrue={false}
-        isAIAssessment={false}
+        isAIAssessment={true}
       />
 
       <AssessmentCard
@@ -31,7 +31,7 @@ export const QualityAssessorSection = () => {
         flag={false}
         reasoning={"Some opportunities for process optimization identified"}
         bothFlagsTrue={false}
-        isAIAssessment={false}
+        isAIAssessment={true}
       />
     </div>
   );
