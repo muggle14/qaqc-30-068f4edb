@@ -81,9 +81,6 @@ export const AIAssessment = ({
       </Card>
 
       <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Quality Assessor Feedback</CardTitle>
-        </CardHeader>
         <CardContent>
           <QualityAssessorSection />
         </CardContent>
