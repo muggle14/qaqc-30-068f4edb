@@ -1,5 +1,5 @@
-import { Input } from "@/components/ui/input";
 import { CheckCircle2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 interface QualityReasoningSectionProps {
   reasoning?: string | null;
@@ -18,14 +18,14 @@ export const QualityReasoningSection = ({
         <CheckCircle2 className="h-4 w-4 text-gray-500" />
         <h4 className="font-medium text-gray-700">Assessment Reasoning:</h4>
       </div>
-      <Input
+      <Textarea
         value={reasoning || ""}
         onChange={(e) => {
           console.log("Input changed:", e.target.value);
           onReasoningChange?.(e.target.value);
         }}
         placeholder="Enter your assessment reasoning..."
-        className="w-full border-gray-200 focus:border-gray-300 focus:ring-gray-200"
+        className="min-h-[120px] w-full resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200"
       />
     </div>
   );
