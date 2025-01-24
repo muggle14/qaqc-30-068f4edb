@@ -43,7 +43,7 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
           <div className="grid grid-cols-2 gap-6">
             {/* Complaints Section */}
             <div>
-              <h3 className="font-semibold mb-2">Complaints</h3>
+              <h3 className="font-semibold mb-2 text-lg">Complaints</h3>
               <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 <ul className="list-disc pl-4 space-y-2">
                   {complaints.map((complaint, index) => (
@@ -55,7 +55,7 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
 
             {/* Vulnerabilities Section */}
             <div className="border-2 border-gray-200 rounded-lg p-4">
-              <h3 className="font-semibold mb-2">Vulnerabilities</h3>
+              <h3 className="font-semibold mb-2 text-lg">Vulnerabilities</h3>
               <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 <ul className="list-disc pl-4 space-y-2">
                   {vulnerabilities.map((vulnerability, index) => (
