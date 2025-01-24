@@ -5,7 +5,7 @@ export const QualityAssessorSection = () => {
   return (
     <div className="grid grid-cols-2 gap-6">
       <AssessmentCard
-        title="Strengths"
+        title="Complaints"
         icon={AlertCircle}
         items={[
           "Clear communication throughout the call",
@@ -20,7 +20,7 @@ export const QualityAssessorSection = () => {
       />
 
       <AssessmentCard
-        title="Areas for Improvement"
+        title="Vulnerability"
         icon={Shield}
         items={[
           "Could have offered additional services",
