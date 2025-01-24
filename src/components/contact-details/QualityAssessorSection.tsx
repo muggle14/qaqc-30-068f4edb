@@ -64,12 +64,7 @@ export const QualityAssessorSection = () => {
         <AssessmentCard
           title="Complaints"
           icon={AlertCircle}
-          items={[
-            "Clear communication throughout the call",
-            "Proper identification verification",
-            "Effective problem resolution",
-            "Professional tone maintained"
-          ]}
+          items={[]}
           flag={complaintsFlag}
           bothFlagsTrue={complaintsFlag && vulnerabilityFlag}
           onFlagChange={setComplaintsFlag}
@@ -78,12 +73,7 @@ export const QualityAssessorSection = () => {
         <AssessmentCard
           title="Vulnerability"
           icon={Shield}
-          items={[
-            "Could have offered additional services",
-            "Missed opportunity for feedback collection",
-            "Longer than average handling time",
-            "Follow-up documentation incomplete"
-          ]}
+          items={[]}
           flag={vulnerabilityFlag}
           bothFlagsTrue={complaintsFlag && vulnerabilityFlag}
           onFlagChange={setVulnerabilityFlag}
