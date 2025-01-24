@@ -11,6 +11,7 @@ interface AssessmentCardProps {
   flag: boolean;
   reasoning?: string | null;
   bothFlagsTrue: boolean;
+  isAIAssessment?: boolean;
 }
 
 export const AssessmentCard = ({
@@ -20,6 +21,7 @@ export const AssessmentCard = ({
   flag,
   reasoning,
   bothFlagsTrue,
+  isAIAssessment = false,
 }: AssessmentCardProps) => {
   return (
     <Card className="border-2 border-gray-200 p-4">
@@ -27,41 +29,43 @@ export const AssessmentCard = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Icon className="h-5 w-5 text-gray-500" />
-            <h3 className="font-semibold text-lg">Complaints & Vulnerabilities</h3>
-            <div className="flex items-center space-x-4">
-              <RadioGroup 
-                defaultValue={flag ? "yes" : "no"} 
-                className="flex items-center space-x-4"
-                disabled
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem 
-                    value="no" 
-                    id="no"
-                    className={!flag ? 'border-green-500 text-green-500' : 'border-gray-300'}
-                  />
-                  <label 
-                    htmlFor="no" 
-                    className={`text-sm ${!flag ? 'text-green-500 font-medium' : 'text-gray-500'}`}
-                  >
-                    No
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem 
-                    value="yes" 
-                    id="yes"
-                    className={flag ? 'border-red-500 text-red-500' : 'border-gray-300'}
-                  />
-                  <label 
-                    htmlFor="yes" 
-                    className={`text-sm ${flag ? 'text-red-500 font-medium' : 'text-gray-500'}`}
-                  >
-                    Yes
-                  </label>
-                </div>
-              </RadioGroup>
-            </div>
+            <h3 className="font-semibold text-lg">{title}</h3>
+            {isAIAssessment && (
+              <div className="flex items-center space-x-4">
+                <RadioGroup 
+                  defaultValue={flag ? "yes" : "no"} 
+                  className="flex items-center space-x-4"
+                  disabled
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem 
+                      value="no" 
+                      id="no"
+                      className={!flag ? 'border-green-500 text-green-500' : 'border-gray-300'}
+                    />
+                    <label 
+                      htmlFor="no" 
+                      className={`text-sm ${!flag ? 'text-green-500 font-medium' : 'text-gray-500'}`}
+                    >
+                      No
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem 
+                      value="yes" 
+                      id="yes"
+                      className={flag ? 'border-red-500 text-red-500' : 'border-gray-300'}
+                    />
+                    <label 
+                      htmlFor="yes" 
+                      className={`text-sm ${flag ? 'text-red-500 font-medium' : 'text-gray-500'}`}
+                    >
+                      Yes
+                    </label>
+                  </div>
+                </RadioGroup>
+              </div>
+            )}
           </div>
         </div>
 

@@ -75,6 +75,7 @@ export const AIAssessment = ({
                 flag={aiAssessment?.complaints_flag || false}
                 reasoning={aiAssessment?.complaints_reasoning}
                 bothFlagsTrue={bothFlagsTrue}
+                isAIAssessment={true}
               />
 
               <AssessmentCard
@@ -84,6 +85,7 @@ export const AIAssessment = ({
                 flag={aiAssessment?.vulnerability_flag || false}
                 reasoning={aiAssessment?.vulnerability_reasoning}
                 bothFlagsTrue={bothFlagsTrue}
+                isAIAssessment={true}
               />
             </div>
           </div>
@@ -108,6 +110,7 @@ export const AIAssessment = ({
               flag={false}
               reasoning={"Agent demonstrated strong customer service skills"}
               bothFlagsTrue={false}
+              isAIAssessment={false}
             />
 
             <AssessmentCard
@@ -122,6 +125,7 @@ export const AIAssessment = ({
               flag={false}
               reasoning={"Some opportunities for process optimization identified"}
               bothFlagsTrue={false}
+              isAIAssessment={false}
             />
           </div>
         </CardContent>
