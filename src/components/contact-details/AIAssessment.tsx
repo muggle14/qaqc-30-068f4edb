@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PhysicalDisabilitySection } from "./PhysicalDisabilitySection";
@@ -55,9 +55,6 @@ export const AIAssessment = ({
 
   return (
     <Card className="w-full min-h-[600px]">
-      <CardHeader>
-        <CardTitle>AI Assessment & Feedback</CardTitle>
-      </CardHeader>
       <CardContent>
         <div className="space-y-6">
           <PhysicalDisabilitySection
