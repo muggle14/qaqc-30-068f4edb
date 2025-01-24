@@ -42,7 +42,14 @@ export const AssessmentCard = ({
 
         <Separator className="my-4 bg-gray-300 h-[2px]" />
 
-        {!isAIAssessment && (
+        {isAIAssessment ? (
+          reasoning && (
+            <div className="space-y-2">
+              <h4 className="font-medium text-gray-700">Reasoning:</h4>
+              <p className="text-sm text-gray-600">{reasoning}</p>
+            </div>
+          )
+        ) : (
           <QualityReasoningSection 
             reasoning={reasoning}
             onReasoningChange={onReasoningChange}
