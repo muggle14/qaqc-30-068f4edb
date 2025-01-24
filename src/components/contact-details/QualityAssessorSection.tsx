@@ -51,16 +51,16 @@ export const QualityAssessorSection = () => {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-bold">Quality Assessor Feedback</h2>
-        <Button onClick={handleSave} className="flex items-center gap-2">
-          <Save className="h-4 w-4" />
+    <div className="space-y-2">
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="text-xl font-semibold">Quality Assessor Feedback</h2>
+        <Button onClick={handleSave} size="sm" className="flex items-center gap-1.5">
+          <Save className="h-3.5 w-3.5" />
           Save Feedback
         </Button>
       </div>
       
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <AssessmentCard
           title="Complaints"
           icon={AlertCircle}
