@@ -38,9 +38,6 @@ export const AssessmentCard = ({
 
         <div className="space-y-2">
           <h4 className="font-medium text-gray-700">Reasoning:</h4>
-          <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
-            {reasoning || "No reasoning provided"}
-          </p>
         </div>
 
         <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
