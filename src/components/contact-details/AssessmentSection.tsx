@@ -28,7 +28,7 @@ export const AssessmentSection = ({
               <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isAIOpen ? "" : "-rotate-90"}`} />
             </Button>
           </CollapsibleTrigger>
-          <h2 className="text-xl font-semibold">AI Assessment & Feedback</h2>
+          <h2 className="text-xl font-semibold">AI Assessment</h2>
         </div>
         <CollapsibleContent className="transition-all">
           <AIAssessment 
