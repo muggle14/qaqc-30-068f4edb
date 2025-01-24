@@ -3,7 +3,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { LucideIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { AIReasoningSection } from "./AIReasoningSection";
+import { QualityReasoningSection } from "./QualityReasoningSection";
 
 interface AssessmentCardProps {
   title: string;
@@ -76,19 +77,14 @@ export const AssessmentCard = ({
 
         <Separator className="my-4 bg-gray-300 h-[2px]" />
 
-        <div className="space-y-2">
-          <h4 className="font-medium text-gray-700">Reasoning:</h4>
-          {isAIAssessment ? (
-            <Input
-              value={reasoning || ""}
-              onChange={(e) => onReasoningChange?.(e.target.value)}
-              placeholder="Enter reasoning..."
-              className="w-full"
-            />
-          ) : (
-            <div className="text-sm text-gray-600">{reasoning || "No reasoning provided."}</div>
-          )}
-        </div>
+        {isAIAssessment ? (
+          <AIReasoningSection reasoning={reasoning} />
+        ) : (
+          <QualityReasoningSection 
+            reasoning={reasoning}
+            onReasoningChange={onReasoningChange}
+          />
+        )}
 
         <ScrollArea className="h-[150px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           <ul className="list-disc pl-4 space-y-2">
