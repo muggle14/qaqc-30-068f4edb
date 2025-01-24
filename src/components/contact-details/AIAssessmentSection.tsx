@@ -29,7 +29,7 @@ export const AIAssessmentSection = ({
   return (
     <div className="grid grid-cols-2 gap-6">
       <AssessmentCard
-        title="Complaints"
+        title="Complaints Assessment"
         icon={AlertCircle}
         items={complaints}
         flag={complaintsFlag}
@@ -41,7 +41,7 @@ export const AIAssessmentSection = ({
       />
 
       <AssessmentCard
-        title="Vulnerabilities"
+        title="Vulnerability Assessment"
         icon={Shield}
         items={vulnerabilities}
         flag={vulnerabilityFlag}

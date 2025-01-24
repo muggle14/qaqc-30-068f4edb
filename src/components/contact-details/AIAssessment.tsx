@@ -44,7 +44,11 @@ export const AIAssessment = ({
 
       console.log("AI assessment data:", { complaintsData, vulnerabilityData });
       return {
-        ...complaintsData,
+        complaints_flag: complaintsData?.complaints_flag || false,
+        complaints_reasoning: complaintsData?.complaints_reasoning,
+        relevant_snippet_ids: complaintsData?.relevant_snippet_ids || [],
+        physical_disability_flag: complaintsData?.physical_disability_flag || false,
+        physical_disability_reasoning: complaintsData?.physical_disability_reasoning,
         vulnerability_flag: vulnerabilityData?.vulnerability_flag || false,
         vulnerability_reasoning: vulnerabilityData?.vulnerability_reasoning,
         vulnerability_snippet_ids: vulnerabilityData?.relevant_snippet_ids || []
