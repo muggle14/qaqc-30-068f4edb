@@ -18,26 +18,26 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
       <CardContent>
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-6">
-            {/* Physical Disability Card - Now inside the first column with reduced height */}
-            <Card className="h-[100px]">
+            {/* Physical Disability Card - Now with full width and inline status */}
+            <Card className="h-[100px] w-full">
               <CardHeader className="pb-2">
-                <div className="flex items-center space-x-2">
-                  <Accessibility className="h-4 w-4 text-gray-500" />
-                  <h3 className="font-semibold text-sm">Physical Disability Status</h3>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Accessibility className="h-4 w-4 text-gray-500" />
+                    <h3 className="font-semibold text-sm">Physical Disability Status</h3>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant={hasPhysicalDisability ? "destructive" : "secondary"} className="text-sm">
+                      {hasPhysicalDisability ? "Yes" : "No"}
+                    </Badge>
+                    <p className="text-sm text-gray-600">
+                      {hasPhysicalDisability 
+                        ? "Physical disability has been identified"
+                        : "No physical disability reported"}
+                    </p>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex items-center space-x-2">
-                  <Badge variant={hasPhysicalDisability ? "destructive" : "secondary"} className="text-sm">
-                    {hasPhysicalDisability ? "Yes" : "No"}
-                  </Badge>
-                  <p className="text-sm text-gray-600">
-                    {hasPhysicalDisability 
-                      ? "Physical disability has been identified"
-                      : "No physical disability reported"}
-                  </p>
-                </div>
-              </CardContent>
             </Card>
 
             {/* Complaints Section */}
