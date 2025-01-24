@@ -1,3 +1,4 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ItemsListProps {
@@ -6,12 +7,21 @@ interface ItemsListProps {
 
 export const ItemsList = ({ items }: ItemsListProps) => {
   return (
-    <ScrollArea className="h-[150px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-      <ul className="list-disc pl-4 space-y-2">
-        {items.map((item, index) => (
-          <li key={index} className="text-sm text-gray-600">{item}</li>
-        ))}
-      </ul>
-    </ScrollArea>
+    <Card className="border border-canvas-border">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base font-medium">Analysis Reasoning</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <ScrollArea className="h-[120px] pr-4">
+          <ul className="space-y-2">
+            {items.map((item, index) => (
+              <li key={index} className="text-sm text-gray-600">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 };
