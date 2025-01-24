@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PhysicalDisabilitySection } from "./PhysicalDisabilitySection";
 import { AIAssessmentSection } from "./AIAssessmentSection";
-import { QualityAssessorSection } from "./QualityAssessorSection";
 
 interface AIAssessmentProps {
   complaints: string[];
@@ -55,36 +54,28 @@ export const AIAssessment = ({
   const bothFlagsTrue = aiAssessment?.complaints_flag && aiAssessment?.vulnerability_flag;
 
   return (
-    <div className="space-y-6">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>AI Assessment & Feedback</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <PhysicalDisabilitySection
-              physicalDisabilityFlag={aiAssessment?.physical_disability_flag || false}
-              physicalDisabilityReasoning={aiAssessment?.physical_disability_reasoning}
-            />
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>AI Assessment & Feedback</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <PhysicalDisabilitySection
+            physicalDisabilityFlag={aiAssessment?.physical_disability_flag || false}
+            physicalDisabilityReasoning={aiAssessment?.physical_disability_reasoning}
+          />
 
-            <AIAssessmentSection
-              complaints={complaints}
-              vulnerabilities={vulnerabilities}
-              complaintsFlag={aiAssessment?.complaints_flag || false}
-              vulnerabilityFlag={aiAssessment?.vulnerability_flag || false}
-              complaintsReasoning={aiAssessment?.complaints_reasoning}
-              vulnerabilityReasoning={aiAssessment?.vulnerability_reasoning}
-              bothFlagsTrue={bothFlagsTrue}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="w-full">
-        <CardContent>
-          <QualityAssessorSection />
-        </CardContent>
-      </Card>
-    </div>
+          <AIAssessmentSection
+            complaints={complaints}
+            vulnerabilities={vulnerabilities}
+            complaintsFlag={aiAssessment?.complaints_flag || false}
+            vulnerabilityFlag={aiAssessment?.vulnerability_flag || false}
+            complaintsReasoning={aiAssessment?.complaints_reasoning}
+            vulnerabilityReasoning={aiAssessment?.vulnerability_reasoning}
+            bothFlagsTrue={bothFlagsTrue}
+          />
+        </div>
+      </CardContent>
+    </Card>
   );
 };

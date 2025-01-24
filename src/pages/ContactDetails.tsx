@@ -7,8 +7,7 @@ import { OverallSummary } from "@/components/contact-details/OverallSummary";
 import { DetailedSummary } from "@/components/contact-details/DetailedSummary";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { AIAssessment } from "@/components/contact-details/AIAssessment";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { QualityAssessmentCard } from "@/components/contact-details/QualityAssessmentCard";
 
 interface LocationState {
   contactData: {
@@ -89,12 +88,15 @@ const ContactDetails = () => {
           <TranscriptCard transcript={contactData.transcript} />
         </div>
 
-        <AIAssessment 
-          complaints={defaultComplaints}
-          vulnerabilities={defaultVulnerabilities}
-          hasPhysicalDisability={false}
-          contactId={contactData.contact_id}
-        />
+        <div className="space-y-6">
+          <AIAssessment 
+            complaints={defaultComplaints}
+            vulnerabilities={defaultVulnerabilities}
+            hasPhysicalDisability={false}
+            contactId={contactData.contact_id}
+          />
+          <QualityAssessmentCard />
+        </div>
       </div>
     </div>
   );
