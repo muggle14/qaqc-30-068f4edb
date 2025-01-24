@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { LucideIcon } from "lucide-react";
 
 interface AssessmentCardProps {
@@ -28,18 +28,39 @@ export const AssessmentCard = ({
           <div className="flex items-center space-x-2">
             <Icon className="h-5 w-5 text-gray-500" />
             <h3 className="font-semibold text-lg">Complaints & Vulnerabilities</h3>
-            <div className="flex items-center space-x-2">
-              <Switch 
-                checked={flag}
+            <div className="flex items-center space-x-4">
+              <RadioGroup 
+                defaultValue={flag ? "yes" : "no"} 
+                className="flex items-center space-x-4"
                 disabled
-                className={`${flag 
-                  ? 'bg-red-500 hover:bg-red-500' 
-                  : 'bg-green-500 hover:bg-green-500'
-                } ${bothFlagsTrue ? 'bg-red-600' : ''}`}
-              />
-              <span className="text-sm text-gray-600">
-                {flag ? 'Yes' : 'No'}
-              </span>
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem 
+                    value="no" 
+                    id="no"
+                    className={!flag ? 'border-green-500 text-green-500' : 'border-gray-300'}
+                  />
+                  <label 
+                    htmlFor="no" 
+                    className={`text-sm ${!flag ? 'text-green-500 font-medium' : 'text-gray-500'}`}
+                  >
+                    No
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem 
+                    value="yes" 
+                    id="yes"
+                    className={flag ? 'border-red-500 text-red-500' : 'border-gray-300'}
+                  />
+                  <label 
+                    htmlFor="yes" 
+                    className={`text-sm ${flag ? 'text-red-500 font-medium' : 'text-gray-500'}`}
+                  >
+                    Yes
+                  </label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
         </div>
