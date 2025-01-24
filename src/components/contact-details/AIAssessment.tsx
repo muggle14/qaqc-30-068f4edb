@@ -58,23 +58,21 @@ export const AIAssessment = ({
       <CardHeader>
         <CardTitle>AI Assessment & Feedback</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          <PhysicalDisabilitySection
-            physicalDisabilityFlag={aiAssessment?.physical_disability_flag || false}
-            physicalDisabilityReasoning={aiAssessment?.physical_disability_reasoning}
-          />
-
-          <AIAssessmentSection
-            complaints={complaints}
-            vulnerabilities={vulnerabilities}
-            complaintsFlag={aiAssessment?.complaints_flag || false}
-            vulnerabilityFlag={aiAssessment?.vulnerability_flag || false}
-            complaintsReasoning={aiAssessment?.complaints_reasoning}
-            vulnerabilityReasoning={aiAssessment?.vulnerability_reasoning}
-            bothFlagsTrue={bothFlagsTrue}
-          />
-        </div>
+      <CardContent className="space-y-2">
+        <AIAssessmentSection
+          complaints={complaints}
+          vulnerabilities={vulnerabilities}
+          complaintsFlag={aiAssessment?.complaints_flag || false}
+          vulnerabilityFlag={aiAssessment?.vulnerability_flag || false}
+          complaintsReasoning={aiAssessment?.complaints_reasoning}
+          vulnerabilityReasoning={aiAssessment?.vulnerability_reasoning}
+          bothFlagsTrue={bothFlagsTrue}
+        />
+        
+        <PhysicalDisabilitySection
+          physicalDisabilityFlag={aiAssessment?.physical_disability_flag || false}
+          physicalDisabilityReasoning={aiAssessment?.physical_disability_reasoning}
+        />
       </CardContent>
     </Card>
   );
