@@ -20,6 +20,8 @@ export const QualityAssessorSection = () => {
 
   const [complaintsFlag, setComplaintsFlag] = useState(false);
   const [vulnerabilityFlag, setVulnerabilityFlag] = useState(false);
+  const [complaintsReasoning, setComplaintsReasoning] = useState("");
+  const [vulnerabilityReasoning, setVulnerabilityReasoning] = useState("");
 
   const handleSave = async () => {
     try {
@@ -31,6 +33,8 @@ export const QualityAssessorSection = () => {
           evaluator: state.contactData.evaluator,
           complaints_flag: complaintsFlag,
           vulnerability_flag: vulnerabilityFlag,
+          complaints_reasoning: complaintsReasoning,
+          vulnerability_reasoning: vulnerabilityReasoning,
         });
 
       if (error) throw error;
@@ -68,6 +72,8 @@ export const QualityAssessorSection = () => {
           flag={complaintsFlag}
           bothFlagsTrue={complaintsFlag && vulnerabilityFlag}
           onFlagChange={setComplaintsFlag}
+          reasoning={complaintsReasoning}
+          onReasoningChange={setComplaintsReasoning}
         />
 
         <AssessmentCard
@@ -77,6 +83,8 @@ export const QualityAssessorSection = () => {
           flag={vulnerabilityFlag}
           bothFlagsTrue={complaintsFlag && vulnerabilityFlag}
           onFlagChange={setVulnerabilityFlag}
+          reasoning={vulnerabilityReasoning}
+          onReasoningChange={setVulnerabilityReasoning}
         />
       </div>
     </div>
