@@ -1,6 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
+import { QualityReasoningSection } from "./QualityReasoningSection";
 import { CardHeader } from "./CardHeader";
+import { ItemsList } from "./ItemsList";
+import { AIRelevantSnippets } from "./AIRelevantSnippets";
 import { QualityRelevantSnippets } from "./QualityRelevantSnippets";
 
 interface AssessmentCardProps {
@@ -8,6 +11,7 @@ interface AssessmentCardProps {
   icon: LucideIcon;
   items: string[];
   flag: boolean;
+  reasoning?: string | null;
   bothFlagsTrue: boolean;
   isAIAssessment?: boolean;
   onFlagChange?: (value: boolean) => void;
@@ -17,13 +21,17 @@ interface AssessmentCardProps {
 export const AssessmentCard = ({
   title,
   icon,
+  items,
   flag,
+  reasoning,
+  bothFlagsTrue,
   isAIAssessment = false,
   onFlagChange,
+  onReasoningChange,
 }: AssessmentCardProps) => {
   return (
-    <Card className="border border-gray-200 p-3">
-      <div className="space-y-3">
+    <Card className="border-2 border-gray-200 p-4">
+      <div className="space-y-2">
         <CardHeader 
           title={title}
           icon={icon}
@@ -31,7 +39,20 @@ export const AssessmentCard = ({
           flag={flag}
           onFlagChange={onFlagChange}
         />
-        <QualityRelevantSnippets />
+
+        {isAIAssessment && reasoning && (
+          <div className="space-y-2">
+            <p className="text-sm text-gray-600">{reasoning}</p>
+          </div>
+        )}
+
+        <ItemsList items={items} />
+
+        {isAIAssessment ? (
+          <AIRelevantSnippets />
+        ) : (
+          <QualityRelevantSnippets />
+        )}
       </div>
     </Card>
   );
