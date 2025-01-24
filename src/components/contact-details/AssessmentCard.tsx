@@ -41,23 +41,15 @@ export const AssessmentCard = ({
           onFlagChange={onFlagChange}
         />
 
-        <Separator className="my-4 bg-gray-300 h-[2px]" />
-
-        {isAIAssessment && reasoning && (
-          <div className="space-y-2">
-            <p className="text-sm text-gray-600">{reasoning}</p>
-          </div>
-        )}
-
-        <ItemsList items={items} />
-
-        <Separator className="my-4 bg-gray-300 h-[2px]" />
+        <Separator className="my-2 bg-gray-300 h-[2px]" />
 
         {isAIAssessment ? (
           <AIRelevantSnippets />
         ) : (
           <QualityRelevantSnippets />
         )}
+
+        <ItemsList items={items} />
       </div>
     </Card>
   );
