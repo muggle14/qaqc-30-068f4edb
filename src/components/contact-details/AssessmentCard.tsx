@@ -43,11 +43,10 @@ export const AssessmentCard = ({
 
         <Separator className="my-4 bg-gray-300 h-[2px]" />
 
-        {!isAIAssessment && (
-          <QualityReasoningSection 
-            reasoning={reasoning}
-            onReasoningChange={onReasoningChange}
-          />
+        {isAIAssessment && reasoning && (
+          <div className="space-y-2">
+            <p className="text-sm text-gray-600">{reasoning}</p>
+          </div>
         )}
 
         <ItemsList items={items} />
