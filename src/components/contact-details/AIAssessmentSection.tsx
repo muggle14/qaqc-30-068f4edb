@@ -29,7 +29,7 @@ export const AIAssessmentSection = ({
         flag={complaintsFlag}
         reasoning={complaintsReasoning}
         bothFlagsTrue={bothFlagsTrue}
-        isAIAssessment={false}
+        isAIAssessment={true}
       />
 
       <AssessmentCard
@@ -39,7 +39,7 @@ export const AIAssessmentSection = ({
         flag={vulnerabilityFlag}
         reasoning={vulnerabilityReasoning}
         bothFlagsTrue={bothFlagsTrue}
-        isAIAssessment={false}
+        isAIAssessment={true}
       />
     </div>
   );

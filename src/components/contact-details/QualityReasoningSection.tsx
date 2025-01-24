@@ -16,7 +16,7 @@ export const QualityReasoningSection = ({
         value={reasoning || ""}
         onChange={(e) => onReasoningChange?.(e.target.value)}
         placeholder="Enter reasoning..."
-        className="w-full border-0 px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="w-full border-gray-200 focus:border-gray-300 focus:ring-gray-200"
       />
     </div>
   );
