@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Accessibility, AlertCircle, Shield } from "lucide-react";
+import { AlertCircle, Shield } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { PhysicalDisabilityCard } from "./PhysicalDisabilityCard";
+import { AssessmentCard } from "./AssessmentCard";
 
 interface AIAssessmentProps {
   complaints: string[];
@@ -12,7 +12,11 @@ interface AIAssessmentProps {
   contactId: string;
 }
 
-export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisability, contactId }: AIAssessmentProps) => {
+export const AIAssessment = ({ 
+  complaints, 
+  vulnerabilities, 
+  contactId 
+}: AIAssessmentProps) => {
   const { data: aiAssessment } = useQuery({
     queryKey: ['ai-assessment', contactId],
     queryFn: async () => {
@@ -48,7 +52,6 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
     }
   });
 
-  // Determine if both flags are true for conditional coloring
   const bothFlagsTrue = aiAssessment?.complaints_flag && aiAssessment?.vulnerability_flag;
 
   return (
@@ -58,90 +61,29 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          {/* Physical Disability Card - Full width */}
-          <Card className="h-auto w-full border-2 border-gray-200 p-4">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <Accessibility className="h-5 w-5 text-gray-500" />
-                  <h3 className="font-semibold text-lg">Physical Disability Status</h3>
-                </div>
-                <Badge 
-                  variant={aiAssessment?.physical_disability_flag ? "destructive" : "secondary"} 
-                  className="text-sm"
-                >
-                  {aiAssessment?.physical_disability_flag ? "Yes" : "No"}
-                </Badge>
-              </div>
-              {aiAssessment?.physical_disability_reasoning && (
-                <p className="text-sm text-gray-600 mt-2">
-                  {aiAssessment.physical_disability_reasoning}
-                </p>
-              )}
-            </div>
-          </Card>
+          <PhysicalDisabilityCard
+            physicalDisabilityFlag={aiAssessment?.physical_disability_flag || false}
+            physicalDisabilityReasoning={aiAssessment?.physical_disability_reasoning}
+          />
 
-          {/* Complaints and Vulnerabilities in a grid */}
           <div className="grid grid-cols-2 gap-6">
-            {/* Complaints Section */}
-            <Card className="border-2 border-gray-200 p-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <AlertCircle className="h-5 w-5 text-gray-500" />
-                    <h3 className="font-semibold text-lg">Complaints:</h3>
-                    <Badge 
-                      variant={aiAssessment?.complaints_flag ? "destructive" : "secondary"}
-                      className={`text-lg font-semibold ${bothFlagsTrue ? 'bg-red-500' : ''}`}
-                    >
-                      {aiAssessment?.complaints_flag ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                </div>
-                {aiAssessment?.complaints_reasoning && (
-                  <p className="text-sm text-gray-600">
-                    {aiAssessment.complaints_reasoning}
-                  </p>
-                )}
-                <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  <ul className="list-disc pl-4 space-y-2">
-                    {complaints.map((complaint, index) => (
-                      <li key={index} className="text-sm text-gray-600">{complaint}</li>
-                    ))}
-                  </ul>
-                </ScrollArea>
-              </div>
-            </Card>
+            <AssessmentCard
+              title="Complaints"
+              icon={AlertCircle}
+              items={complaints}
+              flag={aiAssessment?.complaints_flag || false}
+              reasoning={aiAssessment?.complaints_reasoning}
+              bothFlagsTrue={bothFlagsTrue}
+            />
 
-            {/* Vulnerabilities Section */}
-            <Card className="border-2 border-gray-200 p-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Shield className="h-5 w-5 text-gray-500" />
-                    <h3 className="font-semibold text-lg">Vulnerabilities:</h3>
-                    <Badge 
-                      variant={aiAssessment?.vulnerability_flag ? "destructive" : "secondary"}
-                      className={`text-lg font-semibold ${bothFlagsTrue ? 'bg-red-500' : ''}`}
-                    >
-                      {aiAssessment?.vulnerability_flag ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                </div>
-                {aiAssessment?.vulnerability_reasoning && (
-                  <p className="text-sm text-gray-600">
-                    {aiAssessment.vulnerability_reasoning}
-                  </p>
-                )}
-                <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  <ul className="list-disc pl-4 space-y-2">
-                    {vulnerabilities.map((vulnerability, index) => (
-                      <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
-                    ))}
-                  </ul>
-                </ScrollArea>
-              </div>
-            </Card>
+            <AssessmentCard
+              title="Vulnerabilities"
+              icon={Shield}
+              items={vulnerabilities}
+              flag={aiAssessment?.vulnerability_flag || false}
+              reasoning={aiAssessment?.vulnerability_reasoning}
+              bothFlagsTrue={bothFlagsTrue}
+            />
           </div>
         </div>
       </CardContent>
