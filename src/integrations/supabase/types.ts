@@ -18,6 +18,7 @@ export type Database = {
           id: string
           physical_disability_flag: boolean
           physical_disability_reasoning: string | null
+          relevant_snippet_ids: string[] | null
           updated_at: string | null
         }
         Insert: {
@@ -28,6 +29,7 @@ export type Database = {
           id?: string
           physical_disability_flag?: boolean
           physical_disability_reasoning?: string | null
+          relevant_snippet_ids?: string[] | null
           updated_at?: string | null
         }
         Update: {
@@ -38,6 +40,7 @@ export type Database = {
           id?: string
           physical_disability_flag?: boolean
           physical_disability_reasoning?: string | null
+          relevant_snippet_ids?: string[] | null
           updated_at?: string | null
         }
         Relationships: [
@@ -55,6 +58,7 @@ export type Database = {
           contact_id: string
           created_at: string | null
           id: string
+          relevant_snippet_ids: string[] | null
           updated_at: string | null
           vulnerability_flag: boolean
           vulnerability_reasoning: string | null
@@ -63,6 +67,7 @@ export type Database = {
           contact_id: string
           created_at?: string | null
           id?: string
+          relevant_snippet_ids?: string[] | null
           updated_at?: string | null
           vulnerability_flag?: boolean
           vulnerability_reasoning?: string | null
@@ -71,6 +76,7 @@ export type Database = {
           contact_id?: string
           created_at?: string | null
           id?: string
+          relevant_snippet_ids?: string[] | null
           updated_at?: string | null
           vulnerability_flag?: boolean
           vulnerability_reasoning?: string | null

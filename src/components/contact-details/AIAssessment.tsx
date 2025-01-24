@@ -46,7 +46,8 @@ export const AIAssessment = ({
       return {
         ...complaintsData,
         vulnerability_flag: vulnerabilityData?.vulnerability_flag || false,
-        vulnerability_reasoning: vulnerabilityData?.vulnerability_reasoning
+        vulnerability_reasoning: vulnerabilityData?.vulnerability_reasoning,
+        vulnerability_snippet_ids: vulnerabilityData?.relevant_snippet_ids || []
       };
     }
   });
@@ -70,6 +71,9 @@ export const AIAssessment = ({
             complaintsReasoning={aiAssessment?.complaints_reasoning}
             vulnerabilityReasoning={aiAssessment?.vulnerability_reasoning}
             bothFlagsTrue={bothFlagsTrue}
+            contactId={contactId}
+            complaintsSnippetIds={aiAssessment?.relevant_snippet_ids || []}
+            vulnerabilitySnippetIds={aiAssessment?.vulnerability_snippet_ids || []}
           />
         </div>
       </CardContent>

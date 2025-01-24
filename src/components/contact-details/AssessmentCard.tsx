@@ -17,6 +17,8 @@ interface AssessmentCardProps {
   isAIAssessment?: boolean;
   onFlagChange?: (value: boolean) => void;
   onReasoningChange?: (value: string) => void;
+  contactId?: string;
+  snippetIds?: string[];
 }
 
 export const AssessmentCard = ({
@@ -29,6 +31,8 @@ export const AssessmentCard = ({
   isAIAssessment = false,
   onFlagChange,
   onReasoningChange,
+  contactId,
+  snippetIds = [],
 }: AssessmentCardProps) => {
   return (
     <Card className="border border-canvas-border shadow-sm bg-white p-3">
@@ -53,7 +57,10 @@ export const AssessmentCard = ({
         )}
 
         {isAIAssessment ? (
-          <AIRelevantSnippets />
+          <AIRelevantSnippets 
+            contactId={contactId || ''} 
+            snippetIds={snippetIds}
+          />
         ) : (
           <QualityRelevantSnippets />
         )}

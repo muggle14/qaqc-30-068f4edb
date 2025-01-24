@@ -9,6 +9,9 @@ interface AIAssessmentSectionProps {
   complaintsReasoning: string | null;
   vulnerabilityReasoning: string | null;
   bothFlagsTrue: boolean;
+  contactId: string;
+  complaintsSnippetIds: string[];
+  vulnerabilitySnippetIds: string[];
 }
 
 export const AIAssessmentSection = ({
@@ -19,6 +22,9 @@ export const AIAssessmentSection = ({
   complaintsReasoning,
   vulnerabilityReasoning,
   bothFlagsTrue,
+  contactId,
+  complaintsSnippetIds,
+  vulnerabilitySnippetIds,
 }: AIAssessmentSectionProps) => {
   return (
     <div className="grid grid-cols-2 gap-6">
@@ -30,6 +36,8 @@ export const AIAssessmentSection = ({
         reasoning={complaintsReasoning}
         bothFlagsTrue={bothFlagsTrue}
         isAIAssessment={true}
+        contactId={contactId}
+        snippetIds={complaintsSnippetIds}
       />
 
       <AssessmentCard
@@ -40,6 +48,8 @@ export const AIAssessmentSection = ({
         reasoning={vulnerabilityReasoning}
         bothFlagsTrue={bothFlagsTrue}
         isAIAssessment={true}
+        contactId={contactId}
+        snippetIds={vulnerabilitySnippetIds}
       />
     </div>
   );
