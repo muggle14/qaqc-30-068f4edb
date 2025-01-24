@@ -37,7 +37,7 @@ export const AssessmentCard = ({
           </div>
         </div>
 
-        <Separator className="my-2" />
+        <Separator className="my-4 bg-gray-300 h-[2px]" />
 
         <div className="space-y-2">
           <h4 className="font-medium text-gray-700">Reasoning:</h4>
