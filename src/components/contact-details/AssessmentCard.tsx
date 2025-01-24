@@ -77,7 +77,9 @@ export const AssessmentCard = ({
 
         <Separator className="my-4 bg-gray-300 h-[2px]" />
 
-        {!isAIAssessment && (
+        {isAIAssessment ? (
+          <AIReasoningSection reasoning={reasoning} />
+        ) : (
           <QualityReasoningSection 
             reasoning={reasoning}
             onReasoningChange={onReasoningChange}
