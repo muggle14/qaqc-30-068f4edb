@@ -2,6 +2,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 interface Snippet {
   id: string;
@@ -38,7 +39,7 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
 
   // Safely type and filter the snippets
   const relevantSnippets = Array.isArray(conversationData?.snippets_metadata) 
-    ? (conversationData.snippets_metadata as Snippet[]).filter(
+    ? (conversationData.snippets_metadata as unknown as Snippet[]).filter(
         (snippet: Snippet) => snippetIds.includes(snippet.id)
       )
     : [];
