@@ -13,7 +13,7 @@ export const ItemsList = ({ items }: ItemsListProps) => {
       </CardHeader>
       <CardContent className="pt-0">
         <ScrollArea className="h-[180px] pr-4">
-          <ul className="space-y-2">
+          <ul className="space-y-2 list-disc pl-4">
             {items.map((item, index) => (
               <li key={index} className="text-sm text-gray-600">
                 {item}
