@@ -16,30 +16,31 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
         <CardTitle>AI Assessment & Feedback</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-6">
-            {/* Physical Disability Card - Now with full width and inline status */}
-            <Card className="h-[100px] w-full">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Accessibility className="h-4 w-4 text-gray-500" />
-                    <h3 className="font-semibold text-sm">Physical Disability Status</h3>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant={hasPhysicalDisability ? "destructive" : "secondary"} className="text-sm">
-                      {hasPhysicalDisability ? "Yes" : "No"}
-                    </Badge>
-                    <p className="text-sm text-gray-600">
-                      {hasPhysicalDisability 
-                        ? "Physical disability has been identified"
-                        : "No physical disability reported"}
-                    </p>
-                  </div>
+        <div className="space-y-6">
+          {/* Physical Disability Card - Full width */}
+          <Card className="h-[100px] w-full">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Accessibility className="h-4 w-4 text-gray-500" />
+                  <h3 className="font-semibold text-sm">Physical Disability Status</h3>
                 </div>
-              </CardHeader>
-            </Card>
+                <div className="flex items-center space-x-2">
+                  <Badge variant={hasPhysicalDisability ? "destructive" : "secondary"} className="text-sm">
+                    {hasPhysicalDisability ? "Yes" : "No"}
+                  </Badge>
+                  <p className="text-sm text-gray-600">
+                    {hasPhysicalDisability 
+                      ? "Physical disability has been identified"
+                      : "No physical disability reported"}
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
 
+          {/* Complaints and Vulnerabilities in a grid */}
+          <div className="grid grid-cols-2 gap-6">
             {/* Complaints Section */}
             <div>
               <h3 className="font-semibold mb-2">Complaints</h3>
@@ -51,18 +52,18 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
                 </ul>
               </ScrollArea>
             </div>
-          </div>
 
-          {/* Vulnerabilities Section */}
-          <div>
-            <h3 className="font-semibold mb-2">Vulnerabilities</h3>
-            <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-              <ul className="list-disc pl-4 space-y-2">
-                {vulnerabilities.map((vulnerability, index) => (
-                  <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
-                ))}
-              </ul>
-            </ScrollArea>
+            {/* Vulnerabilities Section */}
+            <div>
+              <h3 className="font-semibold mb-2">Vulnerabilities</h3>
+              <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                <ul className="list-disc pl-4 space-y-2">
+                  {vulnerabilities.map((vulnerability, index) => (
+                    <li key={index} className="text-sm text-gray-600">{vulnerability}</li>
+                  ))}
+                </ul>
+              </ScrollArea>
+            </div>
           </div>
         </div>
       </CardContent>
