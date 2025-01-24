@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { LucideIcon } from "lucide-react";
 
 interface AssessmentCardProps {
@@ -35,6 +36,8 @@ export const AssessmentCard = ({
             </Badge>
           </div>
         </div>
+
+        <Separator className="my-2" />
 
         <div className="space-y-2">
           <h4 className="font-medium text-gray-700">Reasoning:</h4>
