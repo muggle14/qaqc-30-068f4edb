@@ -10,6 +10,8 @@ export const QualityReasoningSection = ({
   reasoning, 
   onReasoningChange 
 }: QualityReasoningSectionProps) => {
+  console.log("QualityReasoningSection rendering with reasoning:", reasoning);
+  
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
@@ -18,7 +20,10 @@ export const QualityReasoningSection = ({
       </div>
       <Input
         value={reasoning || ""}
-        onChange={(e) => onReasoningChange?.(e.target.value)}
+        onChange={(e) => {
+          console.log("Input changed:", e.target.value);
+          onReasoningChange?.(e.target.value);
+        }}
         placeholder="Enter your assessment reasoning..."
         className="w-full border-gray-200 focus:border-gray-300 focus:ring-gray-200"
       />

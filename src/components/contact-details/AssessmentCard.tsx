@@ -45,6 +45,13 @@ export const AssessmentCard = ({
 
         <ItemsList items={items} />
 
+        {!isAIAssessment && (
+          <QualityReasoningSection 
+            reasoning={reasoning}
+            onReasoningChange={onReasoningChange}
+          />
+        )}
+
         {isAIAssessment ? (
           <AIRelevantSnippets />
         ) : (
