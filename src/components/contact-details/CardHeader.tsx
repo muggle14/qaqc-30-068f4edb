@@ -1,5 +1,6 @@
 import { LucideIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Badge } from "@/components/ui/badge";
 
 interface CardHeaderProps {
   title: string;
@@ -21,7 +22,14 @@ export const CardHeader = ({
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <Icon className="h-5 w-5 text-gray-500" />
-          <h3 className="font-semibold text-lg">{title}</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-lg">{title}</h3>
+            {isAIAssessment && (
+              <Badge variant={flag ? "destructive" : "secondary"}>
+                {flag ? "Yes" : "No"}
+              </Badge>
+            )}
+          </div>
         </div>
         {onFlagChange && (
           <RadioGroup 
