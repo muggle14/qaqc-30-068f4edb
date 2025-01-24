@@ -55,38 +55,77 @@ export const AIAssessment = ({
   const bothFlagsTrue = aiAssessment?.complaints_flag && aiAssessment?.vulnerability_flag;
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>AI Assessment & Feedback</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          <PhysicalDisabilityCard
-            physicalDisabilityFlag={aiAssessment?.physical_disability_flag || false}
-            physicalDisabilityReasoning={aiAssessment?.physical_disability_reasoning}
-          />
+    <div className="space-y-6">
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>AI Assessment & Feedback</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <PhysicalDisabilityCard
+              physicalDisabilityFlag={aiAssessment?.physical_disability_flag || false}
+              physicalDisabilityReasoning={aiAssessment?.physical_disability_reasoning}
+            />
 
+            <div className="grid grid-cols-2 gap-6">
+              <AssessmentCard
+                title="Complaints"
+                icon={AlertCircle}
+                items={complaints}
+                flag={aiAssessment?.complaints_flag || false}
+                reasoning={aiAssessment?.complaints_reasoning}
+                bothFlagsTrue={bothFlagsTrue}
+              />
+
+              <AssessmentCard
+                title="Vulnerabilities"
+                icon={Shield}
+                items={vulnerabilities}
+                flag={aiAssessment?.vulnerability_flag || false}
+                reasoning={aiAssessment?.vulnerability_reasoning}
+                bothFlagsTrue={bothFlagsTrue}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Quality Assessor Feedback</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="grid grid-cols-2 gap-6">
             <AssessmentCard
-              title="Complaints"
+              title="Strengths"
               icon={AlertCircle}
-              items={complaints}
-              flag={aiAssessment?.complaints_flag || false}
-              reasoning={aiAssessment?.complaints_reasoning}
-              bothFlagsTrue={bothFlagsTrue}
+              items={[
+                "Clear communication throughout the call",
+                "Proper identification verification",
+                "Effective problem resolution",
+                "Professional tone maintained"
+              ]}
+              flag={false}
+              reasoning={"Agent demonstrated strong customer service skills"}
+              bothFlagsTrue={false}
             />
 
             <AssessmentCard
-              title="Vulnerabilities"
+              title="Areas for Improvement"
               icon={Shield}
-              items={vulnerabilities}
-              flag={aiAssessment?.vulnerability_flag || false}
-              reasoning={aiAssessment?.vulnerability_reasoning}
-              bothFlagsTrue={bothFlagsTrue}
+              items={[
+                "Could have offered additional services",
+                "Missed opportunity for feedback collection",
+                "Longer than average handling time",
+                "Follow-up documentation incomplete"
+              ]}
+              flag={false}
+              reasoning={"Some opportunities for process optimization identified"}
+              bothFlagsTrue={false}
             />
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
