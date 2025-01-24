@@ -18,7 +18,7 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
       <CardContent>
         <div className="space-y-6">
           {/* Physical Disability Card - Full width */}
-          <Card className="h-[70px] w-full">
+          <Card className="h-[70px] w-full border-2 border-gray-200">
             <CardHeader className="pb-2">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
@@ -54,7 +54,7 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
             </div>
 
             {/* Vulnerabilities Section */}
-            <div>
+            <div className="border-2 border-gray-200 rounded-lg p-4">
               <h3 className="font-semibold mb-2">Vulnerabilities</h3>
               <ScrollArea className="h-[200px] pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 <ul className="list-disc pl-4 space-y-2">
