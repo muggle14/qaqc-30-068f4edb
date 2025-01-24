@@ -31,25 +31,20 @@ const ContactDetails = () => {
 
   const { contactData } = state;
 
-  const { data: assessmentData } = useQuery({
-    queryKey: ['assessment', contactData.contact_id],
-    queryFn: async () => {
-      console.log("Fetching assessment data for contact:", contactData.contact_id);
-      const { data, error } = await supabase
-        .from('contact_assessments')
-        .select('*')
-        .eq('contact_id', contactData.contact_id)
-        .maybeSingle();
+  // Dummy data for complaints and vulnerabilities since they're not in the new table
+  const defaultComplaints = [
+    "Billing transparency issues",
+    "Unexpected late payment fees",
+    "Communication gaps regarding payment due dates",
+    "Confusion about service charges"
+  ];
 
-      if (error) {
-        console.error("Error fetching assessment data:", error);
-        throw error;
-      }
-
-      console.log("Assessment data fetched:", data);
-      return data;
-    }
-  });
+  const defaultVulnerabilities = [
+    "Customer showed signs of financial stress",
+    "Limited understanding of billing cycle",
+    "Expressed difficulty managing payment deadlines",
+    "Potential need for payment plan options"
+  ];
 
   // Dummy data (kept as is for consistency)
   const overallSummary = "Customer called regarding billing discrepancy on their recent invoice. Expressed frustration about unexpected charges. Agent provided detailed explanation of charges and offered to review the account for potential adjustments.";
@@ -67,20 +62,6 @@ const ContactDetails = () => {
     "Late fee was waived as a one-time courtesy",
     "Customer expressed satisfaction with the resolution",
     "Follow-up email confirmation was sent with all discussed details"
-  ];
-
-  const complaints = assessmentData?.complaints || [
-    "Billing transparency issues",
-    "Unexpected late payment fees",
-    "Communication gaps regarding payment due dates",
-    "Confusion about service charges"
-  ];
-
-  const vulnerabilities = assessmentData?.vulnerabilities || [
-    "Customer showed signs of financial stress",
-    "Limited understanding of billing cycle",
-    "Expressed difficulty managing payment deadlines",
-    "Potential need for payment plan options"
   ];
 
   return (
@@ -109,9 +90,9 @@ const ContactDetails = () => {
         </div>
 
         <AIAssessment 
-          complaints={complaints}
-          vulnerabilities={vulnerabilities}
-          hasPhysicalDisability={assessmentData?.has_physical_disability || false}
+          complaints={defaultComplaints}
+          vulnerabilities={defaultVulnerabilities}
+          hasPhysicalDisability={false}
           contactId={contactData.contact_id}
         />
       </div>
