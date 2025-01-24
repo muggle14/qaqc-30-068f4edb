@@ -60,28 +60,30 @@ const ContactDetails = () => {
   ];
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <ContactHeader />
-      <div className="space-y-6">
-        <div className="grid grid-cols-[1.2fr,1fr] gap-6 min-h-[600px]">
-          <div className="space-y-6">
-            <ContactSection 
-              contactId={contactData.contact_id}
-              evaluator={contactData.evaluator}
-            />
-            <SummarySection 
-              overallSummary={overallSummary}
-              detailedSummaryPoints={detailedSummaryPoints}
-            />
+    <div className="min-h-screen bg-canvas-bg">
+      <div className="container mx-auto px-4 py-6 max-w-[1400px]">
+        <ContactHeader />
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr,1fr] gap-6">
+            <div className="space-y-4">
+              <ContactSection 
+                contactId={contactData.contact_id}
+                evaluator={contactData.evaluator}
+              />
+              <SummarySection 
+                overallSummary={overallSummary}
+                detailedSummaryPoints={detailedSummaryPoints}
+              />
+            </div>
+            <TranscriptCard transcript={contactData.transcript} />
           </div>
-          <TranscriptCard transcript={contactData.transcript} />
-        </div>
 
-        <AssessmentSection
-          complaints={defaultComplaints}
-          vulnerabilities={defaultVulnerabilities}
-          contactId={contactData.contact_id}
-        />
+          <AssessmentSection
+            complaints={defaultComplaints}
+            vulnerabilities={defaultVulnerabilities}
+            contactId={contactData.contact_id}
+          />
+        </div>
       </div>
     </div>
   );

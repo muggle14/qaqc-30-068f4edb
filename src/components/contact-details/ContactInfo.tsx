@@ -8,14 +8,14 @@ export const ContactInfo = ({
   evaluator,
 }: ContactInfoProps) => {
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <div>
-        <h3 className="font-semibold text-sm text-gray-500">Contact ID</h3>
-        <p>{contactId}</p>
+    <div className="grid grid-cols-2 gap-6">
+      <div className="space-y-1.5">
+        <h3 className="text-sm font-medium text-canvas-muted">Contact ID</h3>
+        <p className="text-base font-medium text-canvas-text">{contactId}</p>
       </div>
-      <div>
-        <h3 className="font-semibold text-sm text-gray-500">Evaluator</h3>
-        <p>{evaluator}</p>
+      <div className="space-y-1.5">
+        <h3 className="text-sm font-medium text-canvas-muted">Evaluator</h3>
+        <p className="text-base font-medium text-canvas-text">{evaluator}</p>
       </div>
     </div>
   );

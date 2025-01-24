@@ -31,8 +31,8 @@ export const AssessmentCard = ({
   onReasoningChange,
 }: AssessmentCardProps) => {
   return (
-    <Card className="border-2 border-gray-200 p-3">
-      <div className="space-y-2">
+    <Card className="border border-canvas-border shadow-sm bg-white p-3">
+      <div className="space-y-3">
         <CardHeader 
           title={title}
           icon={icon}
@@ -41,7 +41,7 @@ export const AssessmentCard = ({
           onFlagChange={onFlagChange}
         />
 
-        <Separator className="bg-gray-300 h-[2px]" />
+        <Separator className="bg-canvas-border" />
 
         {isAIAssessment ? (
           <AIRelevantSnippets />
