@@ -56,8 +56,7 @@ export const QualityAssessorSection = () => {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between mb-1">
-        <h2 className="text-xl font-semibold">Quality Assessor Feedback</h2>
+      <div className="flex justify-end mb-1">
         <Button onClick={handleSave} size="sm" className="flex items-center gap-1.5">
           <Save className="h-3.5 w-3.5" />
           Save Feedback
