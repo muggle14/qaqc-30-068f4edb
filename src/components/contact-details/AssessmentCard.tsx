@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { LucideIcon } from "lucide-react";
 import { QualityReasoningSection } from "./QualityReasoningSection";
 import { CardHeader } from "./CardHeader";
@@ -31,7 +32,7 @@ export const AssessmentCard = ({
 }: AssessmentCardProps) => {
   return (
     <Card className="border-2 border-gray-200 p-4">
-      <div className="space-y-2">
+      <div className="space-y-4">
         <CardHeader 
           title={title}
           icon={icon}
@@ -40,6 +41,8 @@ export const AssessmentCard = ({
           onFlagChange={onFlagChange}
         />
 
+        <Separator className="my-4 bg-gray-300 h-[2px]" />
+
         {isAIAssessment && reasoning && (
           <div className="space-y-2">
             <p className="text-sm text-gray-600">{reasoning}</p>
@@ -47,6 +50,8 @@ export const AssessmentCard = ({
         )}
 
         <ItemsList items={items} />
+
+        <Separator className="my-4 bg-gray-300 h-[2px]" />
 
         {isAIAssessment ? (
           <AIRelevantSnippets />
