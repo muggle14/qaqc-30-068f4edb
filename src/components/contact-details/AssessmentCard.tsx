@@ -4,7 +4,9 @@ import { LucideIcon } from "lucide-react";
 import { QualityReasoningSection } from "./QualityReasoningSection";
 import { CardHeader } from "./CardHeader";
 import { ItemsList } from "./ItemsList";
-import { RelevantSnippets } from "./RelevantSnippets";
+import { AIRelevantSnippets } from "./AIRelevantSnippets";
+import { QualityRelevantSnippets } from "./QualityRelevantSnippets";
+import { AIReasoningSection } from "./AIReasoningSection";
 
 interface AssessmentCardProps {
   title: string;
@@ -43,12 +45,7 @@ export const AssessmentCard = ({
         <Separator className="my-4 bg-gray-300 h-[2px]" />
 
         {isAIAssessment ? (
-          reasoning && (
-            <div className="space-y-2">
-              <h4 className="font-medium text-gray-700">Reasoning:</h4>
-              <p className="text-sm text-gray-600">{reasoning}</p>
-            </div>
-          )
+          <AIReasoningSection reasoning={reasoning} />
         ) : (
           <QualityReasoningSection 
             reasoning={reasoning}
@@ -60,7 +57,11 @@ export const AssessmentCard = ({
 
         <Separator className="my-4 bg-gray-300 h-[2px]" />
 
-        <RelevantSnippets />
+        {isAIAssessment ? (
+          <AIRelevantSnippets />
+        ) : (
+          <QualityRelevantSnippets />
+        )}
       </div>
     </Card>
   );
