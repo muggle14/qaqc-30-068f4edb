@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { LucideIcon } from "lucide-react";
-import { AIReasoningSection } from "./AIReasoningSection";
 import { QualityReasoningSection } from "./QualityReasoningSection";
 import { CardHeader } from "./CardHeader";
 import { ItemsList } from "./ItemsList";
@@ -43,9 +42,7 @@ export const AssessmentCard = ({
 
         <Separator className="my-4 bg-gray-300 h-[2px]" />
 
-        {isAIAssessment ? (
-          <AIReasoningSection reasoning={reasoning} />
-        ) : (
+        {!isAIAssessment && (
           <QualityReasoningSection 
             reasoning={reasoning}
             onReasoningChange={onReasoningChange}
