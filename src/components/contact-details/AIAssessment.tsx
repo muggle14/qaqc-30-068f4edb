@@ -48,6 +48,9 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
     }
   });
 
+  // Determine if both flags are true for conditional coloring
+  const bothFlagsTrue = aiAssessment?.complaints_flag && aiAssessment?.vulnerability_flag;
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -87,13 +90,13 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
                   <div className="flex items-center space-x-2">
                     <AlertCircle className="h-5 w-5 text-gray-500" />
                     <h3 className="font-semibold text-lg">Complaints</h3>
+                    <Badge 
+                      variant={aiAssessment?.complaints_flag ? "destructive" : "secondary"}
+                      className={`text-sm ${bothFlagsTrue ? 'bg-red-500' : ''}`}
+                    >
+                      {aiAssessment?.complaints_flag ? "Yes" : "No"}
+                    </Badge>
                   </div>
-                  <Badge 
-                    variant={aiAssessment?.complaints_flag ? "destructive" : "secondary"}
-                    className="text-sm"
-                  >
-                    {aiAssessment?.complaints_flag ? "Yes" : "No"}
-                  </Badge>
                 </div>
                 {aiAssessment?.complaints_reasoning && (
                   <p className="text-sm text-gray-600">
@@ -117,13 +120,13 @@ export const AIAssessment = ({ complaints, vulnerabilities, hasPhysicalDisabilit
                   <div className="flex items-center space-x-2">
                     <Shield className="h-5 w-5 text-gray-500" />
                     <h3 className="font-semibold text-lg">Vulnerabilities</h3>
+                    <Badge 
+                      variant={aiAssessment?.vulnerability_flag ? "destructive" : "secondary"}
+                      className={`text-sm ${bothFlagsTrue ? 'bg-red-500' : ''}`}
+                    >
+                      {aiAssessment?.vulnerability_flag ? "Yes" : "No"}
+                    </Badge>
                   </div>
-                  <Badge 
-                    variant={aiAssessment?.vulnerability_flag ? "destructive" : "secondary"}
-                    className="text-sm"
-                  >
-                    {aiAssessment?.vulnerability_flag ? "Yes" : "No"}
-                  </Badge>
                 </div>
                 {aiAssessment?.vulnerability_reasoning && (
                   <p className="text-sm text-gray-600">

@@ -50,6 +50,41 @@ export type Database = {
           },
         ]
       }
+      ai_assess_vulnerability: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          vulnerability_flag: boolean
+          vulnerability_reasoning: string | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          vulnerability_flag?: boolean
+          vulnerability_reasoning?: string | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          vulnerability_flag?: boolean
+          vulnerability_reasoning?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_assess_vulnerability_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "upload_details"
+            referencedColumns: ["contact_id"]
+          },
+        ]
+      }
       contact_assessments: {
         Row: {
           complaints: string[] | null
@@ -171,41 +206,6 @@ export type Database = {
         }
         Relationships: []
       }
-      ai_assess_vulnerability: {
-        Row: {
-          id: string
-          contact_id: string
-          vulnerability_flag: boolean
-          vulnerability_reasoning: string | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          contact_id: string
-          vulnerability_flag?: boolean
-          vulnerability_reasoning?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          contact_id?: string
-          vulnerability_flag?: boolean
-          vulnerability_reasoning?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_assess_vulnerability_contact_id_fkey"
-            columns: ["contact_id"]
-            isOneToOne: false
-            referencedRelation: "upload_details"
-            referencedColumns: ["contact_id"]
-          }
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -232,7 +232,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never,
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -244,10 +244,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
+        Row: infer R
+      }
+      ? R
+      : never
     : never
 
 export type TablesInsert<
