@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PhysicalDisabilitySection } from "./PhysicalDisabilitySection";
 import { AIAssessmentSection } from "./AIAssessmentSection";
-import { QualityAssessorSection } from "./QualityAssessorSection";
 
 interface AIAssessmentProps {
   complaints: string[];
@@ -77,15 +76,6 @@ export const AIAssessment = ({
               bothFlagsTrue={bothFlagsTrue}
             />
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Quality Assessor Feedback</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <QualityAssessorSection />
         </CardContent>
       </Card>
     </div>
