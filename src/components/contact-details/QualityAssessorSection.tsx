@@ -20,8 +20,6 @@ export const QualityAssessorSection = () => {
 
   const [complaintsFlag, setComplaintsFlag] = useState(false);
   const [vulnerabilityFlag, setVulnerabilityFlag] = useState(false);
-  const [complaintsReasoning, setComplaintsReasoning] = useState("");
-  const [vulnerabilityReasoning, setVulnerabilityReasoning] = useState("");
 
   const handleSave = async () => {
     try {
@@ -33,8 +31,6 @@ export const QualityAssessorSection = () => {
           evaluator: state.contactData.evaluator,
           complaints_flag: complaintsFlag,
           vulnerability_flag: vulnerabilityFlag,
-          complaints_reasoning: complaintsReasoning,
-          vulnerability_reasoning: vulnerabilityReasoning,
         });
 
       if (error) throw error;
@@ -75,11 +71,8 @@ export const QualityAssessorSection = () => {
             "Professional tone maintained"
           ]}
           flag={complaintsFlag}
-          reasoning={complaintsReasoning}
           bothFlagsTrue={complaintsFlag && vulnerabilityFlag}
-          isAIAssessment={true}
           onFlagChange={setComplaintsFlag}
-          onReasoningChange={setComplaintsReasoning}
         />
 
         <AssessmentCard
@@ -92,11 +85,8 @@ export const QualityAssessorSection = () => {
             "Follow-up documentation incomplete"
           ]}
           flag={vulnerabilityFlag}
-          reasoning={vulnerabilityReasoning}
           bothFlagsTrue={complaintsFlag && vulnerabilityFlag}
-          isAIAssessment={true}
           onFlagChange={setVulnerabilityFlag}
-          onReasoningChange={setVulnerabilityReasoning}
         />
       </div>
     </div>
