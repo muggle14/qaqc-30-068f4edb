@@ -100,14 +100,14 @@ serve(async (req) => {
           }
         )
       }
-      snippetsData = snippets
+      snippetsData = snippets || []
     }
 
     console.log("Snippets data:", snippetsData)
 
     const response = {
-      complaints: complaintsData,
-      vulnerability: vulnerabilityData,
+      complaints: complaintsData || null,
+      vulnerability: vulnerabilityData || null,
       snippets: snippetsData
     }
 
