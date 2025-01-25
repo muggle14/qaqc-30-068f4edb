@@ -9,31 +9,44 @@ interface AIRelevantSnippetsProps {
 }
 
 export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippetsProps) => {
-  const { data: snippetsData, isLoading } = useQuery({
+  const { data: snippets, isLoading } = useQuery({
     queryKey: ['ai-snippets', contactId, snippetIds],
     queryFn: async () => {
-      console.log("Fetching AI assessment snippets for contact:", contactId);
+      console.log("Fetching snippets for contact:", contactId);
       console.log("Snippet IDs to fetch:", snippetIds);
 
-      const { data: complaintsData } = await supabase
-        .from('ai_assess_complaints')
-        .select('relevant_snippet_ids')
+      // Fetch the conversation data which contains the snippets
+      const { data: conversationData, error } = await supabase
+        .from('contact_conversations')
+        .select('snippets_metadata')
         .eq('contact_id', contactId)
         .single();
 
-      const { data: vulnerabilityData } = await supabase
-        .from('ai_assess_vulnerability')
-        .select('relevant_snippet_ids')
-        .eq('contact_id', contactId)
-        .single();
+      if (error) {
+        console.error("Error fetching conversation data:", error);
+        throw error;
+      }
 
-      const allSnippets = [
-        ...(complaintsData?.relevant_snippet_ids || []),
-        ...(vulnerabilityData?.relevant_snippet_ids || [])
-      ];
+      if (!conversationData?.snippets_metadata) {
+        console.log("No snippets metadata found");
+        return [];
+      }
 
-      console.log("Retrieved snippets:", allSnippets);
-      return allSnippets;
+      // Filter the snippets based on the provided snippet IDs
+      const allSnippets = conversationData.snippets_metadata as Array<{
+        id: string;
+        content: string;
+      }>;
+
+      console.log("All available snippets:", allSnippets);
+      console.log("Filtering for snippet IDs:", snippetIds);
+
+      const relevantSnippets = allSnippets.filter(snippet => 
+        snippetIds.includes(snippet.id)
+      );
+
+      console.log("Filtered relevant snippets:", relevantSnippets);
+      return relevantSnippets;
     },
     enabled: !!contactId
   });
@@ -49,12 +62,12 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
           <div className="text-sm text-gray-600">
             {isLoading ? (
               <p>Loading snippets...</p>
-            ) : snippetsData && snippetsData.length > 0 ? (
+            ) : snippets && snippets.length > 0 ? (
               <ul className="space-y-3 list-disc pl-4">
-                {snippetsData.map((snippet: string, index: number) => (
+                {snippets.map((snippet, index) => (
                   <li key={index} className="text-gray-700">
                     <div className="bg-white p-2 rounded border border-gray-200">
-                      <p className="text-sm">{snippet}</p>
+                      <p className="text-sm">{snippet.content}</p>
                     </div>
                   </li>
                 ))}
