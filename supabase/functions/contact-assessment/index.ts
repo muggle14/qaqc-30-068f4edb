@@ -7,6 +7,7 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -19,6 +20,12 @@ serve(async (req) => {
 
     const { contact_id } = await req.json()
 
+    if (!contact_id) {
+      throw new Error('contact_id is required')
+    }
+
+    console.log("Processing assessment for contact:", contact_id)
+
     // Fetch complaints assessment
     const { data: complaintsData, error: complaintsError } = await supabaseClient
       .from('ai_assess_complaints')
@@ -26,7 +33,12 @@ serve(async (req) => {
       .eq('contact_id', contact_id)
       .maybeSingle()
 
-    if (complaintsError) throw complaintsError
+    if (complaintsError) {
+      console.error("Error fetching complaints:", complaintsError)
+      throw complaintsError
+    }
+
+    console.log("Complaints data:", complaintsData)
 
     // Fetch vulnerability assessment
     const { data: vulnerabilityData, error: vulnerabilityError } = await supabaseClient
@@ -35,7 +47,12 @@ serve(async (req) => {
       .eq('contact_id', contact_id)
       .maybeSingle()
 
-    if (vulnerabilityError) throw vulnerabilityError
+    if (vulnerabilityError) {
+      console.error("Error fetching vulnerability:", vulnerabilityError)
+      throw vulnerabilityError
+    }
+
+    console.log("Vulnerability data:", vulnerabilityData)
 
     // Fetch conversation snippets if needed
     const snippetIds = [
@@ -51,9 +68,14 @@ serve(async (req) => {
           p_snippet_ids: snippetIds
         })
 
-      if (snippetsError) throw snippetsError
+      if (snippetsError) {
+        console.error("Error fetching snippets:", snippetsError)
+        throw snippetsError
+      }
       snippetsData = snippets
     }
+
+    console.log("Snippets data:", snippetsData)
 
     const response = {
       complaints: complaintsData,
@@ -69,6 +91,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    console.error("Edge function error:", error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
