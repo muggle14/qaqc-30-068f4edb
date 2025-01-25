@@ -5,6 +5,8 @@ import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { ContactSection } from "@/components/contact-details/ContactSection";
 import { SummarySection } from "@/components/contact-details/SummarySection";
 import { AssessmentSection } from "@/components/contact-details/AssessmentSection";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LocationState {
   contactData: {
@@ -27,37 +29,51 @@ const ContactDetails = () => {
 
   const { contactData } = state;
 
-  // Dummy data for complaints and vulnerabilities
-  const defaultComplaints = [
-    "Billing transparency issues",
-    "Unexpected late payment fees",
-    "Communication gaps regarding payment due dates",
-    "Confusion about service charges"
-  ];
+  const { data: assessmentData, isLoading } = useQuery({
+    queryKey: ['contact-assessment-data', contactData.contact_id],
+    queryFn: async () => {
+      console.log("Fetching assessment data for contact:", contactData.contact_id);
+      
+      const [complaintsResponse, vulnerabilityResponse] = await Promise.all([
+        supabase
+          .from('ai_assess_complaints')
+          .select('complaints_list, overall_summary, detailed_summary_points')
+          .eq('contact_id', contactData.contact_id)
+          .single(),
+        supabase
+          .from('ai_assess_vulnerability')
+          .select('vulnerabilities_list')
+          .eq('contact_id', contactData.contact_id)
+          .single()
+      ]);
 
-  const defaultVulnerabilities = [
-    "Customer showed signs of financial stress",
-    "Limited understanding of billing cycle",
-    "Expressed difficulty managing payment deadlines",
-    "Potential need for payment plan options"
-  ];
+      if (complaintsResponse.error) {
+        console.error("Error fetching complaints:", complaintsResponse.error);
+        throw complaintsResponse.error;
+      }
 
-  const overallSummary = "Customer called regarding billing discrepancy on their recent invoice. Expressed frustration about unexpected charges. Agent provided detailed explanation of charges and offered to review the account for potential adjustments.";
+      if (vulnerabilityResponse.error) {
+        console.error("Error fetching vulnerabilities:", vulnerabilityResponse.error);
+        throw vulnerabilityResponse.error;
+      }
 
-  const detailedSummaryPoints = [
-    "Customer initially reported unexpected charges on their latest invoice",
-    "Identified three specific charges that were questioned: monthly service fee ($29.99), equipment rental ($15), and late payment fee ($10)",
-    "Agent explained the monthly service fee is part of the standard package",
-    "Equipment rental charge was verified as correct based on the customer's current plan",
-    "Late payment fee was due to payment received 5 days after the due date",
-    "Customer expressed they were unaware of the payment due date",
-    "Agent offered to set up automatic payments to prevent future late fees",
-    "Customer declined automatic payments but requested email reminders",
-    "Agent set up payment reminder notifications for 5 days before due date",
-    "Late fee was waived as a one-time courtesy",
-    "Customer expressed satisfaction with the resolution",
-    "Follow-up email confirmation was sent with all discussed details"
-  ];
+      console.log("Assessment data fetched:", {
+        complaints: complaintsResponse.data,
+        vulnerabilities: vulnerabilityResponse.data
+      });
+
+      return {
+        complaints: complaintsResponse.data.complaints_list || [],
+        overallSummary: complaintsResponse.data.overall_summary || "",
+        detailedSummaryPoints: complaintsResponse.data.detailed_summary_points || [],
+        vulnerabilities: vulnerabilityResponse.data.vulnerabilities_list || []
+      };
+    }
+  });
+
+  if (isLoading) {
+    return <div>Loading assessment data...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-canvas-bg">
@@ -71,16 +87,16 @@ const ContactDetails = () => {
                 evaluator={contactData.evaluator}
               />
               <SummarySection 
-                overallSummary={overallSummary}
-                detailedSummaryPoints={detailedSummaryPoints}
+                overallSummary={assessmentData?.overallSummary || ""}
+                detailedSummaryPoints={assessmentData?.detailedSummaryPoints || []}
               />
             </div>
             <TranscriptCard transcript={contactData.transcript} />
           </div>
 
           <AssessmentSection
-            complaints={defaultComplaints}
-            vulnerabilities={defaultVulnerabilities}
+            complaints={assessmentData?.complaints || []}
+            vulnerabilities={assessmentData?.vulnerabilities || []}
             contactId={contactData.contact_id}
           />
         </div>

@@ -12,10 +12,13 @@ export type Database = {
       ai_assess_complaints: {
         Row: {
           complaints_flag: boolean
+          complaints_list: string[] | null
           complaints_reasoning: string | null
           contact_id: string
           created_at: string | null
+          detailed_summary_points: string[] | null
           id: string
+          overall_summary: string | null
           physical_disability_flag: boolean
           physical_disability_reasoning: string | null
           relevant_snippet_ids: string[] | null
@@ -23,10 +26,13 @@ export type Database = {
         }
         Insert: {
           complaints_flag?: boolean
+          complaints_list?: string[] | null
           complaints_reasoning?: string | null
           contact_id: string
           created_at?: string | null
+          detailed_summary_points?: string[] | null
           id?: string
+          overall_summary?: string | null
           physical_disability_flag?: boolean
           physical_disability_reasoning?: string | null
           relevant_snippet_ids?: string[] | null
@@ -34,10 +40,13 @@ export type Database = {
         }
         Update: {
           complaints_flag?: boolean
+          complaints_list?: string[] | null
           complaints_reasoning?: string | null
           contact_id?: string
           created_at?: string | null
+          detailed_summary_points?: string[] | null
           id?: string
+          overall_summary?: string | null
           physical_disability_flag?: boolean
           physical_disability_reasoning?: string | null
           relevant_snippet_ids?: string[] | null
@@ -60,6 +69,7 @@ export type Database = {
           id: string
           relevant_snippet_ids: string[] | null
           updated_at: string | null
+          vulnerabilities_list: string[] | null
           vulnerability_flag: boolean
           vulnerability_reasoning: string | null
         }
@@ -69,6 +79,7 @@ export type Database = {
           id?: string
           relevant_snippet_ids?: string[] | null
           updated_at?: string | null
+          vulnerabilities_list?: string[] | null
           vulnerability_flag?: boolean
           vulnerability_reasoning?: string | null
         }
@@ -78,6 +89,7 @@ export type Database = {
           id?: string
           relevant_snippet_ids?: string[] | null
           updated_at?: string | null
+          vulnerabilities_list?: string[] | null
           vulnerability_flag?: boolean
           vulnerability_reasoning?: string | null
         }
