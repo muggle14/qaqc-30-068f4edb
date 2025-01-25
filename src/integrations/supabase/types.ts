@@ -261,10 +261,35 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      conversation_snippets_view: {
+        Row: {
+          contact_id: string | null
+          snippet: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_contact_id"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "upload_details"
+            referencedColumns: ["contact_id"]
+          },
+        ]
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_conversation_snippets: {
+        Args: {
+          p_contact_id: string
+          p_snippet_ids: string[]
+        }
+        Returns: {
+          contact_id: string
+          snippet_id: string
+          content: string
+          snippet_timestamp: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
