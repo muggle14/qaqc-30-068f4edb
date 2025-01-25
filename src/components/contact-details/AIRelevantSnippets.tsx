@@ -9,7 +9,9 @@ interface AIRelevantSnippetsProps {
 }
 
 export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippetsProps) => {
-  const { data: snippets, isLoading } = useQuery({
+  console.log("AIRelevantSnippets rendered with:", { contactId, snippetIds });
+
+  const { data: snippets, isLoading, error } = useQuery({
     queryKey: ['ai-snippets', contactId, snippetIds],
     queryFn: async () => {
       console.log("Fetching snippets for contact:", contactId);
@@ -25,12 +27,14 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
         .from('contact_conversations')
         .select('snippets_metadata')
         .eq('contact_id', contactId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching conversation data:", error);
         throw error;
       }
+
+      console.log("Raw conversation data:", conversationData);
 
       if (!conversationData?.snippets_metadata) {
         console.log("No snippets metadata found");
@@ -45,7 +49,7 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
       }>;
 
       console.log("All available snippets:", allSnippets);
-      console.log("Filtering for snippet IDs:", snippetIds);
+      console.log("Looking for snippet IDs:", snippetIds);
 
       const relevantSnippets = allSnippets.filter(snippet => 
         snippetIds.includes(snippet.id)
@@ -56,6 +60,15 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
     },
     enabled: !!contactId && snippetIds.length > 0
   });
+
+  if (error) {
+    console.error("Error in AIRelevantSnippets:", error);
+    return (
+      <div className="text-red-500">
+        Error loading snippets: {error.message}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">
@@ -73,14 +86,20 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
                 {snippets.map((snippet, index) => (
                   <li key={index} className="text-gray-700">
                     <div className="bg-white p-2 rounded border border-gray-200">
-                      <div className="text-xs text-gray-500 mb-1">[{snippet.timestamp}]</div>
+                      <div className="text-xs text-gray-500 mb-1">
+                        [{snippet.timestamp || 'No timestamp'}]
+                      </div>
                       <p className="text-sm">{snippet.content}</p>
                     </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-500 italic">No evidence available for this assessment</p>
+              <p className="text-gray-500 italic">
+                {snippetIds.length === 0 
+                  ? "No evidence IDs provided for this assessment"
+                  : "No matching evidence found in the conversation"}
+              </p>
             )}
           </div>
         </div>
