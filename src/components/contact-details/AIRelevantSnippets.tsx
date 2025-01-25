@@ -15,6 +15,11 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
       console.log("Fetching snippets for contact:", contactId);
       console.log("Snippet IDs to fetch:", snippetIds);
 
+      if (!snippetIds || snippetIds.length === 0) {
+        console.log("No snippet IDs provided");
+        return [];
+      }
+
       // Fetch the conversation data which contains the snippets
       const { data: conversationData, error } = await supabase
         .from('contact_conversations')
@@ -36,6 +41,7 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
       const allSnippets = conversationData.snippets_metadata as Array<{
         id: string;
         content: string;
+        timestamp: string;
       }>;
 
       console.log("All available snippets:", allSnippets);
@@ -48,7 +54,7 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
       console.log("Filtered relevant snippets:", relevantSnippets);
       return relevantSnippets;
     },
-    enabled: !!contactId
+    enabled: !!contactId && snippetIds.length > 0
   });
 
   return (
@@ -67,6 +73,7 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
                 {snippets.map((snippet, index) => (
                   <li key={index} className="text-gray-700">
                     <div className="bg-white p-2 rounded border border-gray-200">
+                      <div className="text-xs text-gray-500 mb-1">[{snippet.timestamp}]</div>
                       <p className="text-sm">{snippet.content}</p>
                     </div>
                   </li>
