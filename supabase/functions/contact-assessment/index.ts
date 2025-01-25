@@ -9,7 +9,10 @@ const corsHeaders = {
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { 
+      headers: corsHeaders,
+      status: 204
+    });
   }
 
   try {
@@ -21,7 +24,14 @@ serve(async (req) => {
     const { contact_id } = await req.json()
 
     if (!contact_id) {
-      throw new Error('contact_id is required')
+      console.error("Missing contact_id in request")
+      return new Response(
+        JSON.stringify({ error: 'contact_id is required' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400 
+        }
+      )
     }
 
     console.log("Processing assessment for contact:", contact_id)
@@ -35,7 +45,13 @@ serve(async (req) => {
 
     if (complaintsError) {
       console.error("Error fetching complaints:", complaintsError)
-      throw complaintsError
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch complaints assessment' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500 
+        }
+      )
     }
 
     console.log("Complaints data:", complaintsData)
@@ -49,7 +65,13 @@ serve(async (req) => {
 
     if (vulnerabilityError) {
       console.error("Error fetching vulnerability:", vulnerabilityError)
-      throw vulnerabilityError
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch vulnerability assessment' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500 
+        }
+      )
     }
 
     console.log("Vulnerability data:", vulnerabilityData)
@@ -70,7 +92,13 @@ serve(async (req) => {
 
       if (snippetsError) {
         console.error("Error fetching snippets:", snippetsError)
-        throw snippetsError
+        return new Response(
+          JSON.stringify({ error: 'Failed to fetch conversation snippets' }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 500 
+          }
+        )
       }
       snippetsData = snippets
     }
