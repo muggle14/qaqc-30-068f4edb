@@ -47,7 +47,7 @@ export const AssessmentCard = ({
 
         <Separator className="bg-canvas-border" />
 
-        {isAIAssessment && <ItemsList items={items} />}
+        {isAIAssessment && <ItemsList items={items} reasoning={reasoning} />}
 
         {!isAIAssessment && (
           <QualityReasoningSection 
