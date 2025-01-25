@@ -1,127 +1,64 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { corsHeaders } from "../_shared/cors.ts"
+import { createClient } from '@supabase/supabase-js'
+import { load } from "https://deno.land/std@0.204.0/dotenv/mod.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const env = await load();
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Handle CORS
   if (req.method === 'OPTIONS') {
-    return new Response(null, { 
-      headers: corsHeaders,
-      status: 204
-    });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    console.log("Starting contact assessment function");
-    
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
-
     const { contact_id } = await req.json()
 
     if (!contact_id) {
-      console.error("Missing contact_id in request");
-      return new Response(
-        JSON.stringify({ error: 'contact_id is required' }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400 
-        }
-      )
+      throw new Error('Contact ID is required')
     }
 
-    console.log("Processing assessment for contact:", contact_id);
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || ''
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Fetch complaints assessment
-    const { data: complaintsData, error: complaintsError } = await supabaseClient
-      .from('ai_assess_complaints')
-      .select('*')
+    // Fetch conversation transcript
+    const { data: conversationData, error: conversationError } = await supabase
+      .from('contact_conversations')
+      .select('transcript')
       .eq('contact_id', contact_id)
-      .maybeSingle()
+      .single()
 
-    if (complaintsError) {
-      console.error("Error fetching complaints:", complaintsError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch complaints assessment' }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500 
-        }
-      )
+    if (conversationError || !conversationData) {
+      throw new Error('Failed to fetch conversation transcript')
     }
 
-    console.log("Complaints data:", complaintsData);
+    // Import and use Python assessment functions
+    const { assess_complaints, assess_vulnerability, store_assessment_results } = await import('./backend/assessment.py')
+    
+    // Perform assessments
+    const complaintsResult = await assess_complaints(conversationData.transcript)
+    const vulnerabilityResult = await assess_vulnerability(conversationData.transcript)
 
-    // Fetch vulnerability assessment
-    const { data: vulnerabilityData, error: vulnerabilityError } = await supabaseClient
-      .from('ai_assess_vulnerability')
-      .select('*')
-      .eq('contact_id', contact_id)
-      .maybeSingle()
-
-    if (vulnerabilityError) {
-      console.error("Error fetching vulnerability:", vulnerabilityError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch vulnerability assessment' }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500 
-        }
-      )
-    }
-
-    console.log("Vulnerability data:", vulnerabilityData);
-
-    // Fetch conversation snippets if needed
-    const snippetIds = [
-      ...(complaintsData?.relevant_snippet_ids || []),
-      ...(vulnerabilityData?.relevant_snippet_ids || [])
-    ]
-
-    let snippetsData = []
-    if (snippetIds.length > 0) {
-      const { data: snippets, error: snippetsError } = await supabaseClient
-        .rpc('get_conversation_snippets', {
-          p_contact_id: contact_id,
-          p_snippet_ids: snippetIds
-        })
-
-      if (snippetsError) {
-        console.error("Error fetching snippets:", snippetsError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to fetch conversation snippets' }),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 500 
-          }
-        )
-      }
-      snippetsData = snippets || []
-    }
-
-    console.log("Snippets data:", snippetsData);
-
-    const response = {
-      complaints: complaintsData || null,
-      vulnerability: vulnerabilityData || null,
-      snippets: snippetsData
-    }
+    // Store results
+    const results = await store_assessment_results(
+      supabase,
+      contact_id,
+      complaintsResult,
+      vulnerabilityResult
+    )
 
     return new Response(
-      JSON.stringify(response),
+      JSON.stringify(results),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
       }
     )
+
   } catch (error) {
-    console.error("Edge function error:", error);
+    console.error('Error:', error.message)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
