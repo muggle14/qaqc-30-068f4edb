@@ -15,10 +15,6 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
       console.log("Fetching AI assessment snippets for contact:", contactId);
       console.log("Snippet IDs to fetch:", snippetIds);
 
-      if (!snippetIds.length) {
-        return [];
-      }
-
       const { data: complaintsData } = await supabase
         .from('ai_assess_complaints')
         .select('relevant_snippet_ids')
@@ -39,12 +35,8 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
       console.log("Retrieved snippets:", allSnippets);
       return allSnippets;
     },
-    enabled: !!contactId && snippetIds.length > 0
+    enabled: !!contactId
   });
-
-  if (!snippetIds.length) {
-    return null;
-  }
 
   return (
     <div className="space-y-2">
@@ -68,7 +60,7 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-500">No snippets found for this assessment</p>
+              <p className="text-gray-500 italic">No evidence available for this assessment</p>
             )}
           </div>
         </div>
