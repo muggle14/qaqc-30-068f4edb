@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { corsHeaders } from "../_shared/cors.ts"
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { assess_complaints, assess_vulnerability, store_assessment_results } from './backend/assessment.py'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -39,10 +39,6 @@ serve(async (req) => {
       throw new Error('Failed to fetch conversation transcript')
     }
 
-    console.log("Importing assessment functions")
-    // Import and use Python assessment functions
-    const { assess_complaints, assess_vulnerability, store_assessment_results } = await import('./backend/assessment.py')
-    
     console.log("Performing assessments")
     // Perform assessments
     const complaintsResult = await assess_complaints(conversationData.transcript)
