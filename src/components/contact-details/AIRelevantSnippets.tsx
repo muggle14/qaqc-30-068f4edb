@@ -2,13 +2,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Json } from "@/integrations/supabase/types";
-
-interface Snippet {
-  id: string;
-  timestamp: string;
-  text: string;
-}
 
 interface AIRelevantSnippetsProps {
   contactId: string;
@@ -16,37 +9,42 @@ interface AIRelevantSnippetsProps {
 }
 
 export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippetsProps) => {
-  const { data: conversationData, isLoading } = useQuery({
-    queryKey: ['conversation-snippets', contactId, snippetIds],
+  const { data: snippetsData, isLoading } = useQuery({
+    queryKey: ['ai-snippets', contactId, snippetIds],
     queryFn: async () => {
-      console.log("Fetching conversation data for contact:", contactId);
-      console.log("Looking for snippet IDs:", snippetIds);
-      
-      const { data, error } = await supabase
-        .from('contact_conversations')
-        .select('snippets_metadata')
+      console.log("Fetching AI assessment snippets for contact:", contactId);
+      console.log("Snippet IDs to fetch:", snippetIds);
+
+      if (!snippetIds.length) {
+        return [];
+      }
+
+      const { data: complaintsData } = await supabase
+        .from('ai_assess_complaints')
+        .select('relevant_snippet_ids')
         .eq('contact_id', contactId)
         .single();
 
-      if (error) {
-        console.error("Error fetching conversation data:", error);
-        throw error;
-      }
+      const { data: vulnerabilityData } = await supabase
+        .from('ai_assess_vulnerability')
+        .select('relevant_snippet_ids')
+        .eq('contact_id', contactId)
+        .single();
 
-      console.log("Retrieved conversation data:", data);
-      return data;
+      const allSnippets = [
+        ...(complaintsData?.relevant_snippet_ids || []),
+        ...(vulnerabilityData?.relevant_snippet_ids || [])
+      ];
+
+      console.log("Retrieved snippets:", allSnippets);
+      return allSnippets;
     },
     enabled: !!contactId && snippetIds.length > 0
   });
 
-  // Safely type and filter the snippets
-  const relevantSnippets = Array.isArray(conversationData?.snippets_metadata) 
-    ? (conversationData.snippets_metadata as unknown as Snippet[]).filter(
-        (snippet: Snippet) => snippetIds.includes(snippet.id)
-      )
-    : [];
-
-  console.log("Filtered relevant snippets:", relevantSnippets);
+  if (!snippetIds.length) {
+    return null;
+  }
 
   return (
     <div className="space-y-2">
@@ -57,24 +55,20 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
       <ScrollArea className="h-[200px] pr-4 border rounded-md p-3 bg-gray-50">
         <div className="space-y-2">
           <div className="text-sm text-gray-600">
-            <p className="italic mb-2">Key conversation moments identified by AI:</p>
             {isLoading ? (
               <p>Loading snippets...</p>
-            ) : relevantSnippets.length > 0 ? (
+            ) : snippetsData && snippetsData.length > 0 ? (
               <ul className="space-y-3 list-disc pl-4">
-                {relevantSnippets.map((snippet: Snippet) => (
-                  <li key={snippet.id} className="text-gray-700">
+                {snippetsData.map((snippet: string, index: number) => (
+                  <li key={index} className="text-gray-700">
                     <div className="bg-white p-2 rounded border border-gray-200">
-                      <span className="text-xs text-gray-400 block mb-1">
-                        Snippet ID: {snippet.id}
-                      </span>
-                      <p className="text-sm">{snippet.text}</p>
+                      <p className="text-sm">{snippet}</p>
                     </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-500 italic">No AI-identified snippets available</p>
+              <p className="text-gray-500">No snippets found for this assessment</p>
             )}
           </div>
         </div>
