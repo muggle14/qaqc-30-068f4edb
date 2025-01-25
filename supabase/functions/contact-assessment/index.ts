@@ -16,6 +16,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Starting contact assessment function");
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -24,7 +26,7 @@ serve(async (req) => {
     const { contact_id } = await req.json()
 
     if (!contact_id) {
-      console.error("Missing contact_id in request")
+      console.error("Missing contact_id in request");
       return new Response(
         JSON.stringify({ error: 'contact_id is required' }),
         { 
@@ -34,7 +36,7 @@ serve(async (req) => {
       )
     }
 
-    console.log("Processing assessment for contact:", contact_id)
+    console.log("Processing assessment for contact:", contact_id);
 
     // Fetch complaints assessment
     const { data: complaintsData, error: complaintsError } = await supabaseClient
@@ -44,7 +46,7 @@ serve(async (req) => {
       .maybeSingle()
 
     if (complaintsError) {
-      console.error("Error fetching complaints:", complaintsError)
+      console.error("Error fetching complaints:", complaintsError);
       return new Response(
         JSON.stringify({ error: 'Failed to fetch complaints assessment' }),
         { 
@@ -54,7 +56,7 @@ serve(async (req) => {
       )
     }
 
-    console.log("Complaints data:", complaintsData)
+    console.log("Complaints data:", complaintsData);
 
     // Fetch vulnerability assessment
     const { data: vulnerabilityData, error: vulnerabilityError } = await supabaseClient
@@ -64,7 +66,7 @@ serve(async (req) => {
       .maybeSingle()
 
     if (vulnerabilityError) {
-      console.error("Error fetching vulnerability:", vulnerabilityError)
+      console.error("Error fetching vulnerability:", vulnerabilityError);
       return new Response(
         JSON.stringify({ error: 'Failed to fetch vulnerability assessment' }),
         { 
@@ -74,7 +76,7 @@ serve(async (req) => {
       )
     }
 
-    console.log("Vulnerability data:", vulnerabilityData)
+    console.log("Vulnerability data:", vulnerabilityData);
 
     // Fetch conversation snippets if needed
     const snippetIds = [
@@ -91,7 +93,7 @@ serve(async (req) => {
         })
 
       if (snippetsError) {
-        console.error("Error fetching snippets:", snippetsError)
+        console.error("Error fetching snippets:", snippetsError);
         return new Response(
           JSON.stringify({ error: 'Failed to fetch conversation snippets' }),
           { 
@@ -103,7 +105,7 @@ serve(async (req) => {
       snippetsData = snippets || []
     }
 
-    console.log("Snippets data:", snippetsData)
+    console.log("Snippets data:", snippetsData);
 
     const response = {
       complaints: complaintsData || null,
@@ -119,7 +121,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error("Edge function error:", error)
+    console.error("Edge function error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
