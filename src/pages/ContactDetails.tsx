@@ -39,34 +39,51 @@ const ContactDetails = () => {
           .from('ai_assess_complaints')
           .select('complaints_list, overall_summary, detailed_summary_points')
           .eq('contact_id', contactData.contact_id)
-          .single(),
+          .maybeSingle(),
         supabase
           .from('ai_assess_vulnerability')
           .select('vulnerabilities_list')
           .eq('contact_id', contactData.contact_id)
-          .single()
+          .maybeSingle()
       ]);
 
-      if (complaintsResponse.error) {
+      console.log("Raw responses:", {
+        complaints: complaintsResponse,
+        vulnerability: vulnerabilityResponse
+      });
+
+      // Handle potential errors
+      if (complaintsResponse.error && complaintsResponse.error.code !== 'PGRST116') {
         console.error("Error fetching complaints:", complaintsResponse.error);
         throw complaintsResponse.error;
       }
 
-      if (vulnerabilityResponse.error) {
+      if (vulnerabilityResponse.error && vulnerabilityResponse.error.code !== 'PGRST116') {
         console.error("Error fetching vulnerabilities:", vulnerabilityResponse.error);
         throw vulnerabilityResponse.error;
       }
 
-      console.log("Assessment data fetched:", {
-        complaints: complaintsResponse.data,
-        vulnerabilities: vulnerabilityResponse.data
+      // Use empty arrays and strings as fallbacks when no data is found
+      const complaintsData = complaintsResponse.data || {
+        complaints_list: [],
+        overall_summary: "",
+        detailed_summary_points: []
+      };
+
+      const vulnerabilityData = vulnerabilityResponse.data || {
+        vulnerabilities_list: []
+      };
+
+      console.log("Assessment data processed:", {
+        complaints: complaintsData,
+        vulnerabilities: vulnerabilityData
       });
 
       return {
-        complaints: complaintsResponse.data.complaints_list || [],
-        overallSummary: complaintsResponse.data.overall_summary || "",
-        detailedSummaryPoints: complaintsResponse.data.detailed_summary_points || [],
-        vulnerabilities: vulnerabilityResponse.data.vulnerabilities_list || []
+        complaints: complaintsData.complaints_list || [],
+        overallSummary: complaintsData.overall_summary || "",
+        detailedSummaryPoints: complaintsData.detailed_summary_points || [],
+        vulnerabilities: vulnerabilityData.vulnerabilities_list || []
       };
     }
   });
