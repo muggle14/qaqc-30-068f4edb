@@ -16,10 +16,12 @@ interface AIRelevantSnippetsProps {
 }
 
 export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippetsProps) => {
-  const { data: conversationData } = useQuery({
-    queryKey: ['conversation-snippets', contactId],
+  const { data: conversationData, isLoading } = useQuery({
+    queryKey: ['conversation-snippets', contactId, snippetIds],
     queryFn: async () => {
       console.log("Fetching conversation data for contact:", contactId);
+      console.log("Looking for snippet IDs:", snippetIds);
+      
       const { data, error } = await supabase
         .from('contact_conversations')
         .select('snippets_metadata')
@@ -44,7 +46,7 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
       )
     : [];
 
-  console.log("Relevant snippets:", relevantSnippets);
+  console.log("Filtered relevant snippets:", relevantSnippets);
 
   return (
     <div className="space-y-2">
@@ -56,19 +58,24 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
         <div className="space-y-2">
           <div className="text-sm text-gray-600">
             <p className="italic mb-2">Key conversation moments identified by AI:</p>
-            <ul className="space-y-2 list-disc pl-4">
-              {relevantSnippets.length > 0 ? (
-                relevantSnippets.map((snippet: Snippet) => (
-                  <li key={snippet.id} className="text-gray-600">
-                    <span className="text-xs text-gray-400">ID: {snippet.id}</span>
-                    <br />
-                    {snippet.text}
+            {isLoading ? (
+              <p>Loading snippets...</p>
+            ) : relevantSnippets.length > 0 ? (
+              <ul className="space-y-3 list-disc pl-4">
+                {relevantSnippets.map((snippet: Snippet) => (
+                  <li key={snippet.id} className="text-gray-700">
+                    <div className="bg-white p-2 rounded border border-gray-200">
+                      <span className="text-xs text-gray-400 block mb-1">
+                        Snippet ID: {snippet.id}
+                      </span>
+                      <p className="text-sm">{snippet.text}</p>
+                    </div>
                   </li>
-                ))
-              ) : (
-                <li>No AI-identified snippets available</li>
-              )}
-            </ul>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-500 italic">No AI-identified snippets available</p>
+            )}
           </div>
         </div>
       </ScrollArea>
