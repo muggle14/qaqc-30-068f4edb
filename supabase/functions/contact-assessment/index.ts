@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { assess_complaints, assess_vulnerability, store_assessment_results } from './backend/assessment.py'
+import { assess_complaints, assess_vulnerability, store_assessment_results } from './backend/assessment.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
