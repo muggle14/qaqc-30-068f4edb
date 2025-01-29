@@ -1,5 +1,5 @@
-import { OverallSummary } from "./OverallSummary";
 import { DetailedSummary } from "./DetailedSummary";
+import { OverallSummary } from "./OverallSummary";
 
 interface SummarySectionProps {
   overallSummary: string;
@@ -11,7 +11,7 @@ export const SummarySection = ({
   detailedSummaryPoints 
 }: SummarySectionProps) => {
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-2 gap-6">
       <OverallSummary summary={overallSummary} />
       <DetailedSummary summaryPoints={detailedSummaryPoints} />
     </div>

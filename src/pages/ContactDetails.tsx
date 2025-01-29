@@ -61,7 +61,10 @@ const ContactDetails = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <ContactSection contactData={state.contactData} />
+      <ContactSection 
+        contactId={state.contactData.contact_id} 
+        evaluator={state.contactData.evaluator} 
+      />
       
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-6">
@@ -69,20 +72,19 @@ const ContactDetails = () => {
             complaints={contactAssessment?.complaints || []}
             vulnerabilities={contactAssessment?.vulnerabilities || []}
             contactId={state.contactData.contact_id}
-            onSnippetClick={setHighlightedSnippetId}
           />
         </div>
         
         <TranscriptCard 
           transcript={conversation?.transcript} 
-          snippetsMetadata={conversation?.snippets_metadata}
+          snippetsMetadata={conversation?.snippets_metadata as { id: string; timestamp: string; content: string; }[] || []}
           highlightedSnippetId={highlightedSnippetId}
         />
       </div>
 
       <SummarySection 
-        summary="Sample overall summary of the conversation"
-        summaryPoints={[
+        overallSummary="Sample overall summary of the conversation"
+        detailedSummaryPoints={[
           "Point 1 about the conversation",
           "Point 2 about the conversation",
           "Point 3 about the conversation"
