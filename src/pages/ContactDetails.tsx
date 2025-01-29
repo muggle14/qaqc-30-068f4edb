@@ -16,6 +16,12 @@ interface LocationState {
   };
 }
 
+interface SnippetMetadata {
+  id: string;
+  content: string;
+  timestamp: string | null;
+}
+
 const ContactDetails = () => {
   const location = useLocation();
   const state = location.state as LocationState;
@@ -39,7 +45,6 @@ const ContactDetails = () => {
       }
       
       console.log("Assessment data:", data);
-      // Return empty arrays if no data exists
       return data || { 
         complaints: [], 
         vulnerabilities: [],
@@ -96,6 +101,8 @@ const ContactDetails = () => {
     return <NotFoundState />;
   }
 
+  const snippetsMetadata = conversation.snippets_metadata as SnippetMetadata[] || [];
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <ContactSection 
@@ -114,7 +121,7 @@ const ContactDetails = () => {
         
         <TranscriptCard 
           transcript={conversation.transcript} 
-          snippetsMetadata={conversation.snippets_metadata || []}
+          snippetsMetadata={snippetsMetadata}
           highlightedSnippetId={highlightedSnippetId}
         />
       </div>

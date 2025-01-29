@@ -46,11 +46,12 @@ export const AIRelevantSnippets = ({
         return [];
       }
 
-      const allSnippets = conversationData.snippets_metadata as Array<{
+      // Ensure snippets_metadata is treated as an array of the correct type
+      const allSnippets = (conversationData.snippets_metadata as Array<{
         id: string;
         content: string;
-        timestamp: string;
-      }>;
+        timestamp: string | null;
+      }>) || [];
 
       console.log("All available snippets:", allSnippets);
       console.log("Looking for snippet IDs:", snippetIds);
