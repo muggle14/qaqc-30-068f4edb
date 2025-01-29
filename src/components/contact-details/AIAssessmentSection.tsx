@@ -1,5 +1,6 @@
 import { AssessmentCard } from "./AssessmentCard";
 import { AlertCircle, Shield } from "lucide-react";
+import { useState } from "react";
 
 interface AIAssessmentSectionProps {
   complaints: string[];
@@ -12,6 +13,7 @@ interface AIAssessmentSectionProps {
   contactId: string;
   complaintsSnippetIds: string[];
   vulnerabilitySnippetIds: string[];
+  onSnippetClick?: (snippetId: string) => void;
 }
 
 export const AIAssessmentSection = ({
@@ -25,6 +27,7 @@ export const AIAssessmentSection = ({
   contactId,
   complaintsSnippetIds,
   vulnerabilitySnippetIds,
+  onSnippetClick,
 }: AIAssessmentSectionProps) => {
   return (
     <div className="grid grid-cols-2 gap-6">
@@ -38,6 +41,7 @@ export const AIAssessmentSection = ({
         isAIAssessment={true}
         contactId={contactId}
         snippetIds={complaintsSnippetIds}
+        onSnippetClick={onSnippetClick}
       />
 
       <AssessmentCard
@@ -50,6 +54,7 @@ export const AIAssessmentSection = ({
         isAIAssessment={true}
         contactId={contactId}
         snippetIds={vulnerabilitySnippetIds}
+        onSnippetClick={onSnippetClick}
       />
     </div>
   );

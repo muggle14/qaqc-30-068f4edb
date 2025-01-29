@@ -12,9 +12,10 @@ interface TranscriptCardProps {
     timestamp: string;
     content: string;
   }[] | null;
+  highlightedSnippetId?: string;
 }
 
-export const TranscriptCard = ({ transcript, snippetsMetadata }: TranscriptCardProps) => {
+export const TranscriptCard = ({ transcript, snippetsMetadata, highlightedSnippetId }: TranscriptCardProps) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
@@ -38,6 +39,7 @@ export const TranscriptCard = ({ transcript, snippetsMetadata }: TranscriptCardP
             transcript={transcript} 
             searchQuery={searchQuery}
             snippetsMetadata={snippetsMetadata}
+            highlightedSnippetId={highlightedSnippetId}
           />
         </ScrollArea>
       </CardContent>

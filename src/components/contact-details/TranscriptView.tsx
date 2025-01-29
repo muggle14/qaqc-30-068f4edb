@@ -6,9 +6,15 @@ interface TranscriptViewProps {
     timestamp: string;
     content: string;
   }[] | null;
+  highlightedSnippetId?: string;
 }
 
-export const TranscriptView = ({ transcript, searchQuery, snippetsMetadata }: TranscriptViewProps) => {
+export const TranscriptView = ({ 
+  transcript, 
+  searchQuery, 
+  snippetsMetadata,
+  highlightedSnippetId 
+}: TranscriptViewProps) => {
   if (!transcript) {
     return (
       <div className="bg-white rounded-lg p-4 shadow-sm border border-canvas-border">
@@ -19,7 +25,6 @@ export const TranscriptView = ({ transcript, searchQuery, snippetsMetadata }: Tr
     );
   }
 
-  // If no snippets metadata is provided, fall back to parsing from raw transcript
   if (!snippetsMetadata) {
     console.log("No snippets metadata provided, falling back to transcript parsing");
     return (
@@ -48,9 +53,14 @@ export const TranscriptView = ({ transcript, searchQuery, snippetsMetadata }: Tr
     <div className="bg-white rounded-lg p-4 shadow-sm border border-canvas-border">
       <pre className="whitespace-pre-wrap text-sm leading-relaxed text-canvas-text font-sans">
         {snippetsMetadata.map((snippet) => {
+          const isHighlighted = snippet.id === highlightedSnippetId;
+          const className = `mb-2 p-2 rounded transition-colors ${
+            isHighlighted ? 'bg-yellow-100' : ''
+          }`;
+
           if (!searchQuery) {
             return (
-              <div key={snippet.id} className="mb-2" data-snippet-id={snippet.id}>
+              <div key={snippet.id} className={className} data-snippet-id={snippet.id}>
                 <span className="text-gray-500 mr-2">[{snippet.timestamp}]</span>
                 <span>{snippet.content}</span>
               </div>
@@ -60,7 +70,7 @@ export const TranscriptView = ({ transcript, searchQuery, snippetsMetadata }: Tr
           const parts = snippet.content.split(new RegExp(`(${searchQuery})`, 'gi'));
           
           return (
-            <div key={snippet.id} className="mb-2" data-snippet-id={snippet.id}>
+            <div key={snippet.id} className={className} data-snippet-id={snippet.id}>
               <span className="text-gray-500 mr-2">[{snippet.timestamp}]</span>
               {parts.map((part, i) => (
                 part.toLowerCase() === searchQuery.toLowerCase() ? (

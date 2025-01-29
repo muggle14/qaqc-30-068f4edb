@@ -2,13 +2,19 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 interface AIRelevantSnippetsProps {
   contactId: string;
   snippetIds: string[];
+  onSnippetClick?: (snippetId: string) => void;
 }
 
-export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippetsProps) => {
+export const AIRelevantSnippets = ({ 
+  contactId, 
+  snippetIds,
+  onSnippetClick 
+}: AIRelevantSnippetsProps) => {
   console.log("AIRelevantSnippets rendered with:", { contactId, snippetIds });
 
   const { data: snippets, isLoading, error } = useQuery({
@@ -22,7 +28,6 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
         return [];
       }
 
-      // Fetch the conversation data which contains the snippets
       const { data: conversationData, error } = await supabase
         .from('contact_conversations')
         .select('snippets_metadata')
@@ -41,7 +46,6 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
         return [];
       }
 
-      // Filter the snippets based on the provided snippet IDs
       const allSnippets = conversationData.snippets_metadata as Array<{
         id: string;
         content: string;
@@ -85,12 +89,18 @@ export const AIRelevantSnippets = ({ contactId, snippetIds }: AIRelevantSnippets
               <ul className="space-y-3 list-disc pl-4">
                 {snippets.map((snippet, index) => (
                   <li key={index} className="text-gray-700">
-                    <div className="bg-white p-2 rounded border border-gray-200">
-                      <div className="text-xs text-gray-500 mb-1">
-                        [{snippet.timestamp || 'No timestamp'}]
+                    <Button
+                      variant="ghost"
+                      className="h-auto p-2 hover:bg-gray-100 w-full text-left"
+                      onClick={() => onSnippetClick?.(snippet.id)}
+                    >
+                      <div className="bg-white rounded border border-gray-200">
+                        <div className="text-xs text-gray-500 mb-1 px-2 pt-2">
+                          [{snippet.timestamp || 'No timestamp'}]
+                        </div>
+                        <p className="text-sm px-2 pb-2">{snippet.content}</p>
                       </div>
-                      <p className="text-sm">{snippet.content}</p>
-                    </div>
+                    </Button>
                   </li>
                 ))}
               </ul>

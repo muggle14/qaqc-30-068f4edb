@@ -19,6 +19,7 @@ interface AssessmentCardProps {
   onReasoningChange?: (value: string) => void;
   contactId?: string;
   snippetIds?: string[];
+  onSnippetClick?: (snippetId: string) => void;
 }
 
 export const AssessmentCard = ({
@@ -33,6 +34,7 @@ export const AssessmentCard = ({
   onReasoningChange,
   contactId,
   snippetIds = [],
+  onSnippetClick,
 }: AssessmentCardProps) => {
   return (
     <Card className="border border-canvas-border shadow-sm bg-white p-3">
@@ -60,6 +62,7 @@ export const AssessmentCard = ({
           <AIRelevantSnippets 
             contactId={contactId || ''} 
             snippetIds={snippetIds}
+            onSnippetClick={onSnippetClick}
           />
         ) : (
           <QualityRelevantSnippets />

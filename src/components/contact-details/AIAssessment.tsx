@@ -3,18 +3,21 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PhysicalDisabilitySection } from "./PhysicalDisabilitySection";
 import { AIAssessmentSection } from "./AIAssessmentSection";
+import { useState } from "react";
 
 interface AIAssessmentProps {
   complaints: string[];
   vulnerabilities: string[];
   hasPhysicalDisability: boolean;
   contactId: string;
+  onSnippetClick?: (snippetId: string) => void;
 }
 
 export const AIAssessment = ({ 
   complaints, 
   vulnerabilities, 
-  contactId 
+  contactId,
+  onSnippetClick
 }: AIAssessmentProps) => {
   const { data: aiAssessment, isLoading } = useQuery({
     queryKey: ['ai-assessment', contactId],
@@ -71,6 +74,7 @@ export const AIAssessment = ({
             contactId={contactId}
             complaintsSnippetIds={aiAssessment?.relevant_snippet_ids || []}
             vulnerabilitySnippetIds={aiAssessment?.vulnerability_snippet_ids || []}
+            onSnippetClick={onSnippetClick}
           />
         </div>
       </CardContent>
