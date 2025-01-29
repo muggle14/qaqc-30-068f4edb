@@ -31,7 +31,7 @@ const ContactDetails = () => {
         .from('contact_assessments')
         .select('*')
         .eq('contact_id', state.contactData.contact_id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching assessment:", error);
@@ -39,7 +39,13 @@ const ContactDetails = () => {
       }
       
       console.log("Assessment data:", data);
-      return data;
+      // Return empty arrays if no data exists
+      return data || { 
+        complaints: [], 
+        vulnerabilities: [],
+        complaints_rationale: null,
+        vulnerability_rationale: null
+      };
     },
     enabled: !!state?.contactData?.contact_id
   });
@@ -52,7 +58,7 @@ const ContactDetails = () => {
         .from('contact_conversations')
         .select('*')
         .eq('contact_id', state.contactData.contact_id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching conversation:", error);
@@ -85,8 +91,8 @@ const ContactDetails = () => {
     return <LoadingState />;
   }
 
-  if (assessmentError || conversationError) {
-    console.error("Errors occurred:", { assessmentError, conversationError });
+  if (!conversation) {
+    console.log("No conversation found, showing NotFoundState");
     return <NotFoundState />;
   }
 
@@ -107,8 +113,8 @@ const ContactDetails = () => {
         </div>
         
         <TranscriptCard 
-          transcript={conversation?.transcript} 
-          snippetsMetadata={conversation?.snippets_metadata as { id: string; timestamp: string; content: string; }[] || []}
+          transcript={conversation.transcript} 
+          snippetsMetadata={conversation.snippets_metadata || []}
           highlightedSnippetId={highlightedSnippetId}
         />
       </div>
