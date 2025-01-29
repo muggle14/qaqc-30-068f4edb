@@ -8,6 +8,7 @@ import { SummarySection } from "@/components/contact-details/SummarySection";
 import { LoadingState } from "@/components/contact-details/LoadingState";
 import { NotFoundState } from "@/components/contact-details/NotFoundState";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
+import { Json } from "@/integrations/supabase/types";
 
 interface LocationState {
   contactData: {
@@ -19,6 +20,12 @@ interface LocationState {
 interface SnippetMetadata {
   id: string;
   content: string;
+  timestamp: string | null;
+}
+
+interface JsonSnippet {
+  id: string | null;
+  content: string | null;
   timestamp: string | null;
 }
 
@@ -102,13 +109,17 @@ const ContactDetails = () => {
   }
 
   // Safely cast the JSON data to our SnippetMetadata type
-  const snippetsMetadata = (Array.isArray(conversation.snippets_metadata) 
-    ? conversation.snippets_metadata.map(snippet => ({
-        id: String(snippet.id || ''),
-        content: String(snippet.content || ''),
-        timestamp: snippet.timestamp ? String(snippet.timestamp) : null
-      }))
-    : []) as SnippetMetadata[];
+  const rawSnippets = conversation.snippets_metadata as Json[];
+  const snippetsMetadata: SnippetMetadata[] = Array.isArray(rawSnippets) 
+    ? rawSnippets.map(snippet => {
+        const jsonSnippet = snippet as JsonSnippet;
+        return {
+          id: jsonSnippet.id || '',
+          content: jsonSnippet.content || '',
+          timestamp: jsonSnippet.timestamp
+        };
+      })
+    : [];
 
   console.log("Processed snippets metadata:", snippetsMetadata);
 
