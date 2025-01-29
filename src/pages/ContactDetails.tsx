@@ -21,42 +21,73 @@ const ContactDetails = () => {
   const state = location.state as LocationState;
   const [highlightedSnippetId, setHighlightedSnippetId] = useState<string>();
 
-  const { data: contactAssessment, isLoading: isLoadingAssessment } = useQuery({
+  console.log("ContactDetails: Initial state:", state);
+
+  const { data: contactAssessment, isLoading: isLoadingAssessment, error: assessmentError } = useQuery({
     queryKey: ['contact-assessment', state?.contactData?.contact_id],
     queryFn: async () => {
+      console.log("Fetching assessment for contact:", state?.contactData?.contact_id);
       const { data, error } = await supabase
         .from('contact_assessments')
         .select('*')
         .eq('contact_id', state.contactData.contact_id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching assessment:", error);
+        throw error;
+      }
+      
+      console.log("Assessment data:", data);
       return data;
     },
     enabled: !!state?.contactData?.contact_id
   });
 
-  const { data: conversation, isLoading: isLoadingConversation } = useQuery({
+  const { data: conversation, isLoading: isLoadingConversation, error: conversationError } = useQuery({
     queryKey: ['conversation', state?.contactData?.contact_id],
     queryFn: async () => {
+      console.log("Fetching conversation for contact:", state?.contactData?.contact_id);
       const { data, error } = await supabase
         .from('contact_conversations')
         .select('*')
         .eq('contact_id', state.contactData.contact_id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching conversation:", error);
+        throw error;
+      }
+
+      console.log("Conversation data:", data);
       return data;
     },
     enabled: !!state?.contactData?.contact_id
   });
 
+  console.log("Render state:", {
+    state,
+    contactAssessment,
+    conversation,
+    isLoadingAssessment,
+    isLoadingConversation,
+    assessmentError,
+    conversationError
+  });
+
   if (!state?.contactData) {
+    console.log("No contact data in state, showing NotFoundState");
     return <NotFoundState />;
   }
 
   if (isLoadingAssessment || isLoadingConversation) {
+    console.log("Data is loading, showing LoadingState");
     return <LoadingState />;
+  }
+
+  if (assessmentError || conversationError) {
+    console.error("Errors occurred:", { assessmentError, conversationError });
+    return <NotFoundState />;
   }
 
   return (
