@@ -101,7 +101,16 @@ const ContactDetails = () => {
     return <NotFoundState />;
   }
 
-  const snippetsMetadata = conversation.snippets_metadata as SnippetMetadata[] || [];
+  // Safely cast the JSON data to our SnippetMetadata type
+  const snippetsMetadata = (Array.isArray(conversation.snippets_metadata) 
+    ? conversation.snippets_metadata.map(snippet => ({
+        id: String(snippet.id || ''),
+        content: String(snippet.content || ''),
+        timestamp: snippet.timestamp ? String(snippet.timestamp) : null
+      }))
+    : []) as SnippetMetadata[];
+
+  console.log("Processed snippets metadata:", snippetsMetadata);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
