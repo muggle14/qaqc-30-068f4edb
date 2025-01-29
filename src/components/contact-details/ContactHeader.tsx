@@ -10,10 +10,10 @@ export const ContactHeader = () => {
       <Button
         variant="ghost"
         className="gap-2 hover:bg-canvas-bg/80 transition-colors"
-        onClick={() => navigate("/admin")}
+        onClick={() => navigate("/")}
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Admin
+        Back to Index
       </Button>
       
       <Button
