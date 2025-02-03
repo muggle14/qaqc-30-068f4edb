@@ -42,6 +42,28 @@ const ContactDetails = () => {
     return <NotFoundState />;
   }
 
+  const { data: aiAssessment, isLoading: isLoadingAiAssessment } = useQuery({
+    queryKey: ['ai-assessment', state.contactData.contact_id],
+    queryFn: async () => {
+      console.log("Fetching AI assessment for contact:", state.contactData.contact_id);
+      const { data, error } = await supabase
+        .from('ai_assess_complaints')
+        .select('*')
+        .eq('contact_id', state.contactData.contact_id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching AI assessment:", error);
+        throw error;
+      }
+      
+      console.log("AI Assessment data:", data);
+      return data;
+    },
+    enabled: !!state.contactData.contact_id,
+    retry: 1
+  });
+
   const { data: contactAssessment, isLoading: isLoadingAssessment, error: assessmentError } = useQuery({
     queryKey: ['contact-assessment', state.contactData.contact_id],
     queryFn: async () => {
@@ -91,7 +113,7 @@ const ContactDetails = () => {
     retry: 1
   });
 
-  if (isLoadingAssessment || isLoadingConversation) {
+  if (isLoadingAssessment || isLoadingConversation || isLoadingAiAssessment) {
     console.log("Data is loading, showing LoadingState");
     return <LoadingState />;
   }
@@ -136,12 +158,8 @@ const ContactDetails = () => {
       />
       
       <SummarySection 
-        overallSummary="Sample overall summary of the conversation"
-        detailedSummaryPoints={[
-          "Point 1 about the conversation",
-          "Point 2 about the conversation",
-          "Point 3 about the conversation"
-        ]}
+        overallSummary={aiAssessment?.overall_summary || "No summary available"}
+        detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
       />
 
       <div className="grid grid-cols-2 gap-6">
