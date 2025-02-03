@@ -25,7 +25,7 @@ export const QualityReasoningSection = ({
           onReasoningChange?.(e.target.value);
         }}
         placeholder="Enter your assessment reasoning..."
-        className="min-h-[120px] w-full resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200"
+        className="min-h-[120px] w-full resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200 whitespace-pre-wrap break-words"
       />
     </div>
   );

@@ -16,13 +16,13 @@ export const ItemsList = ({ items, reasoning }: ItemsListProps) => {
         <ScrollArea className="h-[180px] pr-4">
           {reasoning ? (
             <div className="space-y-4">
-              <p className="text-sm text-gray-700 leading-relaxed">{reasoning}</p>
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap break-words">{reasoning}</p>
               {items.length > 0 && (
                 <>
                   <h4 className="font-medium text-sm text-gray-900">Key Points:</h4>
                   <ul className="space-y-2 list-disc pl-4">
                     {items.map((item, index) => (
-                      <li key={index} className="text-sm text-gray-600">
+                      <li key={index} className="text-sm text-gray-600 break-words">
                         {item}
                       </li>
                     ))}

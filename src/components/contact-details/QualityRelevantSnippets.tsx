@@ -57,7 +57,7 @@ export const QualityRelevantSnippets = () => {
           <ul className="space-y-2 list-disc pl-4">
             {snippets.map((snippet, index) => (
               <li key={index} className="flex items-start group">
-                <span className="flex-1">{snippet}</span>
+                <span className="flex-1 break-words whitespace-pre-wrap">{snippet}</span>
                 <Button
                   variant="ghost"
                   size="sm"
