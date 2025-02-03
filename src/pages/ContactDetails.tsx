@@ -32,15 +32,21 @@ interface JsonSnippet {
 
 const ContactDetails = () => {
   const location = useLocation();
-  const state = location.state as LocationState;
+  const state = location.state as LocationState | null;
   const [highlightedSnippetId, setHighlightedSnippetId] = useState<string>();
 
   console.log("ContactDetails: Initial state:", state);
 
+  // Early return if no state is present
+  if (!state?.contactData?.contact_id) {
+    console.log("No contact data in state, showing NotFoundState");
+    return <NotFoundState />;
+  }
+
   const { data: contactAssessment, isLoading: isLoadingAssessment, error: assessmentError } = useQuery({
-    queryKey: ['contact-assessment', state?.contactData?.contact_id],
+    queryKey: ['contact-assessment', state.contactData.contact_id],
     queryFn: async () => {
-      console.log("Fetching assessment for contact:", state?.contactData?.contact_id);
+      console.log("Fetching assessment for contact:", state.contactData.contact_id);
       const { data, error } = await supabase
         .from('contact_assessments')
         .select('*')
@@ -60,13 +66,14 @@ const ContactDetails = () => {
         vulnerability_rationale: null
       };
     },
-    enabled: !!state?.contactData?.contact_id
+    enabled: !!state.contactData.contact_id,
+    retry: 1
   });
 
   const { data: conversation, isLoading: isLoadingConversation, error: conversationError } = useQuery({
-    queryKey: ['conversation', state?.contactData?.contact_id],
+    queryKey: ['conversation', state.contactData.contact_id],
     queryFn: async () => {
-      console.log("Fetching conversation for contact:", state?.contactData?.contact_id);
+      console.log("Fetching conversation for contact:", state.contactData.contact_id);
       const { data, error } = await supabase
         .from('contact_conversations')
         .select('*')
@@ -81,7 +88,8 @@ const ContactDetails = () => {
       console.log("Conversation data:", data);
       return data;
     },
-    enabled: !!state?.contactData?.contact_id
+    enabled: !!state.contactData.contact_id,
+    retry: 1
   });
 
   console.log("Render state:", {
@@ -93,11 +101,6 @@ const ContactDetails = () => {
     assessmentError,
     conversationError
   });
-
-  if (!state?.contactData) {
-    console.log("No contact data in state, showing NotFoundState");
-    return <NotFoundState />;
-  }
 
   if (isLoadingAssessment || isLoadingConversation) {
     console.log("Data is loading, showing LoadingState");
