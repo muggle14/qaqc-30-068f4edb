@@ -20,7 +20,7 @@ export const AssessmentSection = ({
   const [isQualityOpen, setIsQualityOpen] = useState(true);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 col-span-2">
       <Collapsible open={isAIOpen} onOpenChange={setIsAIOpen}>
         <div className="flex items-center gap-2 mb-2">
           <CollapsibleTrigger asChild>
