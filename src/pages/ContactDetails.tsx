@@ -149,14 +149,13 @@ const ContactDetails = () => {
         contactId={state.contactData.contact_id} 
         evaluator={state.contactData.evaluator} 
       />
-
-      <SummarySection 
-        overallSummary={aiAssessment?.overall_summary || "No overall summary available"}
-        detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
-      />
       
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-6">
+          <SummarySection 
+            overallSummary={aiAssessment?.overall_summary || "No overall summary available"}
+            detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
+          />
           <AssessmentSection 
             complaints={contactAssessment?.complaints || []}
             vulnerabilities={contactAssessment?.vulnerabilities || []}
