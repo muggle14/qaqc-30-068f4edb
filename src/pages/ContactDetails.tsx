@@ -150,21 +150,17 @@ const ContactDetails = () => {
         evaluator={state.contactData.evaluator} 
       />
       
-      <div className="grid grid-cols-2 gap-6 h-[calc(100vh-16rem)]">
-        <div className="flex flex-col space-y-6 h-full">
-          <div className="h-1/2">
-            <SummarySection 
-              overallSummary={aiAssessment?.overall_summary || "No overall summary available"}
-              detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
-            />
-          </div>
-          <div className="h-1/2">
-            <AssessmentSection 
-              complaints={contactAssessment?.complaints || []}
-              vulnerabilities={contactAssessment?.vulnerabilities || []}
-              contactId={state.contactData.contact_id}
-            />
-          </div>
+      <div className="grid grid-cols-2 gap-6">
+        <div className="flex flex-col space-y-6">
+          <SummarySection 
+            overallSummary={aiAssessment?.overall_summary || "No overall summary available"}
+            detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
+          />
+          <AssessmentSection 
+            complaints={contactAssessment?.complaints || []}
+            vulnerabilities={contactAssessment?.vulnerabilities || []}
+            contactId={state.contactData.contact_id}
+          />
         </div>
         
         <TranscriptCard 
