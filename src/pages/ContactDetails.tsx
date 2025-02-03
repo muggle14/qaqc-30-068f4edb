@@ -150,8 +150,8 @@ const ContactDetails = () => {
         evaluator={state.contactData.evaluator} 
       />
       
-      <div className="grid grid-cols-2 gap-6">
-        <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-6 h-[calc(100vh-16rem)]">
+        <div className="space-y-6 h-full">
           <SummarySection 
             overallSummary={aiAssessment?.overall_summary || "No overall summary available"}
             detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
