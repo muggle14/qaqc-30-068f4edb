@@ -37,32 +37,11 @@ const ContactDetails = () => {
 
   console.log("ContactDetails: Initial state:", state);
 
+  // Early return if no state is present
   if (!state?.contactData?.contact_id) {
     console.log("No contact data in state, showing NotFoundState");
     return <NotFoundState />;
   }
-
-  const { data: aiAssessment, isLoading: isLoadingAiAssessment } = useQuery({
-    queryKey: ['ai-assessment', state.contactData.contact_id],
-    queryFn: async () => {
-      console.log("Fetching AI assessment for contact:", state.contactData.contact_id);
-      const { data, error } = await supabase
-        .from('ai_assess_complaints')
-        .select('*')
-        .eq('contact_id', state.contactData.contact_id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching AI assessment:", error);
-        throw error;
-      }
-      
-      console.log("AI Assessment data:", data);
-      return data;
-    },
-    enabled: !!state.contactData.contact_id,
-    retry: 1
-  });
 
   const { data: contactAssessment, isLoading: isLoadingAssessment, error: assessmentError } = useQuery({
     queryKey: ['contact-assessment', state.contactData.contact_id],
@@ -113,7 +92,17 @@ const ContactDetails = () => {
     retry: 1
   });
 
-  if (isLoadingAssessment || isLoadingConversation || isLoadingAiAssessment) {
+  console.log("Render state:", {
+    state,
+    contactAssessment,
+    conversation,
+    isLoadingAssessment,
+    isLoadingConversation,
+    assessmentError,
+    conversationError
+  });
+
+  if (isLoadingAssessment || isLoadingConversation) {
     console.log("Data is loading, showing LoadingState");
     return <LoadingState />;
   }
@@ -136,9 +125,11 @@ const ContactDetails = () => {
     );
   }
 
+  // Safely cast the JSON data to our SnippetMetadata type
   const rawSnippets = conversation?.snippets_metadata as Json[] || [];
   const snippetsMetadata: SnippetMetadata[] = Array.isArray(rawSnippets) 
     ? rawSnippets.map(snippet => {
+        // First cast to unknown, then to JsonSnippet
         const jsonSnippet = snippet as unknown as JsonSnippet;
         return {
           id: jsonSnippet.id || '',
@@ -157,11 +148,6 @@ const ContactDetails = () => {
         evaluator={state.contactData.evaluator} 
       />
       
-      <SummarySection 
-        overallSummary={aiAssessment?.overall_summary || "No summary available"}
-        detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
-      />
-
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-6">
           <AssessmentSection 
@@ -171,14 +157,21 @@ const ContactDetails = () => {
           />
         </div>
         
-        <div className="h-[600px]">
-          <TranscriptCard 
-            transcript={conversation?.transcript} 
-            snippetsMetadata={snippetsMetadata}
-            highlightedSnippetId={highlightedSnippetId}
-          />
-        </div>
+        <TranscriptCard 
+          transcript={conversation?.transcript} 
+          snippetsMetadata={snippetsMetadata}
+          highlightedSnippetId={highlightedSnippetId}
+        />
       </div>
+
+      <SummarySection 
+        overallSummary="Sample overall summary of the conversation"
+        detailedSummaryPoints={[
+          "Point 1 about the conversation",
+          "Point 2 about the conversation",
+          "Point 3 about the conversation"
+        ]}
+      />
     </div>
   );
 };

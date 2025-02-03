@@ -19,60 +19,37 @@ export const AIAssessment = ({
   contactId,
   onSnippetClick
 }: AIAssessmentProps) => {
-  console.log("AIAssessment rendering for contact:", contactId);
-  
   const { data: aiAssessment, isLoading, error } = useQuery({
     queryKey: ['ai-assessment', contactId],
     queryFn: async () => {
       console.log("Fetching AI assessment for contact:", contactId);
       
-      // First, get the complaints assessment
-      const { data: complaintsData, error: complaintsError } = await supabase
-        .from('ai_assess_complaints')
-        .select('*')
-        .eq('contact_id', contactId)
-        .maybeSingle();
+      const { data, error } = await supabase.functions.invoke('contact-assessment', {
+        body: { contact_id: contactId }
+      })
 
-      if (complaintsError) {
-        console.error("Error fetching complaints assessment:", complaintsError);
-        throw complaintsError;
+      if (error) {
+        console.error("Error fetching assessment:", error);
+        throw error;
       }
 
-      console.log("Complaints assessment data:", complaintsData);
-
-      // Then, get the vulnerability assessment
-      const { data: vulnerabilityData, error: vulnerabilityError } = await supabase
-        .from('ai_assess_vulnerability')
-        .select('*')
-        .eq('contact_id', contactId)
-        .maybeSingle();
-
-      if (vulnerabilityError) {
-        console.error("Error fetching vulnerability assessment:", vulnerabilityError);
-        throw vulnerabilityError;
-      }
-
-      console.log("Vulnerability assessment data:", vulnerabilityData);
+      console.log("AI assessment data:", data);
       
       return {
-        complaints_flag: complaintsData?.complaints_flag || false,
-        complaints_reasoning: complaintsData?.complaints_reasoning || null,
-        relevant_snippet_ids: complaintsData?.relevant_snippet_ids || [],
-        physical_disability_flag: complaintsData?.physical_disability_flag || false,
-        physical_disability_reasoning: complaintsData?.physical_disability_reasoning || null,
-        vulnerability_flag: vulnerabilityData?.vulnerability_flag || false,
-        vulnerability_reasoning: vulnerabilityData?.vulnerability_reasoning || null,
-        vulnerability_snippet_ids: vulnerabilityData?.relevant_snippet_ids || []
+        complaints_flag: data.complaints?.complaints_flag || false,
+        complaints_reasoning: data.complaints?.complaints_reasoning,
+        relevant_snippet_ids: data.complaints?.relevant_snippet_ids || [],
+        physical_disability_flag: data.complaints?.physical_disability_flag || false,
+        physical_disability_reasoning: data.complaints?.physical_disability_reasoning,
+        vulnerability_flag: data.vulnerability?.vulnerability_flag || false,
+        vulnerability_reasoning: data.vulnerability?.vulnerability_reasoning,
+        vulnerability_snippet_ids: data.vulnerability?.relevant_snippet_ids || []
       };
     },
-    refetchInterval: 0, // Disable automatic refetching
-    gcTime: 0, // Don't keep unused data in cache
     retry: 1
   });
 
   const bothFlagsTrue = aiAssessment?.complaints_flag && aiAssessment?.vulnerability_flag;
-
-  console.log("AIAssessment data after fetch:", aiAssessment);
 
   if (isLoading) {
     return (
@@ -97,11 +74,6 @@ export const AIAssessment = ({
       </Card>
     );
   }
-
-  console.log("Rendering AIAssessment with data:", {
-    complaintsReasoning: aiAssessment?.complaints_reasoning,
-    vulnerabilityReasoning: aiAssessment?.vulnerability_reasoning
-  });
 
   return (
     <Card className="w-full min-h-[600px]">
