@@ -34,28 +34,26 @@ serve(async (req) => {
       .eq('contact_id', contact_id)
       .single()
 
-    if (conversationError || !conversationData) {
+    if (conversationError) {
       console.error("Error fetching conversation:", conversationError)
       throw new Error('Failed to fetch conversation transcript')
     }
 
-    if (!conversationData.transcript) {
-      console.error("No transcript found in conversation data")
-      throw new Error('No transcript found for this contact')
-    }
+    const transcript = conversationData?.transcript || null;
+    console.log("Transcript found:", transcript ? "Yes" : "No")
 
     console.log("Performing assessments")
     // Perform assessments
     const complaintsResult = await assess_complaints(
       supabase,
       contact_id,
-      conversationData.transcript
+      transcript
     )
     
     const vulnerabilityResult = await assess_vulnerability(
       supabase,
       contact_id,
-      conversationData.transcript
+      transcript
     )
 
     console.log("Storing assessment results")

@@ -20,13 +20,12 @@ interface Snippet {
   timestamp: string | null;
 }
 
-async function findRelevantSnippets(
+async function getRandomSnippets(
   supabase: SupabaseClient,
   contactId: string,
-  keywords: string[]
+  maxSnippets: number = 3
 ): Promise<string[]> {
-  console.log("Finding relevant snippets for contact:", contactId);
-  console.log("Using keywords:", keywords);
+  console.log(`Getting random snippets for contact: ${contactId}, max: ${maxSnippets}`);
 
   const { data: conversationData, error } = await supabase
     .from('contact_conversations')
@@ -45,43 +44,32 @@ async function findRelevantSnippets(
   }
 
   const snippets = conversationData.snippets_metadata as Snippet[];
-  console.log("Found snippets:", snippets);
+  console.log(`Total snippets available: ${snippets.length}`);
 
-  const relevantSnippetIds = snippets
-    .filter(snippet => 
-      keywords.some(keyword => 
-        snippet.content.toLowerCase().includes(keyword.toLowerCase())
-      )
-    )
-    .map(snippet => snippet.id);
+  // Shuffle array and take first maxSnippets elements
+  const shuffledSnippets = snippets
+    .sort(() => Math.random() - 0.5)
+    .slice(0, maxSnippets);
 
-  console.log("Identified relevant snippet IDs:", relevantSnippetIds);
-  return relevantSnippetIds;
+  const snippetIds = shuffledSnippets.map(snippet => snippet.id);
+  console.log("Selected random snippet IDs:", snippetIds);
+
+  return snippetIds;
 }
 
 export async function assess_complaints(
   supabase: SupabaseClient,
   contactId: string,
-  transcript: string
+  transcript: string | null
 ): Promise<ComplaintsResult> {
-  console.log("Starting complaints assessment for transcript");
+  console.log("Starting complaints assessment");
   
-  const complaintKeywords = ['complaint', 'issue', 'problem', 'unhappy', 'dissatisfied'];
-  const disabilityKeywords = ['disability', 'wheelchair', 'mobility', 'assistance'];
+  // Get random snippets regardless of transcript content
+  const relevantSnippetIds = await getRandomSnippets(supabase, contactId, 3);
   
-  const hasComplaints = complaintKeywords.some(keyword => 
-    transcript.toLowerCase().includes(keyword)
-  );
-  
-  const hasDisability = disabilityKeywords.some(keyword => 
-    transcript.toLowerCase().includes(keyword)
-  );
-
-  const relevantSnippetIds = await findRelevantSnippets(
-    supabase,
-    contactId,
-    [...complaintKeywords, ...disabilityKeywords]
-  );
+  // Set default flags
+  const hasComplaints = false;
+  const hasDisability = false;
 
   return {
     complaints_flag: hasComplaints,
@@ -99,28 +87,15 @@ export async function assess_complaints(
 export async function assess_vulnerability(
   supabase: SupabaseClient,
   contactId: string,
-  transcript: string
+  transcript: string | null
 ): Promise<VulnerabilityResult> {
-  console.log("Starting vulnerability assessment for transcript");
+  console.log("Starting vulnerability assessment");
   
-  const vulnerabilityKeywords = [
-    'vulnerable',
-    'help',
-    'assistance',
-    'support',
-    'difficulty',
-    'struggle'
-  ];
+  // Get random snippets regardless of transcript content
+  const relevantSnippetIds = await getRandomSnippets(supabase, contactId, 3);
   
-  const hasVulnerability = vulnerabilityKeywords.some(keyword => 
-    transcript.toLowerCase().includes(keyword)
-  );
-
-  const relevantSnippetIds = await findRelevantSnippets(
-    supabase,
-    contactId,
-    vulnerabilityKeywords
-  );
+  // Set default flag
+  const hasVulnerability = false;
 
   return {
     vulnerability_flag: hasVulnerability,
