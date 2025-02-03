@@ -112,7 +112,8 @@ const ContactDetails = () => {
   const rawSnippets = conversation.snippets_metadata as Json[];
   const snippetsMetadata: SnippetMetadata[] = Array.isArray(rawSnippets) 
     ? rawSnippets.map(snippet => {
-        const jsonSnippet = snippet as JsonSnippet;
+        // First cast to unknown, then to JsonSnippet
+        const jsonSnippet = snippet as unknown as JsonSnippet;
         return {
           id: jsonSnippet.id || '',
           content: jsonSnippet.content || '',
