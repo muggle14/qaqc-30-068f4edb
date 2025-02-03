@@ -91,6 +91,11 @@ export const AIAssessment = ({
     );
   }
 
+  console.log("Rendering AIAssessment with data:", {
+    complaintsReasoning: aiAssessment?.complaints_reasoning,
+    vulnerabilityReasoning: aiAssessment?.vulnerability_reasoning
+  });
+
   return (
     <Card className="w-full min-h-[600px]">
       <CardContent>
