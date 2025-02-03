@@ -7,7 +7,7 @@ interface DetailedSummaryProps {
 
 export const DetailedSummary = ({ summaryPoints }: DetailedSummaryProps) => {
   return (
-    <Card className="h-[60%]">
+    <Card className="h-[calc(50vh-8rem)]">
       <CardHeader>
         <CardTitle>Detailed Summary</CardTitle>
       </CardHeader>
