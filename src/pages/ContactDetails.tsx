@@ -151,7 +151,7 @@ const ContactDetails = () => {
       />
       
       <div className="grid grid-cols-2 gap-6">
-        <div className="space-y-6">
+        <div className="w-full space-y-6">
           <SummarySection 
             overallSummary={aiAssessment?.overall_summary || "No overall summary available"}
             detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
