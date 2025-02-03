@@ -6,7 +6,7 @@ interface OverallSummaryProps {
 
 export const OverallSummary = ({ summary }: OverallSummaryProps) => {
   return (
-    <Card className="h-[calc(50%-1.5rem)]">
+    <Card className="h-[calc(40%-1.5rem)]">
       <CardHeader>
         <CardTitle>Overall Summary</CardTitle>
       </CardHeader>
