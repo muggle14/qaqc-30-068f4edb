@@ -37,7 +37,6 @@ const ContactDetails = () => {
 
   console.log("ContactDetails: Initial state:", state);
 
-  // Early return if no state is present
   if (!state?.contactData?.contact_id) {
     console.log("No contact data in state, showing NotFoundState");
     return <NotFoundState />;
@@ -70,6 +69,21 @@ const ContactDetails = () => {
     retry: 1
   });
 
+  const { data: aiAssessment, isLoading: isLoadingAIAssessment } = useQuery({
+    queryKey: ['ai-assessment', state.contactData.contact_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('ai_assess_complaints')
+        .select('*')
+        .eq('contact_id', state.contactData.contact_id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!state.contactData.contact_id
+  });
+
   const { data: conversation, isLoading: isLoadingConversation, error: conversationError } = useQuery({
     queryKey: ['conversation', state.contactData.contact_id],
     queryFn: async () => {
@@ -92,17 +106,7 @@ const ContactDetails = () => {
     retry: 1
   });
 
-  console.log("Render state:", {
-    state,
-    contactAssessment,
-    conversation,
-    isLoadingAssessment,
-    isLoadingConversation,
-    assessmentError,
-    conversationError
-  });
-
-  if (isLoadingAssessment || isLoadingConversation) {
+  if (isLoadingAssessment || isLoadingConversation || isLoadingAIAssessment) {
     console.log("Data is loading, showing LoadingState");
     return <LoadingState />;
   }
@@ -125,11 +129,9 @@ const ContactDetails = () => {
     );
   }
 
-  // Safely cast the JSON data to our SnippetMetadata type
   const rawSnippets = conversation?.snippets_metadata as Json[] || [];
   const snippetsMetadata: SnippetMetadata[] = Array.isArray(rawSnippets) 
     ? rawSnippets.map(snippet => {
-        // First cast to unknown, then to JsonSnippet
         const jsonSnippet = snippet as unknown as JsonSnippet;
         return {
           id: jsonSnippet.id || '',
@@ -147,6 +149,11 @@ const ContactDetails = () => {
         contactId={state.contactData.contact_id} 
         evaluator={state.contactData.evaluator} 
       />
+
+      <SummarySection 
+        overallSummary={aiAssessment?.overall_summary || "No overall summary available"}
+        detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
+      />
       
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-6">
@@ -163,15 +170,6 @@ const ContactDetails = () => {
           highlightedSnippetId={highlightedSnippetId}
         />
       </div>
-
-      <SummarySection 
-        overallSummary="Sample overall summary of the conversation"
-        detailedSummaryPoints={[
-          "Point 1 about the conversation",
-          "Point 2 about the conversation",
-          "Point 3 about the conversation"
-        ]}
-      />
     </div>
   );
 };
