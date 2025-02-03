@@ -39,10 +39,24 @@ serve(async (req) => {
       throw new Error('Failed to fetch conversation transcript')
     }
 
+    if (!conversationData.transcript) {
+      console.error("No transcript found in conversation data")
+      throw new Error('No transcript found for this contact')
+    }
+
     console.log("Performing assessments")
     // Perform assessments
-    const complaintsResult = await assess_complaints(conversationData.transcript)
-    const vulnerabilityResult = await assess_vulnerability(conversationData.transcript)
+    const complaintsResult = await assess_complaints(
+      supabase,
+      contact_id,
+      conversationData.transcript
+    )
+    
+    const vulnerabilityResult = await assess_vulnerability(
+      supabase,
+      contact_id,
+      conversationData.transcript
+    )
 
     console.log("Storing assessment results")
     // Store results
