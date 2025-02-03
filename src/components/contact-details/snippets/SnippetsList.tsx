@@ -25,7 +25,7 @@ export const SnippetsList = ({ snippets, onSnippetClick }: SnippetsListProps) =>
               <div className="text-xs text-gray-500 mb-1 px-2 pt-2">
                 [{snippet.timestamp || 'No timestamp'}]
               </div>
-              <p className="text-sm px-2 pb-2">{snippet.content}</p>
+              <p className="text-sm px-2 pb-2 whitespace-pre-wrap break-words">{snippet.content}</p>
             </div>
           </Button>
         </li>
