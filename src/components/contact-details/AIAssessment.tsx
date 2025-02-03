@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PhysicalDisabilitySection } from "./PhysicalDisabilitySection";
 import { AIAssessmentSection } from "./AIAssessmentSection";
-import { useState } from "react";
+import { AlertCircle } from "lucide-react";
 
 interface AIAssessmentProps {
   complaints: string[];
@@ -19,7 +19,7 @@ export const AIAssessment = ({
   contactId,
   onSnippetClick
 }: AIAssessmentProps) => {
-  const { data: aiAssessment, isLoading } = useQuery({
+  const { data: aiAssessment, isLoading, error } = useQuery({
     queryKey: ['ai-assessment', contactId],
     queryFn: async () => {
       console.log("Fetching AI assessment for contact:", contactId);
@@ -45,13 +45,34 @@ export const AIAssessment = ({
         vulnerability_reasoning: data.vulnerability?.vulnerability_reasoning,
         vulnerability_snippet_ids: data.vulnerability?.relevant_snippet_ids || []
       };
-    }
+    },
+    retry: 1
   });
 
   const bothFlagsTrue = aiAssessment?.complaints_flag && aiAssessment?.vulnerability_flag;
 
   if (isLoading) {
-    return <div>Loading assessment...</div>;
+    return (
+      <Card className="w-full min-h-[600px]">
+        <CardContent className="flex items-center justify-center h-[600px]">
+          <div className="text-gray-500">Loading assessment...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="w-full min-h-[600px]">
+        <CardContent className="flex flex-col items-center justify-center h-[600px] space-y-4">
+          <AlertCircle className="h-8 w-8 text-red-500" />
+          <div className="text-red-500 font-medium">Error loading assessment</div>
+          <div className="text-sm text-gray-500 max-w-md text-center">
+            {error instanceof Error ? error.message : 'An unexpected error occurred'}
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

@@ -9,6 +9,7 @@ import { LoadingState } from "@/components/contact-details/LoadingState";
 import { NotFoundState } from "@/components/contact-details/NotFoundState";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { Json } from "@/integrations/supabase/types";
+import { AlertCircle } from "lucide-react";
 
 interface LocationState {
   contactData: {
@@ -103,13 +104,26 @@ const ContactDetails = () => {
     return <LoadingState />;
   }
 
-  if (!conversation) {
-    console.log("No conversation found, showing NotFoundState");
-    return <NotFoundState />;
+  if (assessmentError || conversationError) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+          <AlertCircle className="h-12 w-12 text-red-500" />
+          <h2 className="text-xl font-semibold text-gray-900">Error Loading Data</h2>
+          <p className="text-gray-500 text-center max-w-md">
+            {assessmentError instanceof Error 
+              ? assessmentError.message 
+              : conversationError instanceof Error 
+                ? conversationError.message 
+                : 'An unexpected error occurred while loading the data.'}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   // Safely cast the JSON data to our SnippetMetadata type
-  const rawSnippets = conversation.snippets_metadata as Json[];
+  const rawSnippets = conversation?.snippets_metadata as Json[] || [];
   const snippetsMetadata: SnippetMetadata[] = Array.isArray(rawSnippets) 
     ? rawSnippets.map(snippet => {
         // First cast to unknown, then to JsonSnippet
@@ -141,7 +155,7 @@ const ContactDetails = () => {
         </div>
         
         <TranscriptCard 
-          transcript={conversation.transcript} 
+          transcript={conversation?.transcript} 
           snippetsMetadata={snippetsMetadata}
           highlightedSnippetId={highlightedSnippetId}
         />
