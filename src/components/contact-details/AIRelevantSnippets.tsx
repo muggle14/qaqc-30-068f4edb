@@ -81,7 +81,7 @@ export const AIRelevantSnippets = ({
         <AlertCircle className="h-4 w-4 text-gray-500" />
         <h4 className="font-medium text-gray-700">Analysis Evidence:</h4>
       </div>
-      <ScrollArea className="h-[200px] pr-4 border rounded-md p-3 bg-gray-50">
+      <ScrollArea className="h-[200px] pr-4 border rounded-md p-3 bg-gray-50 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
         <div className="space-y-2">
           <div className="text-sm text-gray-600">
             {isLoading ? (
