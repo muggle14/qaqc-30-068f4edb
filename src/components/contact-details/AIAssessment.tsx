@@ -29,7 +29,7 @@ export const AIAssessment = ({
         .from('ai_assess_complaints')
         .select('*')
         .eq('contact_id', contactId)
-        .single();
+        .maybeSingle();
 
       if (complaintsError) {
         console.error("Error fetching complaints assessment:", complaintsError);
@@ -41,7 +41,7 @@ export const AIAssessment = ({
         .from('ai_assess_vulnerability')
         .select('*')
         .eq('contact_id', contactId)
-        .single();
+        .maybeSingle();
 
       if (vulnerabilityError) {
         console.error("Error fetching vulnerability assessment:", vulnerabilityError);
@@ -53,12 +53,12 @@ export const AIAssessment = ({
       
       return {
         complaints_flag: complaintsData?.complaints_flag || false,
-        complaints_reasoning: complaintsData?.complaints_reasoning,
+        complaints_reasoning: complaintsData?.complaints_reasoning || null,
         relevant_snippet_ids: complaintsData?.relevant_snippet_ids || [],
         physical_disability_flag: complaintsData?.physical_disability_flag || false,
-        physical_disability_reasoning: complaintsData?.physical_disability_reasoning,
+        physical_disability_reasoning: complaintsData?.physical_disability_reasoning || null,
         vulnerability_flag: vulnerabilityData?.vulnerability_flag || false,
-        vulnerability_reasoning: vulnerabilityData?.vulnerability_reasoning,
+        vulnerability_reasoning: vulnerabilityData?.vulnerability_reasoning || null,
         vulnerability_snippet_ids: vulnerabilityData?.relevant_snippet_ids || []
       };
     },
