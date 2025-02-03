@@ -65,10 +65,10 @@ export const AIAssessment = ({
     return (
       <Card className="w-full min-h-[600px]">
         <CardContent className="flex flex-col items-center justify-center h-[600px] space-y-4">
-          <AlertCircle className="h-12 w-12 text-red-500" />
-          <div className="text-lg font-semibold text-gray-900">Error Loading Assessment</div>
+          <AlertCircle className="h-8 w-8 text-red-500" />
+          <div className="text-red-500 font-medium">Error loading assessment</div>
           <div className="text-sm text-gray-500 max-w-md text-center">
-            {error instanceof Error ? error.message : 'An unexpected error occurred while loading the assessment data'}
+            {error instanceof Error ? error.message : 'An unexpected error occurred'}
           </div>
         </CardContent>
       </Card>
