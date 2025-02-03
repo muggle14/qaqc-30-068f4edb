@@ -151,17 +151,10 @@ const ContactDetails = () => {
       />
       
       <div className="grid grid-cols-2 gap-6">
-        <div className="flex flex-col space-y-6">
-          <SummarySection 
-            overallSummary={aiAssessment?.overall_summary || "No overall summary available"}
-            detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
-          />
-          <AssessmentSection 
-            complaints={contactAssessment?.complaints || []}
-            vulnerabilities={contactAssessment?.vulnerabilities || []}
-            contactId={state.contactData.contact_id}
-          />
-        </div>
+        <SummarySection 
+          overallSummary={aiAssessment?.overall_summary || "No overall summary available"}
+          detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
+        />
         
         <TranscriptCard 
           transcript={conversation?.transcript} 
@@ -169,6 +162,12 @@ const ContactDetails = () => {
           highlightedSnippetId={highlightedSnippetId}
         />
       </div>
+
+      <AssessmentSection 
+        complaints={contactAssessment?.complaints || []}
+        vulnerabilities={contactAssessment?.vulnerabilities || []}
+        contactId={state.contactData.contact_id}
+      />
     </div>
   );
 };
