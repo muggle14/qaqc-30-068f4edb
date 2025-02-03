@@ -37,7 +37,6 @@ const ContactDetails = () => {
 
   console.log("ContactDetails: Initial state:", state);
 
-  // Early return if no state is present
   if (!state?.contactData?.contact_id) {
     console.log("No contact data in state, showing NotFoundState");
     return <NotFoundState />;
@@ -92,16 +91,6 @@ const ContactDetails = () => {
     retry: 1
   });
 
-  console.log("Render state:", {
-    state,
-    contactAssessment,
-    conversation,
-    isLoadingAssessment,
-    isLoadingConversation,
-    assessmentError,
-    conversationError
-  });
-
   if (isLoadingAssessment || isLoadingConversation) {
     console.log("Data is loading, showing LoadingState");
     return <LoadingState />;
@@ -125,11 +114,9 @@ const ContactDetails = () => {
     );
   }
 
-  // Safely cast the JSON data to our SnippetMetadata type
   const rawSnippets = conversation?.snippets_metadata as Json[] || [];
   const snippetsMetadata: SnippetMetadata[] = Array.isArray(rawSnippets) 
     ? rawSnippets.map(snippet => {
-        // First cast to unknown, then to JsonSnippet
         const jsonSnippet = snippet as unknown as JsonSnippet;
         return {
           id: jsonSnippet.id || '',
@@ -157,11 +144,13 @@ const ContactDetails = () => {
           />
         </div>
         
-        <TranscriptCard 
-          transcript={conversation?.transcript} 
-          snippetsMetadata={snippetsMetadata}
-          highlightedSnippetId={highlightedSnippetId}
-        />
+        <div className="min-h-[600px]"> {/* Added min-height to match TranscriptCard */}
+          <TranscriptCard 
+            transcript={conversation?.transcript} 
+            snippetsMetadata={snippetsMetadata}
+            highlightedSnippetId={highlightedSnippetId}
+          />
+        </div>
       </div>
 
       <SummarySection 
