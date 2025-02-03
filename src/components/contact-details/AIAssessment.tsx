@@ -19,6 +19,8 @@ export const AIAssessment = ({
   contactId,
   onSnippetClick
 }: AIAssessmentProps) => {
+  console.log("AIAssessment rendering for contact:", contactId);
+  
   const { data: aiAssessment, isLoading, error } = useQuery({
     queryKey: ['ai-assessment', contactId],
     queryFn: async () => {
@@ -36,6 +38,8 @@ export const AIAssessment = ({
         throw complaintsError;
       }
 
+      console.log("Complaints assessment data:", complaintsData);
+
       // Then, get the vulnerability assessment
       const { data: vulnerabilityData, error: vulnerabilityError } = await supabase
         .from('ai_assess_vulnerability')
@@ -48,8 +52,7 @@ export const AIAssessment = ({
         throw vulnerabilityError;
       }
 
-      console.log("AI assessment data - Complaints:", complaintsData);
-      console.log("AI assessment data - Vulnerability:", vulnerabilityData);
+      console.log("Vulnerability assessment data:", vulnerabilityData);
       
       return {
         complaints_flag: complaintsData?.complaints_flag || false,
@@ -62,10 +65,14 @@ export const AIAssessment = ({
         vulnerability_snippet_ids: vulnerabilityData?.relevant_snippet_ids || []
       };
     },
+    staleTime: 0, // Always fetch fresh data
+    cacheTime: 0, // Don't cache the data
     retry: 1
   });
 
   const bothFlagsTrue = aiAssessment?.complaints_flag && aiAssessment?.vulnerability_flag;
+
+  console.log("AIAssessment data after fetch:", aiAssessment);
 
   if (isLoading) {
     return (
