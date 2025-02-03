@@ -63,7 +63,7 @@ export const AIAssessment = ({
 
   if (error) {
     return (
-      <Card className="w-full min-h-[600px]">
+      <Card className="w-full min-h-[600px] container mx-auto">
         <CardContent className="flex flex-col items-center justify-center h-[600px] space-y-4">
           <AlertCircle className="h-12 w-12 text-red-500" />
           <div className="text-lg font-semibold text-gray-900">Error Loading Assessment</div>
