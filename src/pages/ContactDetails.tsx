@@ -135,6 +135,15 @@ const ContactDetails = () => {
         evaluator={state.contactData.evaluator} 
       />
       
+      <SummarySection 
+        overallSummary="Sample overall summary of the conversation"
+        detailedSummaryPoints={[
+          "Point 1 about the conversation",
+          "Point 2 about the conversation",
+          "Point 3 about the conversation"
+        ]}
+      />
+
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-6">
           <AssessmentSection 
@@ -144,7 +153,7 @@ const ContactDetails = () => {
           />
         </div>
         
-        <div className="min-h-[600px]"> {/* Added min-height to match TranscriptCard */}
+        <div className="h-[600px]">
           <TranscriptCard 
             transcript={conversation?.transcript} 
             snippetsMetadata={snippetsMetadata}
@@ -152,15 +161,6 @@ const ContactDetails = () => {
           />
         </div>
       </div>
-
-      <SummarySection 
-        overallSummary="Sample overall summary of the conversation"
-        detailedSummaryPoints={[
-          "Point 1 about the conversation",
-          "Point 2 about the conversation",
-          "Point 3 about the conversation"
-        ]}
-      />
     </div>
   );
 };

@@ -19,7 +19,7 @@ export const TranscriptCard = ({ transcript, snippetsMetadata, highlightedSnippe
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <Card className="h-[600px]"> {/* Changed from h-full to fixed height */}
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Transcript</CardTitle>
         <div className="relative">
