@@ -19,7 +19,7 @@ export const TranscriptCard = ({ transcript, snippetsMetadata, highlightedSnippe
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <Card className="h-[calc(100vh-16rem)]">
+    <Card className="h-[calc(100vh-8rem)]">
       <CardHeader>
         <CardTitle>Transcript</CardTitle>
         <div className="relative">
