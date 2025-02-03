@@ -65,8 +65,8 @@ export const AIAssessment = ({
         vulnerability_snippet_ids: vulnerabilityData?.relevant_snippet_ids || []
       };
     },
-    staleTime: 0, // Always fetch fresh data
-    cacheTime: 0, // Don't cache the data
+    refetchInterval: 0, // Disable automatic refetching
+    gcTime: 0, // Don't keep unused data in cache
     retry: 1
   });
 
