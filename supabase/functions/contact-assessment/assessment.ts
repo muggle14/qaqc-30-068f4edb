@@ -14,18 +14,74 @@ interface VulnerabilityResult {
   relevant_snippet_ids: string[];
 }
 
-export async function assess_complaints(transcript: string): Promise<ComplaintsResult> {
+interface Snippet {
+  id: string;
+  content: string;
+  timestamp: string | null;
+}
+
+async function findRelevantSnippets(
+  supabase: SupabaseClient,
+  contactId: string,
+  keywords: string[]
+): Promise<string[]> {
+  console.log("Finding relevant snippets for contact:", contactId);
+  console.log("Using keywords:", keywords);
+
+  const { data: conversationData, error } = await supabase
+    .from('contact_conversations')
+    .select('snippets_metadata')
+    .eq('contact_id', contactId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching conversation:", error);
+    return [];
+  }
+
+  if (!conversationData?.snippets_metadata) {
+    console.log("No snippets found in conversation");
+    return [];
+  }
+
+  const snippets = conversationData.snippets_metadata as Snippet[];
+  console.log("Found snippets:", snippets);
+
+  const relevantSnippetIds = snippets
+    .filter(snippet => 
+      keywords.some(keyword => 
+        snippet.content.toLowerCase().includes(keyword.toLowerCase())
+      )
+    )
+    .map(snippet => snippet.id);
+
+  console.log("Identified relevant snippet IDs:", relevantSnippetIds);
+  return relevantSnippetIds;
+}
+
+export async function assess_complaints(
+  supabase: SupabaseClient,
+  contactId: string,
+  transcript: string
+): Promise<ComplaintsResult> {
   console.log("Starting complaints assessment for transcript");
   
-  // For now, implementing a simple assessment logic
-  // This should be replaced with more sophisticated analysis
-  const hasComplaints = transcript.toLowerCase().includes('complaint') || 
-                       transcript.toLowerCase().includes('issue') ||
-                       transcript.toLowerCase().includes('problem');
-                       
-  const hasDisability = transcript.toLowerCase().includes('disability') || 
-                       transcript.toLowerCase().includes('wheelchair') ||
-                       transcript.toLowerCase().includes('mobility');
+  const complaintKeywords = ['complaint', 'issue', 'problem', 'unhappy', 'dissatisfied'];
+  const disabilityKeywords = ['disability', 'wheelchair', 'mobility', 'assistance'];
+  
+  const hasComplaints = complaintKeywords.some(keyword => 
+    transcript.toLowerCase().includes(keyword)
+  );
+  
+  const hasDisability = disabilityKeywords.some(keyword => 
+    transcript.toLowerCase().includes(keyword)
+  );
+
+  const relevantSnippetIds = await findRelevantSnippets(
+    supabase,
+    contactId,
+    [...complaintKeywords, ...disabilityKeywords]
+  );
 
   return {
     complaints_flag: hasComplaints,
@@ -36,24 +92,42 @@ export async function assess_complaints(transcript: string): Promise<ComplaintsR
     physical_disability_reasoning: hasDisability ? 
       "The conversation indicates presence of physical disability." : 
       "No clear indicators of physical disability found.",
-    relevant_snippet_ids: [] // In a real implementation, we would identify relevant snippets
+    relevant_snippet_ids: relevantSnippetIds
   };
 }
 
-export async function assess_vulnerability(transcript: string): Promise<VulnerabilityResult> {
+export async function assess_vulnerability(
+  supabase: SupabaseClient,
+  contactId: string,
+  transcript: string
+): Promise<VulnerabilityResult> {
   console.log("Starting vulnerability assessment for transcript");
   
-  // Simple vulnerability assessment logic
-  const hasVulnerability = transcript.toLowerCase().includes('vulnerable') || 
-                          transcript.toLowerCase().includes('help') ||
-                          transcript.toLowerCase().includes('assistance');
+  const vulnerabilityKeywords = [
+    'vulnerable',
+    'help',
+    'assistance',
+    'support',
+    'difficulty',
+    'struggle'
+  ];
+  
+  const hasVulnerability = vulnerabilityKeywords.some(keyword => 
+    transcript.toLowerCase().includes(keyword)
+  );
+
+  const relevantSnippetIds = await findRelevantSnippets(
+    supabase,
+    contactId,
+    vulnerabilityKeywords
+  );
 
   return {
     vulnerability_flag: hasVulnerability,
     vulnerability_reasoning: hasVulnerability ? 
       "The conversation indicates potential vulnerability." : 
       "No clear vulnerability indicators detected.",
-    relevant_snippet_ids: [] // In a real implementation, we would identify relevant snippets
+    relevant_snippet_ids: relevantSnippetIds
   };
 }
 
