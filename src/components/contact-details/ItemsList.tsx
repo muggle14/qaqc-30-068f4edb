@@ -13,15 +13,15 @@ export const ItemsList = ({ items, reasoning }: ItemsListProps) => {
   return (
     <Card className="border border-canvas-border">
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-medium">Reasoning</CardTitle>
+        <CardTitle className="text-base font-medium">Assessment Reasoning</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         <ScrollArea className="h-[180px] pr-4">
           <div className="space-y-4">
             {reasoning ? (
-              <>
-                <p className="text-sm text-gray-700 leading-relaxed">{reasoning}</p>
-                {items.length > 0 && (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{reasoning}</p>
+                {items && items.length > 0 && (
                   <>
                     <h4 className="font-medium text-sm text-gray-900">Key Points:</h4>
                     <ul className="space-y-2 list-disc pl-4">
@@ -33,9 +33,9 @@ export const ItemsList = ({ items, reasoning }: ItemsListProps) => {
                     </ul>
                   </>
                 )}
-              </>
+              </div>
             ) : (
-              <p className="text-sm text-gray-500 italic">No reasoning provided</p>
+              <p className="text-sm text-gray-500 italic">No assessment reasoning provided</p>
             )}
           </div>
         </ScrollArea>
