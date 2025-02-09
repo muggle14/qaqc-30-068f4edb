@@ -11,21 +11,19 @@ shared_path = os.path.join(current_dir, "..", "shared")
 if shared_path not in sys.path:
     sys.path.append(shared_path)
 
-# Now import from assessment.py
+# Now import from assessment.py (shared folder)
 from assessment import assess_complaints, assess_vulnerability, store_assessment_results
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     """
-    This function replaces your Deno-based index.ts. It:
-      1) Parses contact_id from the request body.
-      2) Connects to Azure PostgreSQL (via psycopg2).
-      3) Fetches conversation transcript from `contact_conversations`.
-      4) Calls your complaint & vulnerability assessment logic.
-      5) Stores results via `store_assessment_results`.
-      6) Returns JSON with CORS headers.
+    1) Parses contact_id from the request body.
+    2) Connects to Azure PostgreSQL (psycopg2).
+    3) Fetches conversation transcript from 'contact_conversations'.
+    4) Calls complaint & vulnerability assessment logic.
+    5) Stores results in 'ai_assess_complaints' / 'ai_assess_vulnerability'.
+    6) Returns JSON with CORS headers.
     """
 
-    # Define CORS headers
     cors_headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -40,7 +38,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("contact_assessment function triggered (Python).")
 
     try:
-        # Parse JSON body to get contact_id
+        # Parse JSON body
         req_body = req.get_json()
         contact_id = req_body.get("contact_id")
         if not contact_id:
@@ -48,14 +46,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         logging.info(f"Fetching conversation transcript for contact_id={contact_id}.")
 
-        logging.info("DB connection details: host=%s user=%s dbname=%s port=%s", 
-             os.environ.get("PGHOST"), 
-             os.environ.get("PGUSER"), 
-             os.environ.get("PGDATABASE"), 
-             os.environ.get("PGPORT")
-             )
+        # Log DB env variables (just for debugging)
+        logging.info("DB: host=%s user=%s dbname=%s port=%s",
+            os.environ.get("PGHOST"),
+            os.environ.get("PGUSER"),
+            os.environ.get("PGDATABASE"),
+            os.environ.get("PGPORT")
+        )
         
-        # Connect to Azure PostgreSQL using environment variables
+        # Connect to Azure PostgreSQL
         conn = psycopg2.connect(
             host=os.environ.get("PGHOST"),
             user=os.environ.get("PGUSER"),
@@ -66,7 +65,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
         cur = conn.cursor()
 
-        # Fetch conversation transcript from 'contact_conversations'
+        # Fetch transcript from 'contact_conversations'
         transcript_query = """
             SELECT transcript
             FROM contact_conversations
@@ -78,15 +77,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if not row:
             logging.info("No conversation found for this contact.")
             raise ValueError("Failed to fetch conversation transcript")
-        transcript = row[0] or None
-        logging.info("Transcript found: " + ("Yes" if transcript else "No"))
 
-        logging.info("Performing assessments.")
-        # Perform the complaint and vulnerability assessments
+        transcript = row[0] or None
+        logging.info("Transcript found: %s", "Yes" if transcript else "No")
+
+        # Perform assessments
         complaints_result = assess_complaints(cur, contact_id, transcript)
         vulnerability_result = assess_vulnerability(cur, contact_id, transcript)
 
-        logging.info("Storing assessment results.")
+        # Store results
         results = store_assessment_results(cur, contact_id, complaints_result, vulnerability_result)
 
         conn.commit()
@@ -100,7 +99,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             headers=cors_headers
         )
     except Exception as e:
-        logging.error("Error: " + str(e))
+        logging.error("Error: %s", str(e))
         return func.HttpResponse(
             json.dumps({"error": str(e)}),
             status_code=500,
