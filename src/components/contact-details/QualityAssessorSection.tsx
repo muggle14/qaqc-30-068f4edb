@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { AssessmentCard } from "./AssessmentCard";
 import { AlertCircle, Shield, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/integrations/supabase/client";
 import { useLocation } from "react-router-dom";
 
 interface LocationState {
@@ -26,18 +27,18 @@ export const QualityAssessorSection = () => {
   const handleSave = async () => {
     try {
       console.log("Saving quality assessor feedback...");
-      const { error } = await supabase
-        .from("quality_assessor_feedback")
-        .upsert({
-          contact_id: state.contactData.contact_id,
-          evaluator: state.contactData.evaluator,
-          complaints_flag: complaintsFlag,
-          vulnerability_flag: vulnerabilityFlag,
-          complaints_reasoning: complaintsReasoning,
-          vulnerability_reasoning: vulnerabilityReasoning,
-        });
+      const response = await apiClient.invoke("qa-feedback", {
+        contact_id: state.contactData.contact_id,
+        evaluator: state.contactData.evaluator,
+        complaints_flag: complaintsFlag,
+        vulnerability_flag: vulnerabilityFlag,
+        complaints_reasoning: complaintsReasoning,
+        vulnerability_reasoning: vulnerabilityReasoning,
+      });
 
-      if (error) throw error;
+      if (!response.success) {
+        throw new Error(response.error || "Failed to save feedback");
+      }
 
       toast({
         title: "Success",

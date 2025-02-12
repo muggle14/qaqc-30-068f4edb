@@ -1,14 +1,14 @@
+
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/integrations/supabase/client";
 import { ContactSection } from "@/components/contact-details/ContactSection";
 import { AssessmentSection } from "@/components/contact-details/AssessmentSection";
 import { SummarySection } from "@/components/contact-details/SummarySection";
 import { LoadingState } from "@/components/contact-details/LoadingState";
 import { NotFoundState } from "@/components/contact-details/NotFoundState";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
-import { Json } from "@/integrations/supabase/types";
 import { AlertCircle } from "lucide-react";
 
 interface LocationState {
@@ -46,19 +46,17 @@ const ContactDetails = () => {
     queryKey: ['contact-assessment', state.contactData.contact_id],
     queryFn: async () => {
       console.log("Fetching assessment for contact:", state.contactData.contact_id);
-      const { data, error } = await supabase
-        .from('contact_assessments')
-        .select('*')
-        .eq('contact_id', state.contactData.contact_id)
-        .maybeSingle();
+      const response = await apiClient.invoke('contact-assessment', {
+        contact_id: state.contactData.contact_id
+      });
 
-      if (error) {
-        console.error("Error fetching assessment:", error);
-        throw error;
+      if (!response.success) {
+        console.error("Error fetching assessment:", response.error);
+        throw new Error(response.error || "Failed to fetch assessment");
       }
       
-      console.log("Assessment data:", data);
-      return data || { 
+      console.log("Assessment data:", response.data);
+      return response.data || { 
         complaints: [], 
         vulnerabilities: [],
         complaints_rationale: null,
@@ -72,14 +70,14 @@ const ContactDetails = () => {
   const { data: aiAssessment, isLoading: isLoadingAIAssessment } = useQuery({
     queryKey: ['ai-assessment', state.contactData.contact_id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('ai_assess_complaints')
-        .select('*')
-        .eq('contact_id', state.contactData.contact_id)
-        .maybeSingle();
+      const response = await apiClient.invoke('ai-assess-complaints', {
+        contact_id: state.contactData.contact_id
+      });
 
-      if (error) throw error;
-      return data;
+      if (!response.success) {
+        throw new Error(response.error || "Failed to fetch AI assessment");
+      }
+      return response.data;
     },
     enabled: !!state.contactData.contact_id
   });
@@ -88,19 +86,17 @@ const ContactDetails = () => {
     queryKey: ['conversation', state.contactData.contact_id],
     queryFn: async () => {
       console.log("Fetching conversation for contact:", state.contactData.contact_id);
-      const { data, error } = await supabase
-        .from('contact_conversations')
-        .select('*')
-        .eq('contact_id', state.contactData.contact_id)
-        .maybeSingle();
+      const response = await apiClient.invoke('conversation', {
+        contact_id: state.contactData.contact_id
+      });
 
-      if (error) {
-        console.error("Error fetching conversation:", error);
-        throw error;
+      if (!response.success) {
+        console.error("Error fetching conversation:", response.error);
+        throw new Error(response.error || "Failed to fetch conversation");
       }
 
-      console.log("Conversation data:", data);
-      return data;
+      console.log("Conversation data:", response.data);
+      return response.data;
     },
     enabled: !!state.contactData.contact_id,
     retry: 1
@@ -129,10 +125,10 @@ const ContactDetails = () => {
     );
   }
 
-  const rawSnippets = conversation?.snippets_metadata as Json[] || [];
+  const rawSnippets = conversation?.snippets_metadata || [];
   const snippetsMetadata: SnippetMetadata[] = Array.isArray(rawSnippets) 
     ? rawSnippets.map(snippet => {
-        const jsonSnippet = snippet as unknown as JsonSnippet;
+        const jsonSnippet = snippet as JsonSnippet;
         return {
           id: jsonSnippet.id || '',
           content: jsonSnippet.content || '',
