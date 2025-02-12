@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -7,7 +8,7 @@ interface DetailedSummaryProps {
 
 export const DetailedSummary = ({ summaryPoints }: DetailedSummaryProps) => {
   return (
-    <Card className="h-[calc(50vh-8rem)]">
+    <Card className="h-[calc(100vh-16rem)]">
       <CardHeader>
         <CardTitle>Detailed Summary</CardTitle>
       </CardHeader>
