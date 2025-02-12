@@ -118,16 +118,16 @@ const ManualContactDetails = () => {
             detailedSummaryPoints={detailedSummaryPoints}
           />
           
-          <Card>
+          <Card className="h-[500px]">
             <CardHeader>
               <CardTitle>Transcript</CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent className="p-0 h-[calc(100%-60px)]">
               <Textarea
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
                 placeholder="Enter conversation transcript"
-                className="min-h-[calc(100%-20px)] font-mono border-0 rounded-t-none"
+                className="h-full font-mono border-0 rounded-t-none resize-none"
                 required
               />
             </CardContent>
