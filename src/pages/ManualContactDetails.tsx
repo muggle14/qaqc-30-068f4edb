@@ -83,26 +83,30 @@ const ManualContactDetails = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="contactId">Contact ID</Label>
-                <Input
-                  id="contactId"
-                  value={contactId}
-                  onChange={(e) => setContactId(e.target.value)}
-                  placeholder="Enter contact ID"
-                  maxLength={30}
-                  required
-                  className="font-mono"
-                />
+                <div className="w-3/4">
+                  <Input
+                    id="contactId"
+                    value={contactId}
+                    onChange={(e) => setContactId(e.target.value)}
+                    placeholder="Enter contact ID"
+                    maxLength={30}
+                    required
+                    className="font-mono"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="evaluator">Evaluator</Label>
-                <Input
-                  id="evaluator"
-                  value={evaluator}
-                  onChange={(e) => setEvaluator(e.target.value)}
-                  placeholder="Enter evaluator name"
-                  maxLength={30}
-                  required
-                />
+                <div className="w-3/4">
+                  <Input
+                    id="evaluator"
+                    value={evaluator}
+                    onChange={(e) => setEvaluator(e.target.value)}
+                    placeholder="Enter evaluator name"
+                    maxLength={30}
+                    required
+                  />
+                </div>
               </div>
             </div>
           </CardContent>
@@ -118,12 +122,12 @@ const ManualContactDetails = () => {
             <CardHeader>
               <CardTitle>Transcript</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Textarea
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
                 placeholder="Enter conversation transcript"
-                className="min-h-[300px] font-mono"
+                className="min-h-[calc(100%-2px)] font-mono border-0 rounded-t-none"
                 required
               />
             </CardContent>
