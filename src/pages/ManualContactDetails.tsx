@@ -127,7 +127,7 @@ const ManualContactDetails = () => {
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
                 placeholder="Enter conversation transcript"
-                className="min-h-[calc(100%-2px)] font-mono border-0 rounded-t-none"
+                className="min-h-[calc(100%-10px)] font-mono border-0 rounded-t-none"
                 required
               />
             </CardContent>
