@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -118,7 +117,7 @@ const ManualContactDetails = () => {
             detailedSummaryPoints={detailedSummaryPoints}
           />
           
-          <Card className="h-[calc(100vh-16rem)] border border-gray-200">
+          <Card className="h-[calc(50vh-8rem)] border border-gray-200">
             <CardHeader>
               <CardTitle>Transcript</CardTitle>
             </CardHeader>
