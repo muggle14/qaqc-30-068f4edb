@@ -122,12 +122,12 @@ const ManualContactDetails = () => {
             <CardHeader>
               <CardTitle>Transcript</CardTitle>
             </CardHeader>
-            <CardContent className="p-0 h-[calc(100%-60px)]">
+            <CardContent className="p-0 h-[calc(100%-60px)] flex items-center justify-center">
               <Textarea
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
                 placeholder="Enter conversation transcript"
-                className="h-full font-mono border-0 rounded-t-none resize-none"
+                className="h-full w-[calc(100%-4px)] font-mono border-0 rounded-t-none resize-none"
                 required
               />
             </CardContent>
