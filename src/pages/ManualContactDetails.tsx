@@ -118,7 +118,7 @@ const ManualContactDetails = () => {
             detailedSummaryPoints={detailedSummaryPoints}
           />
           
-          <Card className="h-[500px]">
+          <Card className="h-[calc(50vh-8rem)]">
             <CardHeader>
               <CardTitle>Transcript</CardTitle>
             </CardHeader>
