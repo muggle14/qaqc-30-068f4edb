@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Upload, FileUp, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const FileUpload = () => {
@@ -73,19 +74,17 @@ export const FileUpload = () => {
 
           console.log("Parsed data:", data.length, "records");
 
-          const { error: uploadError } = await supabase
-            .from('upload_details')
-            .insert(
-              data.map(item => ({
-                contact_id: item.contactId,
-                evaluator: item.evaluator,
-                admin_id: null
-              }))
-            );
+          const response = await apiClient.invoke('upload-details', {
+            data: data.map(item => ({
+              contact_id: item.contactId,
+              evaluator: item.evaluator,
+              admin_id: null
+            }))
+          });
 
-          if (uploadError) {
-            console.error("Supabase upload error:", uploadError);
-            throw uploadError;
+          if (!response.success) {
+            console.error("Upload error:", response.error);
+            throw new Error(response.error || "Failed to upload data");
           }
 
           console.log("Upload successful");

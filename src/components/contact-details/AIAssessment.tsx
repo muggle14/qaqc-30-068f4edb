@@ -1,6 +1,7 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/integrations/supabase/client";
 import { PhysicalDisabilitySection } from "./PhysicalDisabilitySection";
 import { AIAssessmentSection } from "./AIAssessmentSection";
 import { AlertCircle } from "lucide-react";
@@ -24,26 +25,26 @@ export const AIAssessment = ({
     queryFn: async () => {
       console.log("Fetching AI assessment for contact:", contactId);
       
-      const { data, error } = await supabase.functions.invoke('contact-assessment', {
-        body: { contact_id: contactId }
-      })
+      const response = await apiClient.invoke('contact-assessment', {
+        contact_id: contactId
+      });
 
-      if (error) {
-        console.error("Error fetching assessment:", error);
-        throw error;
+      if (!response.success) {
+        console.error("Error fetching assessment:", response.error);
+        throw new Error(response.error || "Failed to fetch assessment");
       }
 
-      console.log("AI assessment data:", data);
+      console.log("AI assessment data:", response.data);
       
       return {
-        complaints_flag: data.complaints?.complaints_flag || false,
-        complaints_reasoning: data.complaints?.complaints_reasoning,
-        relevant_snippet_ids: data.complaints?.relevant_snippet_ids || [],
-        physical_disability_flag: data.complaints?.physical_disability_flag || false,
-        physical_disability_reasoning: data.complaints?.physical_disability_reasoning,
-        vulnerability_flag: data.vulnerability?.vulnerability_flag || false,
-        vulnerability_reasoning: data.vulnerability?.vulnerability_reasoning,
-        vulnerability_snippet_ids: data.vulnerability?.relevant_snippet_ids || []
+        complaints_flag: response.data.complaints?.complaints_flag || false,
+        complaints_reasoning: response.data.complaints?.complaints_reasoning,
+        relevant_snippet_ids: response.data.complaints?.relevant_snippet_ids || [],
+        physical_disability_flag: response.data.complaints?.physical_disability_flag || false,
+        physical_disability_reasoning: response.data.complaints?.physical_disability_reasoning,
+        vulnerability_flag: response.data.vulnerability?.vulnerability_flag || false,
+        vulnerability_reasoning: response.data.vulnerability?.vulnerability_reasoning,
+        vulnerability_snippet_ids: response.data.vulnerability?.relevant_snippet_ids || []
       };
     },
     retry: 1

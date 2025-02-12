@@ -1,3 +1,4 @@
+
 // client.ts
 // ----------------------------------------------------------------------
 // This file was formerly auto-generated to create a Supabase client.

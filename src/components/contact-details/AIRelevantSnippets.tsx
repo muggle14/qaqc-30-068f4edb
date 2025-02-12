@@ -1,7 +1,8 @@
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/integrations/supabase/client";
 import { SnippetsContent } from "./snippets/SnippetsContent";
 
 interface AIRelevantSnippetsProps {
@@ -28,39 +29,18 @@ export const AIRelevantSnippets = ({
         return [];
       }
 
-      const { data: conversationData, error } = await supabase
-        .from('contact_conversations')
-        .select('snippets_metadata')
-        .eq('contact_id', contactId)
-        .maybeSingle();
+      const response = await apiClient.invoke('snippets', {
+        contact_id: contactId,
+        snippet_ids: snippetIds
+      });
 
-      if (error) {
-        console.error("Error fetching conversation data:", error);
-        throw error;
+      if (!response.success) {
+        console.error("Error fetching snippets:", response.error);
+        throw new Error(response.error || "Failed to fetch snippets");
       }
 
-      console.log("Raw conversation data:", conversationData);
-
-      if (!conversationData?.snippets_metadata) {
-        console.log("No snippets metadata found");
-        return [];
-      }
-
-      const allSnippets = (conversationData.snippets_metadata as Array<{
-        id: string;
-        content: string;
-        timestamp: string | null;
-      }>) || [];
-
-      console.log("All available snippets:", allSnippets);
-      console.log("Looking for snippet IDs:", snippetIds);
-
-      const relevantSnippets = allSnippets.filter(snippet => 
-        snippetIds.includes(snippet.id)
-      );
-
-      console.log("Filtered relevant snippets:", relevantSnippets);
-      return relevantSnippets;
+      console.log("Snippets data:", response.data);
+      return response.data || [];
     },
     enabled: !!contactId && snippetIds.length > 0
   });
