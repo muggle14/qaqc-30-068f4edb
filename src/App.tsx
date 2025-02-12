@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import ContactDetails from "./pages/ContactDetails";
+import ManualContactDetails from "./pages/ManualContactDetails";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +28,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/contact/view" element={<ContactDetails />} />
+          <Route path="/contact/manual" element={<ManualContactDetails />} />
           <Route path="/past-conversations" element={<div>Past Conversations - Coming Soon</div>} />
         </Routes>
       </BrowserRouter>
