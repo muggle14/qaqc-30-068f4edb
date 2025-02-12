@@ -122,7 +122,7 @@ const ManualContactDetails = () => {
             <CardHeader>
               <CardTitle>Transcript</CardTitle>
             </CardHeader>
-            <CardContent className="p-0 h-[calc(100%-60px)]">
+            <CardContent className="p-0 h-[calc(100%-5rem)]">
               <Textarea
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
