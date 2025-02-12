@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/integrations/supabase/client";
 import {
   Table,
   TableBody,
@@ -36,35 +37,15 @@ const Index = () => {
     queryKey: ["joined-data"],
     queryFn: async () => {
       console.log("Fetching joined data...");
-      const { data, error } = await supabase
-        .from('upload_details')
-        .select(`
-          contact_id,
-          evaluator,
-          upload_timestamp,
-          contact_conversations (
-            transcript,
-            updated_at
-          )
-        `);
+      const response = await apiClient.invoke('upload-details', {});
       
-      if (error) {
-        console.error("Error fetching joined data:", error);
-        throw error;
+      if (!response.success) {
+        console.error("Error fetching joined data:", response.error);
+        throw new Error(response.error || "Failed to fetch data");
       }
 
-      console.log("Raw joined data:", data);
-      
-      const transformedData: JoinedData[] = data.map(item => ({
-        contact_id: item.contact_id,
-        evaluator: item.evaluator,
-        upload_timestamp: item.upload_timestamp,
-        transcript: item.contact_conversations?.[0]?.transcript || null,
-        updated_at: item.contact_conversations?.[0]?.updated_at || null,
-      }));
-
-      console.log("Transformed data:", transformedData);
-      return transformedData;
+      console.log("Raw joined data:", response.data);
+      return response.data;
     },
   });
 
