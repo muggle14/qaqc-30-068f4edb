@@ -146,7 +146,7 @@ const Index = () => {
                     <PopoverTrigger asChild>
                       <Button 
                         variant="ghost" 
-                        className="w-full justify-between px-2 gap-2 h-8 hover:bg-gray-100"
+                        className="w-full justify-between px-2 gap-2 h-[calc(100vh-16rem+4px)] hover:bg-gray-100"
                       >
                         <span className="truncate">
                           {row.transcript || "No transcript"}
