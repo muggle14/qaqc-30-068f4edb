@@ -23,6 +23,10 @@ export const QualityAssessorSection = () => {
   const [vulnerabilityFlag, setVulnerabilityFlag] = useState(false);
   const [complaintsReasoning, setComplaintsReasoning] = useState("");
   const [vulnerabilityReasoning, setVulnerabilityReasoning] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [otherCategory, setOtherCategory] = useState("");
+  const [complaintsEvidence, setComplaintsEvidence] = useState("");
+  const [vulnerabilityEvidence, setVulnerabilityEvidence] = useState("");
 
   const handleSave = async () => {
     try {
@@ -34,6 +38,10 @@ export const QualityAssessorSection = () => {
         vulnerability_flag: vulnerabilityFlag,
         complaints_reasoning: complaintsReasoning,
         vulnerability_reasoning: vulnerabilityReasoning,
+        vulnerability_categories: selectedCategories,
+        other_vulnerability_category: otherCategory,
+        complaints_evidence: complaintsEvidence,
+        vulnerability_evidence: vulnerabilityEvidence,
       });
 
       if (!response.success) {
@@ -74,6 +82,8 @@ export const QualityAssessorSection = () => {
           onFlagChange={setComplaintsFlag}
           reasoning={complaintsReasoning}
           onReasoningChange={setComplaintsReasoning}
+          reviewEvidence={complaintsEvidence}
+          onReviewEvidenceChange={setComplaintsEvidence}
         />
 
         <AssessmentCard
@@ -85,6 +95,13 @@ export const QualityAssessorSection = () => {
           onFlagChange={setVulnerabilityFlag}
           reasoning={vulnerabilityReasoning}
           onReasoningChange={setVulnerabilityReasoning}
+          isVulnerability={true}
+          selectedCategories={selectedCategories}
+          otherCategory={otherCategory}
+          onCategoriesChange={setSelectedCategories}
+          onOtherCategoryChange={setOtherCategory}
+          reviewEvidence={vulnerabilityEvidence}
+          onReviewEvidenceChange={setVulnerabilityEvidence}
         />
       </div>
     </div>

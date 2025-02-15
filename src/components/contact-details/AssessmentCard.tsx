@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { LucideIcon } from "lucide-react";
@@ -5,7 +6,9 @@ import { QualityReasoningSection } from "./QualityReasoningSection";
 import { CardHeader } from "./CardHeader";
 import { ItemsList } from "./ItemsList";
 import { AIRelevantSnippets } from "./AIRelevantSnippets";
-import { QualityRelevantSnippets } from "./QualityRelevantSnippets";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { VulnerabilityCategories } from "./VulnerabilityCategories";
 
 interface AssessmentCardProps {
   title: string;
@@ -20,6 +23,13 @@ interface AssessmentCardProps {
   contactId?: string;
   snippetIds?: string[];
   onSnippetClick?: (snippetId: string) => void;
+  isVulnerability?: boolean;
+  selectedCategories?: string[];
+  otherCategory?: string;
+  onCategoriesChange?: (categories: string[]) => void;
+  onOtherCategoryChange?: (value: string) => void;
+  reviewEvidence?: string;
+  onReviewEvidenceChange?: (value: string) => void;
 }
 
 export const AssessmentCard = ({
@@ -35,6 +45,13 @@ export const AssessmentCard = ({
   contactId,
   snippetIds = [],
   onSnippetClick,
+  isVulnerability = false,
+  selectedCategories = [],
+  otherCategory = "",
+  onCategoriesChange,
+  onOtherCategoryChange,
+  reviewEvidence = "",
+  onReviewEvidenceChange,
 }: AssessmentCardProps) => {
   return (
     <Card className="border border-canvas-border shadow-sm bg-white p-3">
@@ -52,20 +69,42 @@ export const AssessmentCard = ({
         {isAIAssessment && <ItemsList items={items} reasoning={reasoning} />}
 
         {!isAIAssessment && (
-          <QualityReasoningSection 
-            reasoning={reasoning}
-            onReasoningChange={onReasoningChange}
-          />
+          <>
+            {isVulnerability && onCategoriesChange && onOtherCategoryChange && (
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Vulnerability Categories:</Label>
+                <VulnerabilityCategories 
+                  selectedCategories={selectedCategories}
+                  otherCategory={otherCategory}
+                  onCategoriesChange={onCategoriesChange}
+                  onOtherCategoryChange={onOtherCategoryChange}
+                />
+              </div>
+            )}
+
+            <QualityReasoningSection 
+              reasoning={reasoning}
+              onReasoningChange={onReasoningChange}
+            />
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Review Evidence:</Label>
+              <Textarea
+                value={reviewEvidence}
+                onChange={(e) => onReviewEvidenceChange?.(e.target.value)}
+                placeholder="Enter relevant conversation excerpts..."
+                className="min-h-[187.5px] font-mono resize-none"
+              />
+            </div>
+          </>
         )}
 
-        {isAIAssessment ? (
+        {isAIAssessment && (
           <AIRelevantSnippets 
             contactId={contactId || ''} 
             snippetIds={snippetIds}
             onSnippetClick={onSnippetClick}
           />
-        ) : (
-          <QualityRelevantSnippets />
         )}
       </div>
     </Card>
