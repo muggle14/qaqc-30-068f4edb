@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Save } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 
 interface TranscriptCardProps {
   transcript: string | null;
@@ -40,8 +41,14 @@ export const TranscriptCard = ({
     }
   };
 
+  const handleTranscriptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (onTranscriptChange) {
+      onTranscriptChange(e.target.value);
+    }
+  };
+
   return (
-    <Card className="h-[calc(100vh-16rem+4px)]">
+    <Card className="h-full min-h-[calc(100vh-16rem+4px)]">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between mb-2">
           <CardTitle>Transcript</CardTitle>
@@ -69,14 +76,23 @@ export const TranscriptCard = ({
         )}
       </CardHeader>
       <CardContent className={`h-[calc(100%-${isTranscriptSaved ? '8rem' : '5rem'})] pt-0`}>
-        <ScrollArea className="h-full pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          <TranscriptView 
-            transcript={transcript} 
-            searchQuery={searchQuery}
-            snippetsMetadata={snippetsMetadata}
-            highlightedSnippetId={highlightedSnippetId}
+        {!isTranscriptSaved ? (
+          <Textarea
+            value={transcript || ""}
+            onChange={handleTranscriptChange}
+            placeholder="Paste or type your transcript here..."
+            className="h-full min-h-[500px] resize-none font-mono text-sm"
           />
-        </ScrollArea>
+        ) : (
+          <ScrollArea className="h-full pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <TranscriptView 
+              transcript={transcript} 
+              searchQuery={searchQuery}
+              snippetsMetadata={snippetsMetadata}
+              highlightedSnippetId={highlightedSnippetId}
+            />
+          </ScrollArea>
+        )}
       </CardContent>
     </Card>
   );
