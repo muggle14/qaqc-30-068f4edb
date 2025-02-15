@@ -34,6 +34,7 @@ const ContactDetails = () => {
   const location = useLocation();
   const state = location.state as LocationState | null;
   const [highlightedSnippetId, setHighlightedSnippetId] = useState<string>();
+  const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState<"yes" | "no">("no");
 
   console.log("ContactDetails: Initial state:", state);
 
@@ -143,7 +144,9 @@ const ContactDetails = () => {
     <div className="container mx-auto p-6 space-y-6">
       <ContactSection 
         contactId={state.contactData.contact_id} 
-        evaluator={state.contactData.evaluator} 
+        evaluator={state.contactData.evaluator}
+        isSpecialServiceTeam={isSpecialServiceTeam}
+        onSpecialServiceTeamChange={setIsSpecialServiceTeam}
       />
       
       <div className="grid grid-cols-2 gap-6">
@@ -165,6 +168,7 @@ const ContactDetails = () => {
         contactId={state.contactData.contact_id}
         transcript={conversation?.transcript || ""}
         onSnippetClick={setHighlightedSnippetId}
+        specialServiceTeam={isSpecialServiceTeam === "yes"}
       />
     </div>
   );
