@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { PhysicalDisabilityCard } from "./PhysicalDisabilityCard";
 
@@ -11,9 +12,11 @@ export const PhysicalDisabilitySection = ({
   physicalDisabilityReasoning,
 }: PhysicalDisabilitySectionProps) => {
   return (
-    <PhysicalDisabilityCard
-      physicalDisabilityFlag={physicalDisabilityFlag}
-      physicalDisabilityReasoning={physicalDisabilityReasoning}
-    />
+    <div className="my-4">
+      <PhysicalDisabilityCard
+        physicalDisabilityFlag={physicalDisabilityFlag}
+        physicalDisabilityReasoning={physicalDisabilityReasoning}
+      />
+    </div>
   );
 };

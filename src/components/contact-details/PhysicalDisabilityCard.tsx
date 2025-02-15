@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accessibility } from "lucide-react";
@@ -12,7 +13,7 @@ export const PhysicalDisabilityCard = ({
   physicalDisabilityReasoning 
 }: PhysicalDisabilityCardProps) => {
   return (
-    <Card className="h-auto w-full border-2 border-gray-200 p-4">
+    <Card className="w-full border-2 border-gray-200 p-4 bg-white shadow-sm">
       <div className="space-y-4">
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
@@ -27,7 +28,7 @@ export const PhysicalDisabilityCard = ({
           </Badge>
         </div>
         {physicalDisabilityReasoning && (
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-gray-600">
             {physicalDisabilityReasoning}
           </p>
         )}
