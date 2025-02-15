@@ -25,6 +25,8 @@ export const QualityAssessorSection = () => {
   const [vulnerabilityReasoning, setVulnerabilityReasoning] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [otherCategory, setOtherCategory] = useState("");
+  const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
+  const [otherReason, setOtherReason] = useState("");
   const [complaintsEvidence, setComplaintsEvidence] = useState("");
   const [vulnerabilityEvidence, setVulnerabilityEvidence] = useState("");
 
@@ -40,6 +42,8 @@ export const QualityAssessorSection = () => {
         vulnerability_reasoning: vulnerabilityReasoning,
         vulnerability_categories: selectedCategories,
         other_vulnerability_category: otherCategory,
+        complaints_reasons: selectedReasons,
+        other_complaints_reason: otherReason,
         complaints_evidence: complaintsEvidence,
         vulnerability_evidence: vulnerabilityEvidence,
       });
@@ -82,6 +86,10 @@ export const QualityAssessorSection = () => {
           onFlagChange={setComplaintsFlag}
           reasoning={complaintsReasoning}
           onReasoningChange={setComplaintsReasoning}
+          selectedReasons={selectedReasons}
+          otherReason={otherReason}
+          onReasonsChange={setSelectedReasons}
+          onOtherReasonChange={setOtherReason}
           reviewEvidence={complaintsEvidence}
           onReviewEvidenceChange={setComplaintsEvidence}
         />

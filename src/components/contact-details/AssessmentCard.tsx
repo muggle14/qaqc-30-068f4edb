@@ -7,6 +7,7 @@ import { AIRelevantSnippets } from "./AIRelevantSnippets";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { VulnerabilityCategories } from "./VulnerabilityCategories";
+import { ComplaintsReasons } from "./ComplaintsReasons";
 
 interface AssessmentCardProps {
   title: string;
@@ -26,6 +27,10 @@ interface AssessmentCardProps {
   otherCategory?: string;
   onCategoriesChange?: (categories: string[]) => void;
   onOtherCategoryChange?: (value: string) => void;
+  selectedReasons?: string[];
+  otherReason?: string;
+  onReasonsChange?: (reasons: string[]) => void;
+  onOtherReasonChange?: (value: string) => void;
   reviewEvidence?: string;
   onReviewEvidenceChange?: (value: string) => void;
 }
@@ -48,6 +53,10 @@ export const AssessmentCard = ({
   otherCategory = "",
   onCategoriesChange,
   onOtherCategoryChange,
+  selectedReasons = [],
+  otherReason = "",
+  onReasonsChange,
+  onOtherReasonChange,
   reviewEvidence = "",
   onReviewEvidenceChange,
 }: AssessmentCardProps) => {
@@ -68,6 +77,18 @@ export const AssessmentCard = ({
 
         {!isAIAssessment && (
           <div className="flex-1 flex flex-col space-y-6">
+            {!isVulnerability && onReasonsChange && onOtherReasonChange && (
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Complaints Reason:</Label>
+                <ComplaintsReasons 
+                  selectedReasons={selectedReasons}
+                  otherReason={otherReason}
+                  onReasonsChange={onReasonsChange}
+                  onOtherReasonChange={onOtherReasonChange}
+                />
+              </div>
+            )}
+
             {isVulnerability && onCategoriesChange && onOtherCategoryChange && (
               <div className="space-y-3">
                 <Label className="text-sm font-medium">Vulnerability Categories:</Label>
