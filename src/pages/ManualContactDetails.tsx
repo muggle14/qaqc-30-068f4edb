@@ -12,6 +12,7 @@ import { AssessmentSection } from "@/components/contact-details/AssessmentSectio
 import { SummarySection } from "@/components/contact-details/SummarySection";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { Save } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 const ManualContactDetails = () => {
   const [transcript, setTranscript] = useState("");
@@ -21,6 +22,25 @@ const ManualContactDetails = () => {
   const [detailedSummaryPoints, setDetailedSummaryPoints] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [highlightedSnippetId, setHighlightedSnippetId] = useState<string>();
+
+  const { data: aiAssessment } = useQuery({
+    queryKey: ['ai-assessment', contactId],
+    queryFn: async () => {
+      if (!contactId) return null;
+      
+      const response = await apiClient.invoke('contact-assessment', {
+        contact_id: contactId
+      });
+
+      if (!response.success) {
+        throw new Error(response.error || "Failed to fetch AI assessment");
+      }
+
+      return response.data;
+    },
+    enabled: !!contactId
+  });
 
   useEffect(() => {
     const cachedTranscript = sessionStorage.getItem('cachedTranscript');
@@ -28,6 +48,10 @@ const ManualContactDetails = () => {
       setTranscript(cachedTranscript);
     }
   }, []);
+
+  const handleSnippetClick = (snippetId: string) => {
+    setHighlightedSnippetId(snippetId);
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,13 +154,16 @@ const ManualContactDetails = () => {
           <TranscriptCard
             transcript={transcript}
             onTranscriptChange={setTranscript}
+            snippetsMetadata={aiAssessment?.snippets}
+            highlightedSnippetId={highlightedSnippetId}
           />
         </div>
 
         <AssessmentSection 
-          complaints={[]}
-          vulnerabilities={[]}
-          contactId={contactId || "pending"}
+          complaints={aiAssessment?.complaints?.items || []}
+          vulnerabilities={aiAssessment?.vulnerability?.items || []}
+          contactId={contactId}
+          onSnippetClick={handleSnippetClick}
         />
 
         <div className="flex justify-end mt-6">

@@ -1,3 +1,4 @@
+
 import { AIAssessment } from "./AIAssessment";
 import { QualityAssessmentCard } from "./QualityAssessmentCard";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -9,12 +10,14 @@ interface AssessmentSectionProps {
   complaints: string[];
   vulnerabilities: string[];
   contactId: string;
+  onSnippetClick?: (snippetId: string) => void;
 }
 
 export const AssessmentSection = ({ 
   complaints, 
   vulnerabilities, 
-  contactId 
+  contactId,
+  onSnippetClick 
 }: AssessmentSectionProps) => {
   const [isAIOpen, setIsAIOpen] = useState(true);
   const [isQualityOpen, setIsQualityOpen] = useState(true);
@@ -36,6 +39,7 @@ export const AssessmentSection = ({
             vulnerabilities={vulnerabilities}
             hasPhysicalDisability={false}
             contactId={contactId}
+            onSnippetClick={onSnippetClick}
           />
         </CollapsibleContent>
       </Collapsible>
