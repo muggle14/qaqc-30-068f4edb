@@ -182,7 +182,7 @@ const ManualContactDetails = () => {
         <div className="flex justify-end mt-6">
           <Button type="submit" className="flex items-center gap-2">
             <Save className="h-4 w-4" />
-            Save Contact Details
+            Save Assessment Details
           </Button>
         </div>
       </form>

@@ -33,9 +33,9 @@ export const AssessmentSection = ({
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="space-y-4">
       <Collapsible open={isAIOpen} onOpenChange={setIsAIOpen}>
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2">
           <CollapsibleTrigger asChild>
             <Button variant="ghost" size="sm" className="p-0 hover:bg-transparent">
               <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isAIOpen ? "" : "-rotate-90"}`} />
@@ -43,26 +43,28 @@ export const AssessmentSection = ({
           </CollapsibleTrigger>
           <h2 className="text-xl font-semibold">AI Assessment</h2>
         </div>
-        <CollapsibleContent className="transition-all">
-          <AIGenerationControls
-            transcript={transcript}
-            contactId={contactId}
-            specialServiceTeam={specialServiceTeam}
-            onAssessmentGenerated={handleAssessmentGenerated}
-          />
-          <AIAssessment 
-            key={assessmentKey}
-            complaints={complaints}
-            vulnerabilities={vulnerabilities}
-            hasPhysicalDisability={false}
-            contactId={contactId}
-            onSnippetClick={onSnippetClick}
-          />
+        <CollapsibleContent>
+          <div className="mt-4">
+            <AIGenerationControls
+              transcript={transcript}
+              contactId={contactId}
+              specialServiceTeam={specialServiceTeam}
+              onAssessmentGenerated={handleAssessmentGenerated}
+            />
+            <AIAssessment 
+              key={assessmentKey}
+              complaints={complaints}
+              vulnerabilities={vulnerabilities}
+              hasPhysicalDisability={false}
+              contactId={contactId}
+              onSnippetClick={onSnippetClick}
+            />
+          </div>
         </CollapsibleContent>
       </Collapsible>
 
       <Collapsible open={isQualityOpen} onOpenChange={setIsQualityOpen}>
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2">
           <CollapsibleTrigger asChild>
             <Button variant="ghost" size="sm" className="p-0 hover:bg-transparent">
               <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isQualityOpen ? "" : "-rotate-90"}`} />
@@ -70,8 +72,10 @@ export const AssessmentSection = ({
           </CollapsibleTrigger>
           <h2 className="text-xl font-semibold">Assessor Feedback</h2>
         </div>
-        <CollapsibleContent className="transition-all">
-          <QualityAssessmentCard />
+        <CollapsibleContent>
+          <div className="mt-4">
+            <QualityAssessmentCard />
+          </div>
         </CollapsibleContent>
       </Collapsible>
     </div>
