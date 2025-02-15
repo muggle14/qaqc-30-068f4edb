@@ -47,7 +47,8 @@ export const AIAssessment = ({
         vulnerability_snippet_ids: response.data.vulnerability?.relevant_snippet_ids || []
       };
     },
-    retry: 1
+    retry: 1,
+    enabled: !!contactId
   });
 
   const bothFlagsTrue = aiAssessment?.complaints_flag && aiAssessment?.vulnerability_flag;
