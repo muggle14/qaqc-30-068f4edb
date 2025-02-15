@@ -43,14 +43,14 @@ export const AssessmentSection = ({
           </CollapsibleTrigger>
           <h2 className="text-xl font-semibold">AI Assessment</h2>
         </div>
-        <CollapsibleContent>
+        <CollapsibleContent className="mt-4">
+          <AIGenerationControls
+            transcript={transcript}
+            contactId={contactId}
+            specialServiceTeam={specialServiceTeam}
+            onAssessmentGenerated={handleAssessmentGenerated}
+          />
           <div className="mt-4">
-            <AIGenerationControls
-              transcript={transcript}
-              contactId={contactId}
-              specialServiceTeam={specialServiceTeam}
-              onAssessmentGenerated={handleAssessmentGenerated}
-            />
             <AIAssessment 
               key={assessmentKey}
               complaints={complaints}
@@ -72,10 +72,8 @@ export const AssessmentSection = ({
           </CollapsibleTrigger>
           <h2 className="text-xl font-semibold">Assessor Feedback</h2>
         </div>
-        <CollapsibleContent>
-          <div className="mt-4">
-            <QualityAssessmentCard />
-          </div>
+        <CollapsibleContent className="mt-4">
+          <QualityAssessmentCard />
         </CollapsibleContent>
       </Collapsible>
     </div>
