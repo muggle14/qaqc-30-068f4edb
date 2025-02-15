@@ -19,6 +19,13 @@ const SOP_INFO = {
   "Vulnerability": "Vulnerability Detection Guidance:\n• Listen for mentions of health conditions\n• Note any difficulties with communication\n• Identify financial hardship indicators",
 };
 
+const SOP_URLS = {
+  "Complaints Assessment": "https://docs.example.com/sop/complaints-assessment",
+  "Vulnerability Assessment": "https://docs.example.com/sop/vulnerability-assessment",
+  "Complaints": "https://docs.example.com/sop/complaints",
+  "Vulnerability": "https://docs.example.com/sop/vulnerability",
+};
+
 export const CardHeader = ({
   title,
   icon: Icon,
@@ -26,28 +33,47 @@ export const CardHeader = ({
   flag,
   onFlagChange,
 }: CardHeaderProps) => {
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const url = SOP_URLS[title as keyof typeof SOP_URLS];
+    // Open in a new tab with security features enabled
+    window.open(
+      url,
+      '_blank',
+      'noopener,noreferrer'
+    );
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
           <Icon className="h-5 w-5 text-gray-500" />
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-xl text-gray-700">{title}</h3>
             <TooltipProvider>
               <Tooltip delayDuration={300}>
                 <TooltipTrigger asChild>
                   <button
-                    className="inline-flex items-center justify-center rounded-full p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                    aria-label={`View ${title} guidelines`}
+                    className="flex items-center gap-2 text-gray-700 hover:text-gray-900 focus:outline-none"
+                    onDoubleClick={handleDoubleClick}
+                    aria-label={`View ${title} guidelines (double-click for full documentation)`}
                   >
-                    <Info className="h-4 w-4" />
+                    <h3 className="font-semibold text-xl">{title}</h3>
+                    <Info 
+                      className="h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                    />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent 
                   side="right" 
                   className="max-w-xs p-3 text-sm whitespace-pre-line bg-white"
                 >
-                  {SOP_INFO[title as keyof typeof SOP_INFO]}
+                  <div>
+                    {SOP_INFO[title as keyof typeof SOP_INFO]}
+                    <div className="mt-2 text-xs text-gray-500 italic">
+                      Double-click to view full documentation
+                    </div>
+                  </div>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
