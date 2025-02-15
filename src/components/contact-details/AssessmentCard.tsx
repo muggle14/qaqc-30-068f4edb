@@ -93,7 +93,7 @@ export const AssessmentCard = ({
                 value={reviewEvidence}
                 onChange={(e) => onReviewEvidenceChange?.(e.target.value)}
                 placeholder="Enter relevant conversation excerpts..."
-                className="min-h-[187.5px] font-mono resize-none"
+                className="min-h-[240px] font-mono resize-none"
               />
             </div>
           </>
