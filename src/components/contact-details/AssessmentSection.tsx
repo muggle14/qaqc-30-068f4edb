@@ -12,6 +12,7 @@ interface AssessmentSectionProps {
   vulnerabilities: string[];
   contactId: string;
   transcript: string;
+  specialServiceTeam: boolean;
   onSnippetClick?: (snippetId: string) => void;
 }
 
@@ -20,6 +21,7 @@ export const AssessmentSection = ({
   vulnerabilities, 
   contactId,
   transcript,
+  specialServiceTeam,
   onSnippetClick 
 }: AssessmentSectionProps) => {
   const [isAIOpen, setIsAIOpen] = useState(true);
@@ -27,7 +29,6 @@ export const AssessmentSection = ({
   const [assessmentKey, setAssessmentKey] = useState(0);
 
   const handleAssessmentGenerated = () => {
-    // Force re-fetch of assessment by updating the key
     setAssessmentKey(prev => prev + 1);
   };
 
@@ -46,6 +47,7 @@ export const AssessmentSection = ({
           <AIGenerationControls
             transcript={transcript}
             contactId={contactId}
+            specialServiceTeam={specialServiceTeam}
             onAssessmentGenerated={handleAssessmentGenerated}
           />
           <AIAssessment 
