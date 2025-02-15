@@ -54,19 +54,19 @@ export const CardHeader = ({
               <Tooltip delayDuration={300}>
                 <TooltipTrigger asChild>
                   <button
-                    className="flex items-center gap-2 text-gray-700 hover:text-gray-900 focus:outline-none"
+                    className="flex items-center gap-2 text-gray-700 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 rounded-sm"
                     onDoubleClick={handleDoubleClick}
                     aria-label={`View ${title} guidelines (double-click for full documentation)`}
                   >
                     <h3 className="font-semibold text-xl">{title}</h3>
                     <Info 
-                      className="h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                      className="h-4 w-4 text-blue-500/70 hover:text-blue-600 active:text-blue-700 transition-colors duration-200 ease-in-out"
                     />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent 
                   side="right" 
-                  className="max-w-xs p-3 text-sm whitespace-pre-line bg-white"
+                  className="max-w-xs p-3 text-sm whitespace-pre-line bg-white border border-gray-200 shadow-md"
                 >
                   <div>
                     {SOP_INFO[title as keyof typeof SOP_INFO]}
