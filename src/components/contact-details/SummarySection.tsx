@@ -1,19 +1,30 @@
+
 import { DetailedSummary } from "./DetailedSummary";
 import { OverallSummary } from "./OverallSummary";
 
 interface SummarySectionProps {
   overallSummary: string;
   detailedSummaryPoints: string[];
+  onOverallSummaryChange?: (summary: string) => void;
+  onDetailedSummaryPointsChange?: (points: string[]) => void;
 }
 
 export const SummarySection = ({ 
   overallSummary, 
-  detailedSummaryPoints 
+  detailedSummaryPoints,
+  onOverallSummaryChange,
+  onDetailedSummaryPointsChange
 }: SummarySectionProps) => {
   return (
     <div className="space-y-6 h-full">
-      <OverallSummary summary={overallSummary} />
-      <DetailedSummary summaryPoints={detailedSummaryPoints} />
+      <OverallSummary 
+        summary={overallSummary} 
+        onChange={onOverallSummaryChange}
+      />
+      <DetailedSummary 
+        summaryPoints={detailedSummaryPoints}
+        onChange={onDetailedSummaryPointsChange}
+      />
     </div>
   );
 };
