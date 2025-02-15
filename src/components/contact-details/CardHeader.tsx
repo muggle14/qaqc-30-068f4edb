@@ -1,3 +1,4 @@
+
 import { LucideIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
@@ -23,14 +24,14 @@ export const CardHeader = ({
         <div className="flex items-center space-x-2">
           <Icon className="h-5 w-5 text-gray-500" />
           <div className="flex items-center gap-4">
-            <h3 className="font-semibold text-lg">{title}</h3>
+            <h3 className="font-semibold text-xl text-gray-700">{title}</h3>
             {isAIAssessment && (
               <Badge 
                 variant={flag ? "destructive" : "secondary"}
                 className={`text-base px-3 py-1 ${
                   flag 
-                    ? 'bg-red-100 text-red-700 border-red-200' 
-                    : 'bg-green-100 text-green-700 border-green-200'
+                    ? 'bg-red-50 text-red-700 border-red-100 hover:bg-red-100' 
+                    : 'bg-green-50 text-green-700 border-green-100 hover:bg-green-100'
                 }`}
               >
                 {flag ? "Yes" : "No"}

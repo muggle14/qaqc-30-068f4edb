@@ -1,6 +1,4 @@
 
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { LucideIcon } from "lucide-react";
 import { QualityReasoningSection } from "./QualityReasoningSection";
 import { CardHeader } from "./CardHeader";
@@ -54,8 +52,8 @@ export const AssessmentCard = ({
   onReviewEvidenceChange,
 }: AssessmentCardProps) => {
   return (
-    <Card className="border border-canvas-border shadow-sm bg-white p-4 h-full flex flex-col">
-      <div className="space-y-4 flex-1 flex flex-col">
+    <div className="bg-gray-50/50 rounded-lg p-6 h-full flex flex-col">
+      <div className="space-y-6 flex-1 flex flex-col">
         <CardHeader 
           title={title}
           icon={icon}
@@ -64,7 +62,7 @@ export const AssessmentCard = ({
           onFlagChange={onFlagChange}
         />
 
-        <Separator className="bg-canvas-border" />
+        <div className="h-px bg-gray-200 w-full" />
 
         {isAIAssessment && <ItemsList items={items} reasoning={reasoning} />}
 
@@ -83,23 +81,23 @@ export const AssessmentCard = ({
             )}
 
             <div className="flex-1 flex flex-col space-y-6">
-              <div className="flex-1 space-y-2">
-                <Label className="text-sm font-medium block">Assessment Reasoning:</Label>
+              <div className="flex-1 space-y-3">
+                <Label className="text-base font-medium text-gray-700">Assessment Reasoning:</Label>
                 <Textarea
                   value={reasoning || ""}
                   onChange={(e) => onReasoningChange?.(e.target.value)}
                   placeholder="Enter your assessment reasoning..."
-                  className="min-h-[200px] w-full resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200 whitespace-pre-wrap break-words"
+                  className="flex-1 h-[calc(100vh-600px)] min-h-[200px] resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200 bg-white"
                 />
               </div>
 
-              <div className="flex-1 space-y-2">
-                <Label className="text-sm font-medium block">Review Evidence:</Label>
+              <div className="flex-1 space-y-3">
+                <Label className="text-base font-medium text-gray-700">Review Evidence:</Label>
                 <Textarea
                   value={reviewEvidence}
                   onChange={(e) => onReviewEvidenceChange?.(e.target.value)}
                   placeholder="Enter relevant conversation excerpts..."
-                  className="min-h-[200px] w-full resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200 whitespace-pre-wrap break-words"
+                  className="flex-1 h-[calc(100vh-600px)] min-h-[200px] resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200 bg-white"
                 />
               </div>
             </div>
@@ -114,6 +112,6 @@ export const AssessmentCard = ({
           />
         )}
       </div>
-    </Card>
+    </div>
   );
 };
