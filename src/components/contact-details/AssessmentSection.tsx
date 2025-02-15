@@ -5,11 +5,13 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { AIGenerationControls } from "./AIGenerationControls";
 
 interface AssessmentSectionProps {
   complaints: string[];
   vulnerabilities: string[];
   contactId: string;
+  transcript: string;
   onSnippetClick?: (snippetId: string) => void;
 }
 
@@ -17,10 +19,17 @@ export const AssessmentSection = ({
   complaints, 
   vulnerabilities, 
   contactId,
+  transcript,
   onSnippetClick 
 }: AssessmentSectionProps) => {
   const [isAIOpen, setIsAIOpen] = useState(true);
   const [isQualityOpen, setIsQualityOpen] = useState(true);
+  const [assessmentKey, setAssessmentKey] = useState(0);
+
+  const handleAssessmentGenerated = () => {
+    // Force re-fetch of assessment by updating the key
+    setAssessmentKey(prev => prev + 1);
+  };
 
   return (
     <div className="space-y-6 w-full">
@@ -34,7 +43,13 @@ export const AssessmentSection = ({
           <h2 className="text-xl font-semibold">AI Assessment</h2>
         </div>
         <CollapsibleContent className="transition-all">
+          <AIGenerationControls
+            transcript={transcript}
+            contactId={contactId}
+            onAssessmentGenerated={handleAssessmentGenerated}
+          />
           <AIAssessment 
+            key={assessmentKey}
             complaints={complaints}
             vulnerabilities={vulnerabilities}
             hasPhysicalDisability={false}

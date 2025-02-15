@@ -166,6 +166,7 @@ const ManualContactDetails = () => {
           complaints={aiAssessment?.complaints?.items || []}
           vulnerabilities={aiAssessment?.vulnerability?.items || []}
           contactId={contactId}
+          transcript={transcript || ""}
           onSnippetClick={handleSnippetClick}
         />
 
