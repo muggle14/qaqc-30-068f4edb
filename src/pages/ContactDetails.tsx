@@ -163,6 +163,8 @@ const ContactDetails = () => {
         complaints={contactAssessment?.complaints || []}
         vulnerabilities={contactAssessment?.vulnerabilities || []}
         contactId={state.contactData.contact_id}
+        transcript={conversation?.transcript || ""}
+        onSnippetClick={setHighlightedSnippetId}
       />
     </div>
   );
