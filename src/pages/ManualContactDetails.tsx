@@ -17,6 +17,16 @@ import { ContactInfo } from "@/components/contact-details/ContactInfo";
 import { Save } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
+// Session storage keys
+const STORAGE_KEYS = {
+  CONTACT_ID: 'manual_contact_id',
+  EVALUATOR: 'manual_evaluator',
+  TRANSCRIPT: 'manual_transcript',
+  SPECIAL_SERVICE: 'manual_special_service',
+  SUMMARY: 'manual_summary',
+  SUMMARY_POINTS: 'manual_summary_points',
+} as const;
+
 const ManualContactDetails = () => {
   const [transcript, setTranscript] = useState("");
   const [contactId, setContactId] = useState("");
@@ -31,6 +41,51 @@ const ManualContactDetails = () => {
   const { toast } = useToast();
   const [highlightedSnippetId, setHighlightedSnippetId] = useState<string>();
 
+  // Load data from session storage on mount
+  useEffect(() => {
+    try {
+      const storedContactId = sessionStorage.getItem(STORAGE_KEYS.CONTACT_ID);
+      const storedEvaluator = sessionStorage.getItem(STORAGE_KEYS.EVALUATOR);
+      const storedTranscript = sessionStorage.getItem(STORAGE_KEYS.TRANSCRIPT);
+      const storedSpecialService = sessionStorage.getItem(STORAGE_KEYS.SPECIAL_SERVICE);
+      const storedSummary = sessionStorage.getItem(STORAGE_KEYS.SUMMARY);
+      const storedSummaryPoints = sessionStorage.getItem(STORAGE_KEYS.SUMMARY_POINTS);
+
+      if (storedContactId) setContactId(storedContactId);
+      if (storedEvaluator) setEvaluator(storedEvaluator);
+      if (storedTranscript) setTranscript(storedTranscript);
+      if (storedSpecialService) setIsSpecialServiceTeam(storedSpecialService as "yes" | "no");
+      if (storedSummary) setOverallSummary(storedSummary);
+      if (storedSummaryPoints) setDetailedSummaryPoints(JSON.parse(storedSummaryPoints));
+    } catch (error) {
+      console.error('Error loading from session storage:', error);
+      toast({
+        title: "Warning",
+        description: "Failed to load saved data. Your changes may not be preserved.",
+        variant: "destructive",
+      });
+    }
+  }, []);
+
+  // Save to session storage when data changes
+  useEffect(() => {
+    try {
+      if (contactId) sessionStorage.setItem(STORAGE_KEYS.CONTACT_ID, contactId);
+      if (evaluator) sessionStorage.setItem(STORAGE_KEYS.EVALUATOR, evaluator);
+      if (transcript) sessionStorage.setItem(STORAGE_KEYS.TRANSCRIPT, transcript);
+      sessionStorage.setItem(STORAGE_KEYS.SPECIAL_SERVICE, isSpecialServiceTeam);
+      if (overallSummary !== "No summary available yet") {
+        sessionStorage.setItem(STORAGE_KEYS.SUMMARY, overallSummary);
+      }
+      if (detailedSummaryPoints.length > 0) {
+        sessionStorage.setItem(STORAGE_KEYS.SUMMARY_POINTS, JSON.stringify(detailedSummaryPoints));
+      }
+    } catch (error) {
+      console.error('Error saving to session storage:', error);
+    }
+  }, [contactId, evaluator, transcript, isSpecialServiceTeam, overallSummary, detailedSummaryPoints]);
+
+  // AI Assessment query with streaming support
   const { data: aiAssessment } = useQuery({
     queryKey: ['ai-assessment', contactId],
     queryFn: async () => {
@@ -48,13 +103,6 @@ const ManualContactDetails = () => {
     },
     enabled: !!contactId
   });
-
-  useEffect(() => {
-    const cachedTranscript = sessionStorage.getItem('cachedTranscript');
-    if (cachedTranscript) {
-      setTranscript(cachedTranscript);
-    }
-  }, []);
 
   // Track form changes
   useEffect(() => {
@@ -77,10 +125,11 @@ const ManualContactDetails = () => {
     setShowUnsavedDialog(false);
     setContactId(newContactId);
     setHasUnsavedChanges(false);
-    // Reset form fields
+    // Clear form fields and session storage
     setTranscript("");
     setEvaluator("");
     setIsSpecialServiceTeam("no");
+    Object.values(STORAGE_KEYS).forEach(key => sessionStorage.removeItem(key));
   };
 
   const handleSnippetClick = (snippetId: string) => {
@@ -140,7 +189,8 @@ const ManualContactDetails = () => {
         throw new Error(response.error || "Failed to save contact details");
       }
 
-      sessionStorage.removeItem('cachedTranscript');
+      // Clear session storage after successful save
+      Object.values(STORAGE_KEYS).forEach(key => sessionStorage.removeItem(key));
       setHasUnsavedChanges(false);
 
       toast({
