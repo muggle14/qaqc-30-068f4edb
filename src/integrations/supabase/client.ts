@@ -3,7 +3,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 if (!API_BASE_URL) {
-  console.warn("API base URL not defined. Please set VITE_API_BASE_URL in your environment.");
+  console.error("API base URL not defined. Please set VITE_API_BASE_URL in your environment.");
 }
 
 export const apiClient = {
@@ -16,7 +16,12 @@ export const apiClient = {
    * @returns A promise that resolves with the JSON response.
    */
   async invoke(functionName: string, payload: any, method = "POST"): Promise<any> {
+    if (!API_BASE_URL) {
+      throw new Error("API_BASE_URL is not defined. Please set VITE_API_BASE_URL in your environment.");
+    }
+
     const url = `${API_BASE_URL}/${functionName}`;
+    console.log("Calling API endpoint:", url);
     
     try {
       const response = await fetch(url, {
@@ -49,7 +54,12 @@ export const apiClient = {
    * @returns A promise that resolves with the JSON response.
    */
   async get(functionName: string): Promise<any> {
+    if (!API_BASE_URL) {
+      throw new Error("API_BASE_URL is not defined. Please set VITE_API_BASE_URL in your environment.");
+    }
+
     const url = `${API_BASE_URL}/${functionName}`;
+    console.log("Making GET request to:", url);
     
     try {
       const response = await fetch(url, {
