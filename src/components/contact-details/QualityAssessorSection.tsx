@@ -72,7 +72,7 @@ export const QualityAssessorSection = () => {
         </Button>
       </div>
       
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 h-full">
         <AssessmentCard
           title="Complaints"
           icon={AlertCircle}

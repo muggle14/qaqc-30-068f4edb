@@ -54,8 +54,8 @@ export const AssessmentCard = ({
   onReviewEvidenceChange,
 }: AssessmentCardProps) => {
   return (
-    <Card className="border border-canvas-border shadow-sm bg-white p-3">
-      <div className="space-y-3">
+    <Card className="border border-canvas-border shadow-sm bg-white p-3 h-full flex flex-col">
+      <div className="space-y-3 flex-1 flex flex-col">
         <CardHeader 
           title={title}
           icon={icon}
@@ -69,7 +69,7 @@ export const AssessmentCard = ({
         {isAIAssessment && <ItemsList items={items} reasoning={reasoning} />}
 
         {!isAIAssessment && (
-          <>
+          <div className="flex-1 flex flex-col space-y-4">
             {isVulnerability && onCategoriesChange && onOtherCategoryChange && (
               <div className="space-y-3">
                 <Label className="text-sm font-medium">Vulnerability Categories:</Label>
@@ -82,21 +82,28 @@ export const AssessmentCard = ({
               </div>
             )}
 
-            <QualityReasoningSection 
-              reasoning={reasoning}
-              onReasoningChange={onReasoningChange}
-            />
+            <div className="flex-1 flex flex-col min-h-0 space-y-4">
+              <div className="flex-1">
+                <Label className="text-sm font-medium mb-2 block">Assessment Reasoning:</Label>
+                <Textarea
+                  value={reasoning || ""}
+                  onChange={(e) => onReasoningChange?.(e.target.value)}
+                  placeholder="Enter your assessment reasoning..."
+                  className="h-full min-h-[200px] w-full resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200 whitespace-pre-wrap break-words"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Review Evidence:</Label>
-              <Textarea
-                value={reviewEvidence}
-                onChange={(e) => onReviewEvidenceChange?.(e.target.value)}
-                placeholder="Enter relevant conversation excerpts..."
-                className="min-h-[240px] font-mono resize-none"
-              />
+              <div className="flex-1">
+                <Label className="text-sm font-medium mb-2 block">Review Evidence:</Label>
+                <Textarea
+                  value={reviewEvidence}
+                  onChange={(e) => onReviewEvidenceChange?.(e.target.value)}
+                  placeholder="Enter relevant conversation excerpts..."
+                  className="h-full min-h-[200px] w-full resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200 whitespace-pre-wrap break-words"
+                />
+              </div>
             </div>
-          </>
+          </div>
         )}
 
         {isAIAssessment && (
