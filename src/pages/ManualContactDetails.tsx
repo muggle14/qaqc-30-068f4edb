@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,13 @@ const ManualContactDetails = () => {
   const [detailedSummaryPoints, setDetailedSummaryPoints] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const cachedTranscript = sessionStorage.getItem('cachedTranscript');
+    if (cachedTranscript) {
+      setTranscript(cachedTranscript);
+    }
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,12 +55,14 @@ const ManualContactDetails = () => {
         throw new Error(response.error || "Failed to save contact details");
       }
 
+      // Clear the cached transcript after successful save
+      sessionStorage.removeItem('cachedTranscript');
+
       toast({
         title: "Success",
         description: "Contact details saved successfully",
       });
 
-      // Navigate to contact details view with the saved data
       navigate("/contact/view", {
         state: {
           contactData: {
@@ -118,20 +127,10 @@ const ManualContactDetails = () => {
             detailedSummaryPoints={detailedSummaryPoints}
           />
           
-          <Card className="h-[calc(100vh-16rem+4px)] border border-gray-200">
-            <CardHeader>
-              <CardTitle>Transcript</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 h-[calc(100%-5rem)]">
-              <Textarea
-                value={transcript}
-                onChange={(e) => setTranscript(e.target.value)}
-                placeholder="Enter conversation transcript"
-                className="h-full w-[98%] mx-auto block font-mono border-0 rounded-t-none resize-none"
-                required
-              />
-            </CardContent>
-          </Card>
+          <TranscriptCard
+            transcript={transcript}
+            onTranscriptChange={setTranscript}
+          />
         </div>
 
         <AssessmentSection 

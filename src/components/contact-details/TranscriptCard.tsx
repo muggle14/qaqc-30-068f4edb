@@ -1,12 +1,16 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TranscriptView } from "./TranscriptView";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Save } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface TranscriptCardProps {
   transcript: string | null;
+  onTranscriptChange?: (value: string) => void;
   snippetsMetadata?: {
     id: string;
     timestamp: string;
@@ -15,13 +19,40 @@ interface TranscriptCardProps {
   highlightedSnippetId?: string;
 }
 
-export const TranscriptCard = ({ transcript, snippetsMetadata, highlightedSnippetId }: TranscriptCardProps) => {
+export const TranscriptCard = ({ 
+  transcript, 
+  onTranscriptChange,
+  snippetsMetadata,
+  highlightedSnippetId 
+}: TranscriptCardProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
+
+  const handleSave = () => {
+    if (transcript) {
+      sessionStorage.setItem('cachedTranscript', transcript);
+      toast({
+        title: "Transcript saved",
+        description: "Your transcript has been saved locally and will be retained during your session.",
+      });
+    }
+  };
 
   return (
-    <Card className="h-[calc(100vh-16rem)]">
-      <CardHeader>
-        <CardTitle>Transcript</CardTitle>
+    <Card className="h-[calc(100vh-16rem+4px)]">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between mb-2">
+          <CardTitle>Transcript</CardTitle>
+          <Button
+            onClick={handleSave}
+            className="flex items-center gap-2"
+            variant="outline"
+            size="sm"
+          >
+            <Save className="h-4 w-4" />
+            Save locally
+          </Button>
+        </div>
         <div className="relative">
           <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <Input
