@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -115,34 +114,31 @@ const ManualContactDetails = () => {
           <CardHeader>
             <CardTitle>Contact Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="contactId">AWS Ref ID</Label>
-                <div className="w-3/4">
-                  <Input
-                    id="contactId"
-                    value={contactId}
-                    onChange={(e) => setContactId(e.target.value)}
-                    placeholder="Enter AWS Ref ID"
-                    maxLength={30}
-                    required
-                    className="font-mono"
-                  />
-                </div>
+                <Input
+                  id="contactId"
+                  value={contactId}
+                  onChange={(e) => setContactId(e.target.value)}
+                  placeholder="Enter AWS Ref ID"
+                  maxLength={30}
+                  required
+                  className="font-mono w-3/4"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="evaluator">TrackSmart ID</Label>
-                <div className="w-3/4">
-                  <Input
-                    id="evaluator"
-                    value={evaluator}
-                    onChange={(e) => setEvaluator(e.target.value)}
-                    placeholder="Enter TrackSmart ID"
-                    maxLength={30}
-                    required
-                  />
-                </div>
+                <Input
+                  id="evaluator"
+                  value={evaluator}
+                  onChange={(e) => setEvaluator(e.target.value)}
+                  placeholder="Enter TrackSmart ID"
+                  maxLength={30}
+                  required
+                  className="w-3/4"
+                />
               </div>
             </div>
             <ContactInfo 

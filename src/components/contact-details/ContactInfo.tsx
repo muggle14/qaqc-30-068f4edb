@@ -17,17 +17,6 @@ export const ContactInfo = ({
 }: ContactInfoProps) => {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-6">
-        <div className="space-y-1.5">
-          <h3 className="text-sm font-medium text-canvas-muted">AWS Ref ID</h3>
-          <p className="text-base font-medium text-canvas-text">{contactId}</p>
-        </div>
-        <div className="space-y-1.5">
-          <h3 className="text-sm font-medium text-canvas-muted">TrackSmart ID</h3>
-          <p className="text-base font-medium text-canvas-text">{evaluator}</p>
-        </div>
-      </div>
-      
       <div className="space-y-2">
         <Label>Special Service Team Flag</Label>
         <RadioGroup
