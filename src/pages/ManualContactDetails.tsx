@@ -12,6 +12,7 @@ import { AssessmentSection } from "@/components/contact-details/AssessmentSectio
 import { SummarySection } from "@/components/contact-details/SummarySection";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { CollapsibleSection } from "@/components/contact-details/CollapsibleSection";
+import { ContactInfo } from "@/components/contact-details/ContactInfo";
 import { Save } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -19,6 +20,7 @@ const ManualContactDetails = () => {
   const [transcript, setTranscript] = useState("");
   const [contactId, setContactId] = useState("");
   const [evaluator, setEvaluator] = useState("");
+  const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState<"yes" | "no">("no");
   const [overallSummary, setOverallSummary] = useState("No summary available yet");
   const [detailedSummaryPoints, setDetailedSummaryPoints] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -72,7 +74,8 @@ const ManualContactDetails = () => {
           contact_id: contactId,
           evaluator: evaluator,
           transcript: transcript,
-          admin_id: null
+          admin_id: null,
+          special_service_team: isSpecialServiceTeam === "yes"
         }]
       });
 
@@ -80,7 +83,6 @@ const ManualContactDetails = () => {
         throw new Error(response.error || "Failed to save contact details");
       }
 
-      // Clear the cached transcript after successful save
       sessionStorage.removeItem('cachedTranscript');
 
       toast({
@@ -116,13 +118,13 @@ const ManualContactDetails = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="contactId">Contact ID</Label>
+                <Label htmlFor="contactId">AWS Ref ID</Label>
                 <div className="w-3/4">
                   <Input
                     id="contactId"
                     value={contactId}
                     onChange={(e) => setContactId(e.target.value)}
-                    placeholder="Enter contact ID"
+                    placeholder="Enter AWS Ref ID"
                     maxLength={30}
                     required
                     className="font-mono"
@@ -130,19 +132,25 @@ const ManualContactDetails = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="evaluator">Evaluator</Label>
+                <Label htmlFor="evaluator">TrackSmart ID</Label>
                 <div className="w-3/4">
                   <Input
                     id="evaluator"
                     value={evaluator}
                     onChange={(e) => setEvaluator(e.target.value)}
-                    placeholder="Enter evaluator name"
+                    placeholder="Enter TrackSmart ID"
                     maxLength={30}
                     required
                   />
                 </div>
               </div>
             </div>
+            <ContactInfo 
+              contactId={contactId}
+              evaluator={evaluator}
+              isSpecialServiceTeam={isSpecialServiceTeam}
+              onSpecialServiceTeamChange={setIsSpecialServiceTeam}
+            />
           </CardContent>
         </Card>
 
@@ -168,6 +176,7 @@ const ManualContactDetails = () => {
           contactId={contactId}
           transcript={transcript || ""}
           onSnippetClick={handleSnippetClick}
+          specialServiceTeam={isSpecialServiceTeam === "yes"}
         />
 
         <div className="flex justify-end mt-6">

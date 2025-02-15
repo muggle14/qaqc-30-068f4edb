@@ -1,7 +1,5 @@
 
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Brain } from "lucide-react";
 import { useState } from "react";
@@ -11,15 +9,16 @@ import { useToast } from "@/components/ui/use-toast";
 interface AIGenerationControlsProps {
   transcript: string;
   contactId: string;
+  specialServiceTeam: boolean;
   onAssessmentGenerated?: () => void;
 }
 
 export const AIGenerationControls = ({ 
   transcript, 
   contactId,
+  specialServiceTeam,
   onAssessmentGenerated 
 }: AIGenerationControlsProps) => {
-  const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState<"yes" | "no">("no");
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
@@ -38,7 +37,7 @@ export const AIGenerationControls = ({
       const response = await apiClient.invoke("generate-assessment", {
         contact_id: contactId,
         transcript: transcript,
-        special_service_team: isSpecialServiceTeam === "yes",
+        special_service_team: specialServiceTeam,
       });
 
       if (!response.success) {
@@ -68,25 +67,7 @@ export const AIGenerationControls = ({
   return (
     <Card className="mb-6">
       <CardContent className="pt-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <Label>Special Service Team Flag</Label>
-            <RadioGroup
-              value={isSpecialServiceTeam}
-              onValueChange={(value: "yes" | "no") => setIsSpecialServiceTeam(value)}
-              className="flex items-center space-x-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="yes" id="yes" />
-                <Label htmlFor="yes">Yes</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="no" id="no" />
-                <Label htmlFor="no">No</Label>
-              </div>
-            </RadioGroup>
-          </div>
-          
+        <div className="flex items-center justify-end">
           <Button
             onClick={handleGenerateAssessment}
             disabled={isGenerating || !transcript || !contactId}
