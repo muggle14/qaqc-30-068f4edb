@@ -5,6 +5,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { AIGenerationControls } from "./AIGenerationControls";
 
 interface AssessmentSectionProps {
@@ -24,6 +25,8 @@ export const AssessmentSection = ({
   specialServiceTeam,
   onSnippetClick 
 }: AssessmentSectionProps) => {
+  const location = useLocation();
+  const isManualRoute = location.pathname === '/contact/manual';
   const [isAIOpen, setIsAIOpen] = useState(true);
   const [isQualityOpen, setIsQualityOpen] = useState(true);
   const [assessmentKey, setAssessmentKey] = useState(0);
@@ -44,13 +47,15 @@ export const AssessmentSection = ({
           <h2 className="text-xl font-semibold">AI Assessment</h2>
         </div>
         <CollapsibleContent className="mt-4">
-          <AIGenerationControls
-            transcript={transcript}
-            contactId={contactId}
-            specialServiceTeam={specialServiceTeam}
-            onAssessmentGenerated={handleAssessmentGenerated}
-          />
-          <div className="mt-4">
+          {!isManualRoute && (
+            <AIGenerationControls
+              transcript={transcript}
+              contactId={contactId}
+              specialServiceTeam={specialServiceTeam}
+              onAssessmentGenerated={handleAssessmentGenerated}
+            />
+          )}
+          <div className={!isManualRoute ? "mt-4" : ""}>
             <AIAssessment 
               key={assessmentKey}
               complaints={complaints}
