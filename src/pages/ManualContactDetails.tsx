@@ -11,6 +11,7 @@ import { apiClient } from "@/integrations/supabase/client";
 import { AssessmentSection } from "@/components/contact-details/AssessmentSection";
 import { SummarySection } from "@/components/contact-details/SummarySection";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
+import { CollapsibleSection } from "@/components/contact-details/CollapsibleSection";
 import { Save } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -145,19 +146,21 @@ const ManualContactDetails = () => {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 gap-6 mb-6">
-          <SummarySection 
-            overallSummary={overallSummary}
-            detailedSummaryPoints={detailedSummaryPoints}
-          />
-          
-          <TranscriptCard
-            transcript={transcript}
-            onTranscriptChange={setTranscript}
-            snippetsMetadata={aiAssessment?.snippets}
-            highlightedSnippetId={highlightedSnippetId}
-          />
-        </div>
+        <CollapsibleSection title="Summary & Transcript">
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <SummarySection 
+              overallSummary={overallSummary}
+              detailedSummaryPoints={detailedSummaryPoints}
+            />
+            
+            <TranscriptCard
+              transcript={transcript}
+              onTranscriptChange={setTranscript}
+              snippetsMetadata={aiAssessment?.snippets}
+              highlightedSnippetId={highlightedSnippetId}
+            />
+          </div>
+        </CollapsibleSection>
 
         <AssessmentSection 
           complaints={aiAssessment?.complaints?.items || []}
