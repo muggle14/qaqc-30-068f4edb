@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -5,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { apiClient } from "@/integrations/supabase/client";
 import { AssessmentSection } from "@/components/contact-details/AssessmentSection";
 import { SummarySection } from "@/components/contact-details/SummarySection";
@@ -22,6 +24,9 @@ const ManualContactDetails = () => {
   const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState<"yes" | "no">("no");
   const [overallSummary, setOverallSummary] = useState("No summary available yet");
   const [detailedSummaryPoints, setDetailedSummaryPoints] = useState<string[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [newContactId, setNewContactId] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
   const [highlightedSnippetId, setHighlightedSnippetId] = useState<string>();
@@ -51,19 +56,72 @@ const ManualContactDetails = () => {
     }
   }, []);
 
+  // Track form changes
+  useEffect(() => {
+    if (transcript || evaluator || isSpecialServiceTeam !== "no") {
+      setHasUnsavedChanges(true);
+    }
+  }, [transcript, evaluator, isSpecialServiceTeam]);
+
+  const handleContactIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newId = e.target.value;
+    if (hasUnsavedChanges) {
+      setNewContactId(newId);
+      setShowUnsavedDialog(true);
+    } else {
+      setContactId(newId);
+    }
+  };
+
+  const handleProceedWithoutSaving = () => {
+    setShowUnsavedDialog(false);
+    setContactId(newContactId);
+    setHasUnsavedChanges(false);
+    // Reset form fields
+    setTranscript("");
+    setEvaluator("");
+    setIsSpecialServiceTeam("no");
+  };
+
   const handleSnippetClick = (snippetId: string) => {
     setHighlightedSnippetId(snippetId);
+  };
+
+  const validateForm = () => {
+    if (!transcript) {
+      toast({
+        title: "Missing Transcript",
+        description: "Please provide the conversation transcript",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!contactId) {
+      toast({
+        title: "Missing AWS Ref ID",
+        description: "Please enter the AWS Ref ID",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!evaluator) {
+      toast({
+        title: "Missing TrackSmart ID",
+        description: "Please enter your TrackSmart ID",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!transcript || !contactId || !evaluator) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
+    if (!validateForm()) {
       return;
     }
 
@@ -83,6 +141,7 @@ const ManualContactDetails = () => {
       }
 
       sessionStorage.removeItem('cachedTranscript');
+      setHasUnsavedChanges(false);
 
       toast({
         title: "Success",
@@ -121,7 +180,7 @@ const ManualContactDetails = () => {
                 <Input
                   id="contactId"
                   value={contactId}
-                  onChange={(e) => setContactId(e.target.value)}
+                  onChange={handleContactIdChange}
                   placeholder="Enter AWS Ref ID"
                   maxLength={30}
                   required
@@ -182,6 +241,23 @@ const ManualContactDetails = () => {
           </Button>
         </div>
       </form>
+
+      <AlertDialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your responses are not yet saved to the database. Do you want to save your changes before proceeding?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleProceedWithoutSaving} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Proceed Without Saving
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
