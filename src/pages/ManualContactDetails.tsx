@@ -1,10 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -13,76 +9,39 @@ import { AssessmentSection } from "@/components/contact-details/AssessmentSectio
 import { SummarySection } from "@/components/contact-details/SummarySection";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { CollapsibleSection } from "@/components/contact-details/CollapsibleSection";
-import { ContactInfo } from "@/components/contact-details/ContactInfo";
+import { ContactFormHeader } from "@/components/contact-details/ContactFormHeader";
 import { Save } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-
-// Session storage keys
-const STORAGE_KEYS = {
-  CONTACT_ID: 'manual_contact_id',
-  EVALUATOR: 'manual_evaluator',
-  TRANSCRIPT: 'manual_transcript',
-  SPECIAL_SERVICE: 'manual_special_service',
-  SUMMARY: 'manual_summary',
-  SUMMARY_POINTS: 'manual_summary_points',
-} as const;
+import { useSessionStorage } from "@/hooks/useSessionStorage";
 
 const ManualContactDetails = () => {
-  const [transcript, setTranscript] = useState("");
-  const [contactId, setContactId] = useState("");
-  const [evaluator, setEvaluator] = useState("");
-  const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState<"yes" | "no">("no");
-  const [overallSummary, setOverallSummary] = useState("No summary available yet");
-  const [detailedSummaryPoints, setDetailedSummaryPoints] = useState<string[]>([]);
+  const { loadFromStorage, saveToStorage, clearStorage } = useSessionStorage();
+  const initialData = loadFromStorage();
+
+  const [transcript, setTranscript] = useState(initialData.transcript);
+  const [contactId, setContactId] = useState(initialData.contactId);
+  const [evaluator, setEvaluator] = useState(initialData.evaluator);
+  const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState(initialData.isSpecialServiceTeam);
+  const [overallSummary, setOverallSummary] = useState(initialData.overallSummary);
+  const [detailedSummaryPoints, setDetailedSummaryPoints] = useState(initialData.detailedSummaryPoints);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [newContactId, setNewContactId] = useState("");
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const [highlightedSnippetId, setHighlightedSnippetId] = useState<string>();
 
-  // Load data from session storage on mount
-  useEffect(() => {
-    try {
-      const storedContactId = sessionStorage.getItem(STORAGE_KEYS.CONTACT_ID);
-      const storedEvaluator = sessionStorage.getItem(STORAGE_KEYS.EVALUATOR);
-      const storedTranscript = sessionStorage.getItem(STORAGE_KEYS.TRANSCRIPT);
-      const storedSpecialService = sessionStorage.getItem(STORAGE_KEYS.SPECIAL_SERVICE);
-      const storedSummary = sessionStorage.getItem(STORAGE_KEYS.SUMMARY);
-      const storedSummaryPoints = sessionStorage.getItem(STORAGE_KEYS.SUMMARY_POINTS);
-
-      if (storedContactId) setContactId(storedContactId);
-      if (storedEvaluator) setEvaluator(storedEvaluator);
-      if (storedTranscript) setTranscript(storedTranscript);
-      if (storedSpecialService) setIsSpecialServiceTeam(storedSpecialService as "yes" | "no");
-      if (storedSummary) setOverallSummary(storedSummary);
-      if (storedSummaryPoints) setDetailedSummaryPoints(JSON.parse(storedSummaryPoints));
-    } catch (error) {
-      console.error('Error loading from session storage:', error);
-      toast({
-        title: "Warning",
-        description: "Failed to load saved data. Your changes may not be preserved.",
-        variant: "destructive",
-      });
-    }
-  }, []);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Save to session storage when data changes
   useEffect(() => {
-    try {
-      if (contactId) sessionStorage.setItem(STORAGE_KEYS.CONTACT_ID, contactId);
-      if (evaluator) sessionStorage.setItem(STORAGE_KEYS.EVALUATOR, evaluator);
-      if (transcript) sessionStorage.setItem(STORAGE_KEYS.TRANSCRIPT, transcript);
-      sessionStorage.setItem(STORAGE_KEYS.SPECIAL_SERVICE, isSpecialServiceTeam);
-      if (overallSummary !== "No summary available yet") {
-        sessionStorage.setItem(STORAGE_KEYS.SUMMARY, overallSummary);
-      }
-      if (detailedSummaryPoints.length > 0) {
-        sessionStorage.setItem(STORAGE_KEYS.SUMMARY_POINTS, JSON.stringify(detailedSummaryPoints));
-      }
-    } catch (error) {
-      console.error('Error saving to session storage:', error);
-    }
+    saveToStorage({
+      contactId,
+      evaluator,
+      transcript,
+      isSpecialServiceTeam,
+      overallSummary,
+      detailedSummaryPoints,
+    });
   }, [contactId, evaluator, transcript, isSpecialServiceTeam, overallSummary, detailedSummaryPoints]);
 
   // AI Assessment query with streaming support
@@ -125,11 +84,10 @@ const ManualContactDetails = () => {
     setShowUnsavedDialog(false);
     setContactId(newContactId);
     setHasUnsavedChanges(false);
-    // Clear form fields and session storage
     setTranscript("");
     setEvaluator("");
     setIsSpecialServiceTeam("no");
-    Object.values(STORAGE_KEYS).forEach(key => sessionStorage.removeItem(key));
+    clearStorage();
   };
 
   const handleSnippetClick = (snippetId: string) => {
@@ -189,8 +147,7 @@ const ManualContactDetails = () => {
         throw new Error(response.error || "Failed to save contact details");
       }
 
-      // Clear session storage after successful save
-      Object.values(STORAGE_KEYS).forEach(key => sessionStorage.removeItem(key));
+      clearStorage();
       setHasUnsavedChanges(false);
 
       toast({
@@ -219,45 +176,14 @@ const ManualContactDetails = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <form onSubmit={handleSave}>
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Contact Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="contactId">AWS Ref ID</Label>
-                <Input
-                  id="contactId"
-                  value={contactId}
-                  onChange={handleContactIdChange}
-                  placeholder="Enter AWS Ref ID"
-                  maxLength={30}
-                  required
-                  className="font-mono w-3/4"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="evaluator">TrackSmart ID</Label>
-                <Input
-                  id="evaluator"
-                  value={evaluator}
-                  onChange={(e) => setEvaluator(e.target.value)}
-                  placeholder="Enter TrackSmart ID"
-                  maxLength={30}
-                  required
-                  className="w-3/4"
-                />
-              </div>
-            </div>
-            <ContactInfo 
-              contactId={contactId}
-              evaluator={evaluator}
-              isSpecialServiceTeam={isSpecialServiceTeam}
-              onSpecialServiceTeamChange={setIsSpecialServiceTeam}
-            />
-          </CardContent>
-        </Card>
+        <ContactFormHeader
+          contactId={contactId}
+          evaluator={evaluator}
+          isSpecialServiceTeam={isSpecialServiceTeam}
+          onContactIdChange={handleContactIdChange}
+          onEvaluatorChange={(e) => setEvaluator(e.target.value)}
+          onSpecialServiceTeamChange={setIsSpecialServiceTeam}
+        />
 
         <CollapsibleSection title="Summary & Transcript">
           <div className="grid grid-cols-2 gap-6 mb-6">
