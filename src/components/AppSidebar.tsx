@@ -17,7 +17,14 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const navigationItems = [
   {
@@ -49,30 +56,51 @@ const navigationItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <div className="flex items-center justify-between px-3 py-2">
+            <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+            <SidebarTrigger />
+          </div>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => {
                 const isActive = location.pathname === item.path;
+                const link = (
+                  <Link 
+                    to={item.path}
+                    className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent/30 transition-colors"
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       asChild
                       className={isActive ? "bg-accent/50" : ""}
+                      tooltip={isCollapsed ? item.label : undefined}
                     >
-                      <Link 
-                        to={item.path}
-                        className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent/30 transition-colors"
-                        aria-current={isActive ? "page" : undefined}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.label}</span>
-                      </Link>
+                      {isCollapsed ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            {link}
+                          </TooltipTrigger>
+                          <TooltipContent side="right">
+                            {item.label}
+                          </TooltipContent>
+                        </Tooltip>
+                      ) : (
+                        link
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
