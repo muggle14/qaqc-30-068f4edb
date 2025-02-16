@@ -1,6 +1,6 @@
 
 import { motion } from "framer-motion";
-import { Microsoft, Layers, PenTool, Paintbrush } from "lucide-react";
+import { Command, Layers, PenTool, Paintbrush } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -15,7 +15,7 @@ const Hero = () => {
           className="text-center max-w-3xl mx-auto"
         >
           <div className="flex items-center justify-center gap-2 mb-6">
-            <Microsoft className="w-8 h-8 text-[#5E5CE6]" />
+            <Command className="w-8 h-8 text-[#5E5CE6]" />
             <span className="inline-block px-4 py-1.5 bg-tool-primary/10 text-tool-primary rounded-full text-sm font-medium">
               AI-Powered Quality Assurance
             </span>
