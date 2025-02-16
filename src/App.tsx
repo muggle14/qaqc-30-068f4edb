@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import Admin from "./pages/Admin";
 import ContactDetails from "./pages/ContactDetails";
@@ -26,7 +26,7 @@ const App = () => (
       <BrowserRouter>
         <AppLayout>
           <Routes>
-            <Route path="/" element={<Navigate to="/contact/manual" replace />} />
+            <Route path="/" element={<ManualContactDetails />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/contact/view" element={<ContactDetails />} />
             <Route path="/contact/manual" element={<ManualContactDetails />} />
