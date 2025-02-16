@@ -1,5 +1,6 @@
+
 import { motion } from "framer-motion";
-import { Layers, Paintbrush, PenTool } from "lucide-react";
+import { Microsoft, Layers, PenTool, Paintbrush } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -13,16 +14,19 @@ const Hero = () => {
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto"
         >
-          <span className="inline-block px-4 py-1.5 bg-tool-primary/10 text-tool-primary rounded-full text-sm font-medium mb-6 animate-fade-in">
-            Design Without Limits
-          </span>
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Microsoft className="w-8 h-8 text-[#5E5CE6]" />
+            <span className="inline-block px-4 py-1.5 bg-tool-primary/10 text-tool-primary rounded-full text-sm font-medium">
+              AI-Powered Quality Assurance
+            </span>
+          </div>
           
           <h1 className="text-5xl md:text-6xl font-bold text-canvas-text mb-6 tracking-tight">
-            Create Beautiful Designs with Ease
+            Welcome to QA-AI-Assist
           </h1>
           
           <p className="text-lg text-canvas-muted mb-8 max-w-2xl mx-auto">
-            Experience the next generation of design tools. Powerful, intuitive, and built for modern creators.
+            Experience the next generation of quality assurance tools. Powerful, intuitive, and built for modern QA professionals.
           </p>
 
           <motion.button
@@ -30,24 +34,24 @@ const Hero = () => {
             whileTap={{ scale: 0.98 }}
             className="bg-tool-primary text-white px-8 py-4 rounded-lg font-medium shadow-lg shadow-tool-primary/20 hover:bg-tool-hover transition-colors duration-200"
           >
-            Start Designing
+            Start Assessment
           </motion.button>
         </motion.div>
 
         <div className="mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto">
           <FeatureIcon
             icon={<Layers className="w-6 h-6" />}
-            label="Smart Layers"
+            label="Smart Analysis"
             delay={0.2}
           />
           <FeatureIcon
             icon={<PenTool className="w-6 h-6" />}
-            label="Vector Tools"
+            label="Manual Entry"
             delay={0.4}
           />
           <FeatureIcon
             icon={<Paintbrush className="w-6 h-6" />}
-            label="Style Tools"
+            label="AI Insights"
             delay={0.6}
           />
         </div>
