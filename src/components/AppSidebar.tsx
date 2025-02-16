@@ -1,12 +1,7 @@
 
 import { useLocation, Link } from "react-router-dom";
 import { 
-  ClipboardList, 
-  FileText, 
-  PenTool, 
-  Brain, 
-  History, 
-  Settings,
+  PenTool,
   Menu,
   ChevronLeft
 } from "lucide-react";
@@ -35,6 +30,7 @@ const navigationItems = [
     icon: PenTool,
     path: "/contact/manual",
   },
+  /* Temporarily disabled navigation items
   {
     label: "Contact Details",
     icon: FileText,
@@ -55,6 +51,7 @@ const navigationItems = [
     icon: Settings,
     path: "/admin",
   },
+  */
 ];
 
 export function AppSidebar() {
