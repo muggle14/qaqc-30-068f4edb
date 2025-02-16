@@ -67,23 +67,17 @@ export function AppSidebar() {
       {/* Floating toggle button when sidebar is collapsed */}
       {isCollapsed && (
         <div className="fixed top-4 left-4 z-50 md:hidden">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <SidebarTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  className="h-10 w-10 rounded-full shadow-md"
-                  aria-label="Expand navigation"
-                >
-                  <Menu className="h-4 w-4" />
-                </Button>
-              </SidebarTrigger>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              Expand navigation
-            </TooltipContent>
-          </Tooltip>
+          <Button 
+            variant="outline" 
+            size="icon"
+            className="h-10 w-10 rounded-full shadow-md"
+            aria-label="Expand navigation"
+            asChild
+          >
+            <SidebarTrigger>
+              <Menu className="h-4 w-4" />
+            </SidebarTrigger>
+          </Button>
         </div>
       )}
       
@@ -92,50 +86,51 @@ export function AppSidebar() {
           <SidebarGroup>
             <div className="flex items-center justify-between px-3 py-2">
               <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-              <SidebarTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="h-8 w-8"
-                  aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
-                >
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="h-8 w-8"
+                aria-label={isCollapsed ? "Expand navigation" : "Collapse navigation"}
+                asChild
+              >
+                <SidebarTrigger>
                   <ChevronLeft className={`h-4 w-4 transition-transform duration-200 ${isCollapsed ? 'rotate-180' : ''}`} />
-                </Button>
-              </SidebarTrigger>
+                </SidebarTrigger>
+              </Button>
             </div>
             <SidebarGroupContent>
               <SidebarMenu>
                 {navigationItems.map((item) => {
                   const isActive = location.pathname === item.path;
-                  const link = (
-                    <Link 
-                      to={item.path}
-                      className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent/30 transition-colors"
-                      aria-current={isActive ? "page" : undefined}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.label}</span>
-                    </Link>
-                  );
 
                   return (
                     <SidebarMenuItem key={item.path}>
-                      <SidebarMenuButton
-                        asChild
-                        className={isActive ? "bg-accent/50" : ""}
-                        tooltip={isCollapsed ? item.label : undefined}
-                      >
+                      <SidebarMenuButton asChild>
                         {isCollapsed ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              {link}
+                              <Link 
+                                to={item.path}
+                                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent/30 transition-colors"
+                                aria-current={isActive ? "page" : undefined}
+                              >
+                                <item.icon className="h-5 w-5" />
+                                <span>{item.label}</span>
+                              </Link>
                             </TooltipTrigger>
                             <TooltipContent side="right">
                               {item.label}
                             </TooltipContent>
                           </Tooltip>
                         ) : (
-                          link
+                          <Link 
+                            to={item.path}
+                            className={`flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent/30 transition-colors ${isActive ? "bg-accent/50" : ""}`}
+                            aria-current={isActive ? "page" : undefined}
+                          >
+                            <item.icon className="h-5 w-5" />
+                            <span>{item.label}</span>
+                          </Link>
                         )}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
