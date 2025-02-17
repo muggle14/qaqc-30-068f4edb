@@ -16,7 +16,7 @@ export const SummarySection = ({
   onDetailedSummaryPointsChange
 }: SummarySectionProps) => {
   return (
-    <div className="space-y-6 h-full">
+    <div className="space-y-4 h-full">
       <OverallSummary 
         summary={overallSummary} 
         onChange={onOverallSummaryChange}
