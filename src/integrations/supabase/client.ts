@@ -22,6 +22,7 @@ export const apiClient = {
 
     const url = `${API_BASE_URL}/${functionName}`;
     console.log("Calling API endpoint:", url);
+    console.log("Request payload:", payload);
     
     try {
       const response = await fetch(url, {
@@ -33,18 +34,22 @@ export const apiClient = {
         body: JSON.stringify(payload),
       });
 
+      // Log response details for debugging
+      console.log("Response status:", response.status);
+      console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
         const errorText = await response.text();
+        console.error("API error response:", errorText);
         throw new Error(`API error (${response.status}): ${errorText}`);
       }
 
-      return response.json();
+      const responseData = await response.json();
+      console.log("API response data:", responseData);
+      return responseData;
     } catch (error) {
       console.error(`Error calling ${functionName}:`, error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
-      };
+      throw error; // Re-throw to let the component handle the error
     }
   },
 
@@ -73,16 +78,16 @@ export const apiClient = {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.error("API error response:", errorText);
         throw new Error(`API error (${response.status}): ${errorText}`);
       }
 
-      return response.json();
+      const responseData = await response.json();
+      console.log("API response data:", responseData);
+      return responseData;
     } catch (error) {
       console.error(`Error in GET ${functionName}:`, error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
-      };
+      throw error; // Re-throw to let the component handle the error
     }
   },
 };
