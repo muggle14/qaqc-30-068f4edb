@@ -22,6 +22,7 @@ export const AIGenerationControls = ({
 }: AIGenerationControlsProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isFormatting, setIsFormatting] = useState(false);
+  const [isFormatted, setIsFormatted] = useState(false);
   const { toast } = useToast();
 
   const isTranscriptFormatted = (text: string): boolean => {
@@ -32,7 +33,6 @@ export const AIGenerationControls = ({
   };
 
   const handleFormatTranscript = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Prevent any default navigation behavior
     e.preventDefault();
     e.stopPropagation();
 
@@ -45,13 +45,13 @@ export const AIGenerationControls = ({
       return;
     }
 
-    // Check if transcript is already formatted
     if (isTranscriptFormatted(transcript)) {
       toast({
         title: "Already Formatted",
         description: "The transcript is already in the correct format.",
         variant: "info",
       });
+      setIsFormatted(true);
       return;
     }
 
@@ -59,24 +59,24 @@ export const AIGenerationControls = ({
     try {
       const formattedTranscript = await apiClient.formatTranscript(transcript);
       
-      // Ensure we're updating the transcript in the parent component
       if (onTranscriptFormatted) {
         onTranscriptFormatted(formattedTranscript);
-        
-        // Log successful formatting for debugging
         console.log("Transcript formatted successfully");
       }
       
+      setIsFormatted(true);
       toast({
         title: "Success",
         description: "Transcript has been formatted successfully.",
+        variant: "success",
       });
     } catch (error) {
       console.error("Error formatting transcript:", error);
+      setIsFormatted(false);
       toast({
         title: "Formatting Issue",
         description: "Please ensure each line of dialogue is on a new line and try again.",
-        variant: "info",
+        variant: "warning",
       });
     } finally {
       setIsFormatting(false);
@@ -84,7 +84,6 @@ export const AIGenerationControls = ({
   };
 
   const handleGenerateAssessment = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    // Prevent any default navigation behavior
     e.preventDefault();
     e.stopPropagation();
 
@@ -97,7 +96,7 @@ export const AIGenerationControls = ({
       return;
     }
 
-    if (!isTranscriptFormatted(transcript)) {
+    if (!isFormatted) {
       toast({
         title: "Unformatted Transcript",
         description: "Please format the transcript before generating the assessment.",
@@ -121,6 +120,7 @@ export const AIGenerationControls = ({
       toast({
         title: "Assessment Generated",
         description: "The AI assessment has been generated successfully.",
+        variant: "success",
       });
 
       if (onAssessmentGenerated) {
@@ -146,17 +146,17 @@ export const AIGenerationControls = ({
         className="flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         variant="outline"
         size="lg"
-        type="button" // Explicitly set type to prevent form submission
+        type="button"
       >
         <FileText className="h-4 w-4" />
         {isFormatting ? "Formatting..." : "Format & Parse Transcript"}
       </Button>
       <Button
         onClick={handleGenerateAssessment}
-        disabled={isGenerating || !transcript.trim() || !contactId || !isTranscriptFormatted(transcript)}
+        disabled={isGenerating || !transcript.trim() || !contactId || !isFormatted}
         className="flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         size="lg"
-        type="button" // Explicitly set type to prevent form submission
+        type="button"
       >
         <Brain className="h-4 w-4" />
         {isGenerating ? "Generating..." : "Generate AI Assessment"}
