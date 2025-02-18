@@ -29,9 +29,10 @@ export const AIRelevantSnippets = ({
         return [];
       }
 
-      const response = await apiClient.invoke('snippets', {
-        contact_id: contactId,
-        snippet_ids: snippetIds
+      // Ensure we're sending data in the format expected by the Azure Function
+      const response = await apiClient.invoke('vAndCAssessment', {
+        conversation: snippetIds.join('\n'),
+        contact_id: contactId
       });
 
       if (!response.success) {
@@ -39,8 +40,15 @@ export const AIRelevantSnippets = ({
         throw new Error(response.error || "Failed to fetch snippets");
       }
 
-      console.log("Snippets data:", response.data);
-      return response.data || [];
+      // Transform the response into the expected format
+      const snippetsData = snippetIds.map(id => ({
+        id,
+        content: id,
+        timestamp: null
+      }));
+
+      console.log("Snippets data:", snippetsData);
+      return snippetsData;
     },
     enabled: !!contactId && snippetIds.length > 0
   });
