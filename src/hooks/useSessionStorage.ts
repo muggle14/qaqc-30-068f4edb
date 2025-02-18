@@ -10,7 +10,14 @@ export const STORAGE_KEYS = {
   SPECIAL_SERVICE: 'manual_special_service',
   SUMMARY: 'manual_summary',
   SUMMARY_POINTS: 'manual_summary_points',
+  ASSESSMENT_QUESTIONS: 'manual_assessment_questions',
 } as const;
+
+export interface AssessmentQuestion {
+  id: string;
+  aiAssessment: string;
+  assessorFeedback: string;
+}
 
 export interface ContactFormData {
   contactId: string;
@@ -19,6 +26,7 @@ export interface ContactFormData {
   isSpecialServiceTeam: "yes" | "no";
   overallSummary: string;
   detailedSummaryPoints: string[];
+  assessmentQuestions?: AssessmentQuestion[];
 }
 
 export const useSessionStorage = () => {
@@ -32,6 +40,7 @@ export const useSessionStorage = () => {
       const storedSpecialService = sessionStorage.getItem(STORAGE_KEYS.SPECIAL_SERVICE) as "yes" | "no" || "no";
       const storedSummary = sessionStorage.getItem(STORAGE_KEYS.SUMMARY) || "No summary available yet";
       const storedSummaryPoints = sessionStorage.getItem(STORAGE_KEYS.SUMMARY_POINTS);
+      const storedAssessmentQuestions = sessionStorage.getItem(STORAGE_KEYS.ASSESSMENT_QUESTIONS);
 
       return {
         contactId: storedContactId,
@@ -40,6 +49,7 @@ export const useSessionStorage = () => {
         isSpecialServiceTeam: storedSpecialService,
         overallSummary: storedSummary,
         detailedSummaryPoints: storedSummaryPoints ? JSON.parse(storedSummaryPoints) : [],
+        assessmentQuestions: storedAssessmentQuestions ? JSON.parse(storedAssessmentQuestions) : [],
       };
     } catch (error) {
       console.error('Error loading from session storage:', error);
@@ -55,6 +65,7 @@ export const useSessionStorage = () => {
         isSpecialServiceTeam: "no",
         overallSummary: "No summary available yet",
         detailedSummaryPoints: [],
+        assessmentQuestions: [],
       };
     }
   };
@@ -70,6 +81,9 @@ export const useSessionStorage = () => {
       }
       if (data.detailedSummaryPoints.length > 0) {
         sessionStorage.setItem(STORAGE_KEYS.SUMMARY_POINTS, JSON.stringify(data.detailedSummaryPoints));
+      }
+      if (data.assessmentQuestions?.length > 0) {
+        sessionStorage.setItem(STORAGE_KEYS.ASSESSMENT_QUESTIONS, JSON.stringify(data.assessmentQuestions));
       }
     } catch (error) {
       console.error('Error saving to session storage:', error);
