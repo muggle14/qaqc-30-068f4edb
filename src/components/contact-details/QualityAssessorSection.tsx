@@ -3,7 +3,7 @@ import { useState } from "react";
 import { AssessmentCard } from "./AssessmentCard";
 import { AlertCircle, Shield, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { apiClient } from "@/integrations/supabase/client";
 import { useLocation } from "react-router-dom";
 
@@ -32,9 +32,11 @@ export const QualityAssessorSection = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Prevent default form submission
+    // Prevent any default behavior and bubbling
+    e.preventDefault();
+    e.stopPropagation();
     
-    if (isSaving) return; // Prevent double submission
+    if (isSaving) return;
     
     setIsSaving(true);
     
@@ -62,6 +64,7 @@ export const QualityAssessorSection = () => {
       toast({
         title: "Success",
         description: "Quality assessor feedback saved successfully",
+        duration: 3000,
       });
       console.log("Quality assessor feedback saved successfully");
     } catch (error) {
@@ -70,6 +73,7 @@ export const QualityAssessorSection = () => {
         title: "Error",
         description: "Failed to save quality assessor feedback",
         variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setIsSaving(false);
@@ -77,11 +81,12 @@ export const QualityAssessorSection = () => {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
       <div className="flex justify-end mb-1">
         <Button 
           onClick={handleSave} 
           size="sm" 
+          type="button"
           className="flex items-center gap-1.5"
           disabled={isSaving}
         >
