@@ -156,9 +156,9 @@ const ContactDetails = () => {
         />
         
         <TranscriptCard 
-          transcript={conversation?.transcript} 
-          snippetsMetadata={snippetsMetadata}
-          highlightedSnippetId={highlightedSnippetId}
+          transcript={conversation?.transcript || ""} 
+          onTranscriptChange={() => {}} 
+          isLoading={isLoadingConversation}
         />
       </div>
 
