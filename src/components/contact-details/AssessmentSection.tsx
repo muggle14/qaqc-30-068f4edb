@@ -45,7 +45,6 @@ export const AssessmentSection = ({
   const location = useLocation();
   const isManualRoute = location.pathname === '/contact/manual';
   const [isAIOpen, setIsAIOpen] = useState(true);
-  const [isQualityOpen, setIsQualityOpen] = useState(true);
   const [assessmentKey, setAssessmentKey] = useState(0);
   const { toast } = useToast();
 
@@ -60,13 +59,17 @@ export const AssessmentSection = ({
       if (!transcript) {
         throw new Error("Transcript is required");
       }
+      console.log("Fetching V&C assessment with transcript:", transcript);
       return await getVAndCAssessment(transcript);
     },
     enabled: false,
     retry: 1,
   });
 
-  const handleGenerateAssessment = async () => {
+  const handleGenerateAssessment = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!transcript) {
       toast({
         title: "Missing Transcript",
@@ -77,7 +80,7 @@ export const AssessmentSection = ({
     }
 
     try {
-      console.log('Generating V&C assessment for transcript:', transcript);
+      console.log('Starting V&C assessment generation...');
       const result = await refetchAssessment();
       
       if (assessmentError) {
@@ -92,6 +95,7 @@ export const AssessmentSection = ({
         title: "Generation Failed",
         description: "Failed to generate V&C assessment. Please try again.",
         variant: "destructive",
+        duration: 5000,
       });
     }
   };
@@ -100,13 +104,13 @@ export const AssessmentSection = ({
 
   const currentComplaintsData = assessmentData ? {
     hasComplaints: assessmentData.complaint,
-    reasoning: assessmentData.complaint_reason,
+    reasoning: assessmentData.complaint_reason || "No complaint reasoning provided",
     snippets: assessmentData.complaint_snippet ? [assessmentData.complaint_snippet] : []
   } : complaintsData;
 
   const currentVulnerabilityData = assessmentData ? {
     hasVulnerability: assessmentData.financial_vulnerability,
-    reasoning: assessmentData.vulnerability_reason,
+    reasoning: assessmentData.vulnerability_reason || "No vulnerability reasoning provided",
     snippets: assessmentData.vulnerability_snippet ? [assessmentData.vulnerability_snippet] : []
   } : vulnerabilityData;
 
@@ -123,12 +127,22 @@ export const AssessmentSection = ({
             <h2 className="text-xl font-semibold">Assessor Feedback</h2>
           </div>
           <Button 
-            onClick={handleGenerateAssessment}
+            onClick={handleGenerateAssessment} 
             disabled={isLoading || !transcript}
-            className="gap-2"
+            className="flex items-center gap-2"
+            type="button"
           >
-            {isLoading && <RefreshCw className="h-4 w-4 animate-spin" />}
-            Generate V&C Assessment
+            {isLoading ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Fetching V&C Assessment...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Generate V&C Assessment
+              </>
+            )}
           </Button>
         </div>
         <CollapsibleContent className="mt-4">

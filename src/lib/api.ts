@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 export const chatSummaryApi = axios.create({
@@ -52,6 +51,15 @@ interface SummaryResponse {
   detailed_bullet_summary: string[];
 }
 
+interface VAndCAssessmentResponse {
+  financial_vulnerability: boolean;
+  vulnerability_reason: string;
+  vulnerability_snippet: string;
+  complaint: boolean;
+  complaint_reason: string;
+  complaint_snippet: string;
+}
+
 export const getSummary = async (conversation: string): Promise<SummaryResponse> => {
   const response = await chatSummaryApi.post("/chat-summary", {
     conversation: conversation
@@ -99,7 +107,8 @@ export const getSummary = async (conversation: string): Promise<SummaryResponse>
   }
 };
 
-export const getVAndCAssessment = async (conversation: string) => {
+export const getVAndCAssessment = async (conversation: string): Promise<VAndCAssessmentResponse> => {
+  console.log("Fetching V&C assessment for conversation:", conversation);
   const response = await chatSummaryApi.post("/contact-assessment", {
     conversation: conversation
   });
@@ -109,11 +118,11 @@ export const getVAndCAssessment = async (conversation: string) => {
   }
 
   return {
-    complaint: response.data.complaint || false,
-    complaint_reason: response.data.complaint_reason || "",
     financial_vulnerability: response.data.financial_vulnerability || false,
     vulnerability_reason: response.data.vulnerability_reason || "",
-    complaint_snippet: response.data.complaint_snippet || "",
-    vulnerability_snippet: response.data.vulnerability_snippet || ""
+    vulnerability_snippet: response.data.vulnerability_snippet || "",
+    complaint: response.data.complaint || false,
+    complaint_reason: response.data.complaint_reason || "",
+    complaint_snippet: response.data.complaint_snippet || ""
   };
 };
