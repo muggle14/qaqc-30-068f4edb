@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -44,8 +44,10 @@ const ManualContactDetails = () => {
       evaluator,
       transcript,
       isSpecialServiceTeam,
+      overallSummary: summaryData?.short_summary || "",
+      detailedSummaryPoints: summaryData?.detailed_bullet_summary || [],
     });
-  }, [contactId, evaluator, transcript, isSpecialServiceTeam]);
+  }, [contactId, evaluator, transcript, isSpecialServiceTeam, summaryData]);
 
   // Track form changes
   useEffect(() => {
