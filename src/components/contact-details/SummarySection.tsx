@@ -1,5 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SummarySectionProps {
   overallSummary: string;
@@ -18,25 +19,19 @@ export const SummarySection = ({
     isLoading
   });
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Summary</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">Generating summary...</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="space-y-4">
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-4 w-2/3" />
+        </div>
+      );
+    }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Summary</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    return (
+      <div className="space-y-6">
         <div>
           <h3 className="font-semibold mb-2">Overall Summary</h3>
           <p className="text-sm text-muted-foreground">
@@ -57,6 +52,17 @@ export const SummarySection = ({
             <p className="text-sm text-muted-foreground">No bullet points available</p>
           )}
         </div>
+      </div>
+    );
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Summary</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {renderContent()}
       </CardContent>
     </Card>
   );

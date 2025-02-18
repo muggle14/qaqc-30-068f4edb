@@ -1,6 +1,6 @@
+
 import axios from "axios";
 
-// Create an axios instance with common configuration
 export const chatSummaryApi = axios.create({
   baseURL: "https://chat-summary.azurewebsites.net/api",
   headers: {
@@ -47,24 +47,41 @@ chatSummaryApi.interceptors.response.use(
   }
 );
 
-// Dummy function for getSummary
-export const getSummary = async (conversation: string) => {
-  // TODO: Implement actual summary functionality
+interface SummaryResponse {
+  short_summary: string;
+  detailed_bullet_summary: string[];
+}
+
+export const getSummary = async (conversation: string): Promise<SummaryResponse> => {
+  const response = await chatSummaryApi.post("/GetItems", {
+    conversation: conversation
+  });
+  
+  if (response.data.error) {
+    throw new Error(response.data.error);
+  }
+  
   return {
-    short_summary: "This is a placeholder summary",
-    detailed_bullet_summary: ["Placeholder bullet point 1", "Placeholder bullet point 2"]
+    short_summary: response.data.short_summary || "No summary available",
+    detailed_bullet_summary: response.data.detailed_bullet_summary || []
   };
 };
 
-// Dummy function for getVAndCAssessment
 export const getVAndCAssessment = async (conversation: string) => {
-  // TODO: Implement actual V&C assessment functionality
+  const response = await chatSummaryApi.post("/contact-assessment", {
+    conversation: conversation
+  });
+
+  if (response.data.error) {
+    throw new Error(response.data.error);
+  }
+
   return {
-    complaint: false,
-    complaint_reason: "Placeholder complaint reason",
-    financial_vulnerability: false,
-    vulnerability_reason: "Placeholder vulnerability reason",
-    complaint_snippet: "Placeholder complaint snippet",
-    vulnerability_snippet: "Placeholder vulnerability snippet"
+    complaint: response.data.complaint || false,
+    complaint_reason: response.data.complaint_reason || "",
+    financial_vulnerability: response.data.financial_vulnerability || false,
+    vulnerability_reason: response.data.vulnerability_reason || "",
+    complaint_snippet: response.data.complaint_snippet || "",
+    vulnerability_snippet: response.data.vulnerability_snippet || ""
   };
 };
