@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Brain } from "lucide-react";
+import { Brain, FileText } from "lucide-react";
 import { useState } from "react";
 import { apiClient } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -11,22 +11,73 @@ interface AIGenerationControlsProps {
   contactId: string;
   specialServiceTeam: boolean;
   onAssessmentGenerated?: () => void;
+  onTranscriptFormatted?: (formattedTranscript: string) => void;
 }
 
 export const AIGenerationControls = ({ 
   transcript, 
   contactId,
   specialServiceTeam,
-  onAssessmentGenerated 
+  onAssessmentGenerated,
+  onTranscriptFormatted
 }: AIGenerationControlsProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isFormatting, setIsFormatting] = useState(false);
   const { toast } = useToast();
+
+  const isTranscriptFormatted = (text: string): boolean => {
+    const lines = text.split('\n').filter(line => line.trim());
+    return lines.every(line => 
+      line.trim().startsWith("Agent:") || line.trim().startsWith("Customer:")
+    );
+  };
+
+  const handleFormatTranscript = async () => {
+    if (!transcript) {
+      toast({
+        title: "Missing Transcript",
+        description: "Please enter a transcript before formatting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsFormatting(true);
+    try {
+      const formattedTranscript = await apiClient.formatTranscript(transcript);
+      if (onTranscriptFormatted) {
+        onTranscriptFormatted(formattedTranscript);
+      }
+      toast({
+        title: "Transcript Formatted",
+        description: "The transcript has been formatted successfully.",
+      });
+    } catch (error) {
+      console.error("Error formatting transcript:", error);
+      toast({
+        title: "Formatting Failed",
+        description: error instanceof Error ? error.message : "Failed to format transcript",
+        variant: "destructive",
+      });
+    } finally {
+      setIsFormatting(false);
+    }
+  };
 
   const handleGenerateAssessment = async () => {
     if (!transcript || !contactId) {
       toast({
         title: "Missing Information",
         description: "Please ensure you have entered a transcript and contact ID.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isTranscriptFormatted(transcript)) {
+      toast({
+        title: "Unformatted Transcript",
+        description: "Please format the transcript before generating the assessment.",
         variant: "destructive",
       });
       return;
@@ -67,10 +118,19 @@ export const AIGenerationControls = ({
   return (
     <Card className="mb-6">
       <CardContent className="pt-6">
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            onClick={handleFormatTranscript}
+            disabled={isFormatting || !transcript}
+            className="flex items-center gap-2"
+            variant="outline"
+          >
+            <FileText className="h-4 w-4" />
+            {isFormatting ? "Formatting..." : "Format & Parse Transcript"}
+          </Button>
           <Button
             onClick={handleGenerateAssessment}
-            disabled={isGenerating || !transcript || !contactId}
+            disabled={isGenerating || !transcript || !contactId || !isTranscriptFormatted(transcript)}
             className="flex items-center gap-2"
           >
             <Brain className="h-4 w-4" />

@@ -253,6 +253,11 @@ const ManualContactDetails = () => {
     }
   };
 
+  const handleTranscriptFormatted = (formattedTranscript: string) => {
+    setTranscript(formattedTranscript);
+    setHasUnsavedChanges(true);
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <form onSubmit={handleSave}>
@@ -274,18 +279,17 @@ const ManualContactDetails = () => {
                 onClick={testSummaryData}
                 variant="outline"
                 size="sm"
-                className="hidden" // Hidden in production, useful for testing
+                className="hidden"
               >
                 Test Data
               </Button>
-              <Button
-                type="button"
-                onClick={handleGenerateAssessment}
-                disabled={isGenerating || !transcript}
-                className="ml-auto"
-              >
-                {isGenerating ? "Generating..." : "Generate AI Assessment"}
-              </Button>
+              <AIGenerationControls
+                transcript={transcript}
+                contactId={contactId}
+                specialServiceTeam={isSpecialServiceTeam === "yes"}
+                onAssessmentGenerated={handleGenerateAssessment}
+                onTranscriptFormatted={handleTranscriptFormatted}
+              />
             </div>
           }
         >

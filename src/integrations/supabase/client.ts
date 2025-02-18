@@ -14,17 +14,41 @@ interface AssessmentQuestion {
 export const apiClient = {
   async invoke(functionName: string, payload: any, method = "POST"): Promise<any> {
     console.log("Mock API call to:", functionName, "with payload:", payload);
-    // Return mock data
+    if (functionName === "format-transcript") {
+      // Mock transcript formatting
+      const lines = payload.transcript.split('\n');
+      const formattedLines = lines.map((line: string, index: number) => {
+        // Simple mock formatting - alternates between Agent and Customer
+        const prefix = index % 2 === 0 ? "Agent: " : "Customer: ";
+        return line.trim().startsWith("Agent:") || line.trim().startsWith("Customer:") 
+          ? line.trim() 
+          : prefix + line.trim();
+      });
+      return {
+        success: true,
+        data: {
+          formatted_transcript: formattedLines.join('\n')
+        }
+      };
+    }
+    // Return mock data for other functions
     return {
       success: true,
       data: {
-        // Mock data structure
         short_summary: "Placeholder summary",
         detailed_bullet_summary: ["Point 1", "Point 2"],
         overall_summary: "Placeholder overall summary",
         detailed_summary_points: ["Detail 1", "Detail 2"]
       }
     };
+  },
+
+  async formatTranscript(transcript: string): Promise<string> {
+    const response = await this.invoke("format-transcript", { transcript });
+    if (response.success) {
+      return response.data.formatted_transcript;
+    }
+    throw new Error("Failed to format transcript");
   },
 
   async saveAssessmentDetails(payload: {
