@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Brain, FileText } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { apiClient } from "@/services/apiClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,11 +25,28 @@ export const AIGenerationControls = ({
   const [isFormatted, setIsFormatted] = useState(false);
   const { toast } = useToast();
 
+  // Check transcript format whenever transcript changes
+  useEffect(() => {
+    if (transcript) {
+      setIsFormatted(isTranscriptFormatted(transcript));
+    } else {
+      setIsFormatted(false);
+    }
+  }, [transcript]);
+
   const isTranscriptFormatted = (text: string): boolean => {
     const lines = text.split('\n').filter(line => line.trim());
-    return lines.every(line => 
+    return lines.length > 0 && lines.every(line => 
       line.trim().startsWith("Agent:") || line.trim().startsWith("Customer:")
     );
+  };
+
+  const getButtonDisabledReason = (): string | null => {
+    if (!transcript.trim()) return "Please enter a transcript";
+    if (!contactId) return "Please enter a contact ID";
+    if (!isFormatted) return "Please format the transcript first";
+    if (isGenerating) return "Assessment generation in progress";
+    return null;
   };
 
   const handleFormatTranscript = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -67,7 +84,7 @@ export const AIGenerationControls = ({
       setIsFormatted(true);
       toast({
         title: "Success",
-        description: "Transcript has been formatted successfully.",
+        description: "Transcript has been formatted successfully. You can now generate the AI assessment.",
         variant: "success",
       });
     } catch (error) {
@@ -138,29 +155,39 @@ export const AIGenerationControls = ({
     }
   };
 
+  const isGenerateDisabled = Boolean(getButtonDisabledReason());
+
   return (
-    <div className="flex items-center justify-end gap-3">
-      <Button
-        onClick={handleFormatTranscript}
-        disabled={isFormatting || !transcript.trim()}
-        className="flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-        variant="outline"
-        size="lg"
-        type="button"
-      >
-        <FileText className="h-4 w-4" />
-        {isFormatting ? "Formatting..." : "Format & Parse Transcript"}
-      </Button>
-      <Button
-        onClick={handleGenerateAssessment}
-        disabled={isGenerating || !transcript.trim() || !contactId || !isFormatted}
-        className="flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-        size="lg"
-        type="button"
-      >
-        <Brain className="h-4 w-4" />
-        {isGenerating ? "Generating..." : "Generate AI Assessment"}
-      </Button>
+    <div className="space-y-2">
+      <div className="flex items-center justify-end gap-3">
+        <Button
+          onClick={handleFormatTranscript}
+          disabled={isFormatting || !transcript.trim()}
+          className="flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          variant="outline"
+          size="lg"
+          type="button"
+        >
+          <FileText className="h-4 w-4" />
+          {isFormatting ? "Formatting..." : "Format & Parse Transcript"}
+        </Button>
+        <Button
+          onClick={handleGenerateAssessment}
+          disabled={isGenerateDisabled}
+          className="flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+          size="lg"
+          type="button"
+          title={getButtonDisabledReason() || "Generate AI assessment"}
+        >
+          <Brain className="h-4 w-4" />
+          {isGenerating ? "Generating..." : "Generate AI Assessment"}
+        </Button>
+      </div>
+      {isGenerateDisabled && (
+        <p className="text-sm text-muted-foreground text-right italic">
+          {getButtonDisabledReason()}
+        </p>
+      )}
     </div>
   );
 };
