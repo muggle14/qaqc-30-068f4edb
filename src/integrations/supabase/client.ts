@@ -10,7 +10,7 @@ export const apiClient = {
   /**
    * Invokes an Azure Function endpoint.
    * 
-   * @param functionName - The name (or route) of the Azure Function (e.g., "contact-assessment", "GetItems").
+   * @param functionName - The name (or route) of the Azure Function.
    * @param payload - A JSON-serializable object to send as the request body.
    * @param method - The HTTP method to use ("POST" by default).
    * @returns A promise that resolves with the JSON response.
@@ -28,6 +28,7 @@ export const apiClient = {
         method,
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify(payload),
       });
@@ -48,9 +49,9 @@ export const apiClient = {
   },
 
   /**
-   * Example method for GET requests without a request body.
+   * GET request method.
    *
-   * @param functionName - The name (or route) of the Azure Function (e.g., "GetItems").
+   * @param functionName - The name (or route) of the endpoint.
    * @returns A promise that resolves with the JSON response.
    */
   async get(functionName: string): Promise<any> {
@@ -66,6 +67,7 @@ export const apiClient = {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
       });
 
