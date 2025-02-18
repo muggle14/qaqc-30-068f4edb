@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +10,7 @@ import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { SummarySection } from "@/components/contact-details/SummarySection";
 import { CollapsibleSection } from "@/components/contact-details/CollapsibleSection";
 import { ContactFormHeader } from "@/components/contact-details/ContactFormHeader";
+import { AIGenerationControls } from "@/components/contact-details/AIGenerationControls";
 import { Save } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSessionStorage } from "@/hooks/useSessionStorage";
