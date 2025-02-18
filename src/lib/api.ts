@@ -11,3 +11,10 @@ export const getSummary = async (conversation: string) => {
   });
   return response.data;
 };
+
+export const getVAndCAssessment = async (conversation: string) => {
+  const response = await chatSummaryApi.post("/vAndCAssessment", {
+    conversation,
+  });
+  return response.data;
+};

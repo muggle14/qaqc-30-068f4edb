@@ -13,7 +13,7 @@ import { ContactFormHeader } from "@/components/contact-details/ContactFormHeade
 import { Save } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSessionStorage } from "@/hooks/useSessionStorage";
-import { getSummary } from "@/lib/api";
+import { getSummary, getVAndCAssessment } from "@/lib/api";
 
 const ManualContactDetails = () => {
   const { loadFromStorage, saveToStorage, clearStorage } = useSessionStorage();
@@ -34,6 +34,13 @@ const ManualContactDetails = () => {
   const { data: summaryData, isLoading: isSummaryLoading } = useQuery({
     queryKey: ['chat-summary', transcript],
     queryFn: () => getSummary(transcript),
+    enabled: transcript.length > 0,
+  });
+
+  // V&C Assessment Query
+  const { data: vcAssessment, isLoading: isVCLoading } = useQuery({
+    queryKey: ['vc-assessment', transcript],
+    queryFn: () => getVAndCAssessment(transcript),
     enabled: transcript.length > 0,
   });
 
@@ -188,6 +195,17 @@ const ManualContactDetails = () => {
           contactId={contactId}
           transcript={transcript}
           specialServiceTeam={isSpecialServiceTeam === "yes"}
+          complaintsData={{
+            hasComplaints: vcAssessment?.complaint || false,
+            reasoning: vcAssessment?.complaint_reason || "",
+            snippets: vcAssessment?.complaint_snippet ? [vcAssessment.complaint_snippet] : []
+          }}
+          vulnerabilityData={{
+            hasVulnerability: vcAssessment?.financial_vulnerability || false,
+            reasoning: vcAssessment?.vulnerability_reason || "",
+            snippets: vcAssessment?.vulnerability_snippet ? [vcAssessment.vulnerability_snippet] : []
+          }}
+          isLoading={isVCLoading}
         />
 
         <div className="flex justify-end mt-6">

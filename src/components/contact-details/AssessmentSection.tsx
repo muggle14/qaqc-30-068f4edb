@@ -15,6 +15,17 @@ interface AssessmentSectionProps {
   transcript: string;
   specialServiceTeam: boolean;
   onSnippetClick?: (snippetId: string) => void;
+  complaintsData?: {
+    hasComplaints: boolean;
+    reasoning: string;
+    snippets: string[];
+  };
+  vulnerabilityData?: {
+    hasVulnerability: boolean;
+    reasoning: string;
+    snippets: string[];
+  };
+  isLoading?: boolean;
 }
 
 export const AssessmentSection = ({ 
@@ -23,7 +34,10 @@ export const AssessmentSection = ({
   contactId,
   transcript,
   specialServiceTeam,
-  onSnippetClick 
+  onSnippetClick,
+  complaintsData,
+  vulnerabilityData,
+  isLoading
 }: AssessmentSectionProps) => {
   const location = useLocation();
   const isManualRoute = location.pathname === '/contact/manual';
@@ -63,6 +77,9 @@ export const AssessmentSection = ({
               hasPhysicalDisability={false}
               contactId={contactId}
               onSnippetClick={onSnippetClick}
+              complaintsData={complaintsData}
+              vulnerabilityData={vulnerabilityData}
+              isLoading={isLoading}
             />
           </div>
         </CollapsibleContent>
