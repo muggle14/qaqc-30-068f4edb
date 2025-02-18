@@ -15,18 +15,23 @@ export const apiClient = {
    * @param method - The HTTP method to use ("POST" by default).
    * @returns A promise that resolves with the JSON response.
    */
-  async invoke(functionName: string, payload: any, method = "POST"): Promise<any> {
+  async saveAssessmentDetails(payload: {
+    awsRefId: string;
+    tracksmartId: string;
+    transcript: string;
+    specialServiceTeam: boolean;
+  }): Promise<any> {
     if (!API_BASE_URL) {
       throw new Error("API_BASE_URL is not defined. Please set VITE_API_BASE_URL in your environment.");
     }
 
-    const url = `${API_BASE_URL}/${functionName}`;
-    console.log("Calling API endpoint:", url);
-    console.log("Request payload:", payload);
+    const url = `${API_BASE_URL}/save-assessment-details`;
+    console.log("Saving assessment details to:", url);
+    console.log("Assessment payload:", payload);
     
     try {
       const response = await fetch(url, {
-        method,
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json"
@@ -48,8 +53,8 @@ export const apiClient = {
       console.log("API response data:", responseData);
       return responseData;
     } catch (error) {
-      console.error(`Error calling ${functionName}:`, error);
-      throw error; // Re-throw to let the component handle the error
+      console.error("Error saving assessment details:", error);
+      throw error;
     }
   },
 
@@ -87,7 +92,7 @@ export const apiClient = {
       return responseData;
     } catch (error) {
       console.error(`Error in GET ${functionName}:`, error);
-      throw error; // Re-throw to let the component handle the error
+      throw error;
     }
   },
 };

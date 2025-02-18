@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -221,18 +220,15 @@ const ManualContactDetails = () => {
     }
 
     try {
-      const response = await apiClient.invoke("upload-details", {
-        data: [{
-          contact_id: contactId,
-          evaluator: evaluator,
-          transcript: transcript,
-          admin_id: null,
-          special_service_team: isSpecialServiceTeam === "yes"
-        }]
+      const response = await apiClient.saveAssessmentDetails({
+        awsRefId: contactId,
+        tracksmartId: evaluator,
+        transcript: transcript,
+        specialServiceTeam: isSpecialServiceTeam === "yes"
       });
 
       if (!response.success) {
-        throw new Error(response.error || "Failed to save contact details");
+        throw new Error(response.error || "Failed to save assessment details");
       }
 
       clearStorage();
@@ -240,7 +236,7 @@ const ManualContactDetails = () => {
 
       toast({
         title: "Success",
-        description: "Contact details saved successfully",
+        description: "Assessment details saved successfully",
       });
 
       navigate("/contact/view", {
@@ -252,10 +248,10 @@ const ManualContactDetails = () => {
         }
       });
     } catch (error) {
-      console.error("Error saving contact details:", error);
+      console.error("Error saving assessment details:", error);
       toast({
         title: "Error",
-        description: "Failed to save contact details",
+        description: "Failed to save assessment details",
         variant: "destructive",
       });
     }
