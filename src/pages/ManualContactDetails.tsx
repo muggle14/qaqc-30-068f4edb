@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +32,15 @@ const ManualContactDetails = () => {
 
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const hasCriticalChanges = 
+      transcript !== initialData.transcript ||
+      evaluator !== initialData.evaluator ||
+      isSpecialServiceTeam !== initialData.isSpecialServiceTeam;
+
+    setHasUnsavedChanges(hasCriticalChanges);
+  }, [transcript, evaluator, isSpecialServiceTeam, initialData]);
 
   const testSummaryData = async () => {
     console.log('Testing summary data update...');
@@ -157,12 +165,6 @@ const ManualContactDetails = () => {
     saveToStorage(dataToSave);
   }, [contactId, evaluator, transcript, isSpecialServiceTeam, summaryData]);
 
-  useEffect(() => {
-    if (transcript || evaluator || isSpecialServiceTeam !== "no") {
-      setHasUnsavedChanges(true);
-    }
-  }, [transcript, evaluator, isSpecialServiceTeam]);
-
   const handleContactIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newId = e.target.value;
     if (hasUnsavedChanges) {
@@ -170,6 +172,10 @@ const ManualContactDetails = () => {
       setShowUnsavedDialog(true);
     } else {
       setContactId(newId);
+      saveToStorage({
+        ...initialData,
+        contactId: newId,
+      });
     }
   };
 
@@ -181,6 +187,21 @@ const ManualContactDetails = () => {
     setEvaluator("");
     setIsSpecialServiceTeam("no");
     clearStorage();
+  };
+
+  const handleTranscriptChange = (newTranscript: string) => {
+    setTranscript(newTranscript);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleEvaluatorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEvaluator(e.target.value);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSpecialServiceTeamChange = (value: "yes" | "no") => {
+    setIsSpecialServiceTeam(value);
+    setHasUnsavedChanges(true);
   };
 
   const validateForm = () => {
@@ -255,11 +276,6 @@ const ManualContactDetails = () => {
     }
   };
 
-  const handleTranscriptFormatted = (formattedTranscript: string) => {
-    setTranscript(formattedTranscript);
-    setHasUnsavedChanges(true);
-  };
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       <form onSubmit={handleSave}>
@@ -268,8 +284,8 @@ const ManualContactDetails = () => {
           evaluator={evaluator}
           isSpecialServiceTeam={isSpecialServiceTeam}
           onContactIdChange={handleContactIdChange}
-          onEvaluatorChange={(e) => setEvaluator(e.target.value)}
-          onSpecialServiceTeamChange={setIsSpecialServiceTeam}
+          onEvaluatorChange={handleEvaluatorChange}
+          onSpecialServiceTeamChange={handleSpecialServiceTeamChange}
         />
 
         <CollapsibleSection 
@@ -290,7 +306,7 @@ const ManualContactDetails = () => {
                 contactId={contactId}
                 specialServiceTeam={isSpecialServiceTeam === "yes"}
                 onAssessmentGenerated={handleGenerateAssessment}
-                onTranscriptFormatted={handleTranscriptFormatted}
+                onTranscriptFormatted={handleTranscriptChange}
               />
             </div>
           }
@@ -299,7 +315,7 @@ const ManualContactDetails = () => {
             {renderSummaryContent()}
             <TranscriptCard
               transcript={transcript}
-              onTranscriptChange={setTranscript}
+              onTranscriptChange={handleTranscriptChange}
               isLoading={isSummaryLoading || isVCLoading}
             />
           </div>
