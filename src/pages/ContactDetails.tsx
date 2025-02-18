@@ -18,18 +18,6 @@ interface LocationState {
   };
 }
 
-interface SnippetMetadata {
-  id: string;
-  content: string;
-  timestamp: string | null;
-}
-
-interface JsonSnippet {
-  id: string | null;
-  content: string | null;
-  timestamp: string | null;
-}
-
 const ContactDetails = () => {
   const location = useLocation();
   const state = location.state as LocationState | null;
@@ -47,17 +35,9 @@ const ContactDetails = () => {
     queryKey: ['contact-assessment', state.contactData.contact_id],
     queryFn: async () => {
       console.log("Fetching assessment for contact:", state.contactData.contact_id);
-      const response = await apiClient.invoke('contact-assessment', {
-        contact_id: state.contactData.contact_id
-      });
-
-      if (!response.success) {
-        console.error("Error fetching assessment:", response.error);
-        throw new Error(response.error || "Failed to fetch assessment");
-      }
-      
-      console.log("Assessment data:", response.data);
-      return response.data || { 
+      const response = await apiClient.get(`assessment/${state.contactData.contact_id}`);
+      console.log("Assessment data:", response);
+      return response || { 
         complaints: [], 
         vulnerabilities: [],
         complaints_rationale: null,
@@ -71,14 +51,11 @@ const ContactDetails = () => {
   const { data: aiAssessment, isLoading: isLoadingAIAssessment } = useQuery({
     queryKey: ['ai-assessment', state.contactData.contact_id],
     queryFn: async () => {
-      const response = await apiClient.invoke('ai-assess-complaints', {
-        contact_id: state.contactData.contact_id
-      });
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to fetch AI assessment");
+      const response = await apiClient.get(`assessment-ai/${state.contactData.contact_id}`);
+      if (!response) {
+        throw new Error("Failed to fetch AI assessment");
       }
-      return response.data;
+      return response;
     },
     enabled: !!state.contactData.contact_id
   });
@@ -87,17 +64,9 @@ const ContactDetails = () => {
     queryKey: ['conversation', state.contactData.contact_id],
     queryFn: async () => {
       console.log("Fetching conversation for contact:", state.contactData.contact_id);
-      const response = await apiClient.invoke('conversation', {
-        contact_id: state.contactData.contact_id
-      });
-
-      if (!response.success) {
-        console.error("Error fetching conversation:", response.error);
-        throw new Error(response.error || "Failed to fetch conversation");
-      }
-
-      console.log("Conversation data:", response.data);
-      return response.data;
+      const response = await apiClient.get(`conversations/${state.contactData.contact_id}`);
+      console.log("Conversation data:", response);
+      return response;
     },
     enabled: !!state.contactData.contact_id,
     retry: 1
@@ -127,7 +96,7 @@ const ContactDetails = () => {
   }
 
   const rawSnippets = conversation?.snippets_metadata || [];
-  const snippetsMetadata: SnippetMetadata[] = Array.isArray(rawSnippets) 
+  const snippetsMetadata = Array.isArray(rawSnippets) 
     ? rawSnippets.map(snippet => {
         const jsonSnippet = snippet as JsonSnippet;
         return {
@@ -173,5 +142,11 @@ const ContactDetails = () => {
     </div>
   );
 };
+
+interface JsonSnippet {
+  id: string | null;
+  content: string | null;
+  timestamp: string | null;
+}
 
 export default ContactDetails;
