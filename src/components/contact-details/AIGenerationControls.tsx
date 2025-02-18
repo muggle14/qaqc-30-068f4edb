@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Brain, FileText } from "lucide-react";
 import { useState } from "react";
 import { apiClient } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface AIGenerationControlsProps {
   transcript: string;
@@ -116,28 +116,26 @@ export const AIGenerationControls = ({
   };
 
   return (
-    <Card className="mb-6">
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            onClick={handleFormatTranscript}
-            disabled={isFormatting || !transcript}
-            className="flex items-center gap-2"
-            variant="outline"
-          >
-            <FileText className="h-4 w-4" />
-            {isFormatting ? "Formatting..." : "Format & Parse Transcript"}
-          </Button>
-          <Button
-            onClick={handleGenerateAssessment}
-            disabled={isGenerating || !transcript || !contactId || !isTranscriptFormatted(transcript)}
-            className="flex items-center gap-2"
-          >
-            <Brain className="h-4 w-4" />
-            {isGenerating ? "Generating..." : "Generate AI Assessment"}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex items-center justify-end gap-3">
+      <Button
+        onClick={handleFormatTranscript}
+        disabled={isFormatting || !transcript.trim()}
+        className="flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+        variant="outline"
+        size="lg"
+      >
+        <FileText className="h-4 w-4" />
+        {isFormatting ? "Formatting..." : "Format & Parse Transcript"}
+      </Button>
+      <Button
+        onClick={handleGenerateAssessment}
+        disabled={isGenerating || !transcript.trim() || !contactId || !isTranscriptFormatted(transcript)}
+        className="flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+        size="lg"
+      >
+        <Brain className="h-4 w-4" />
+        {isGenerating ? "Generating..." : "Generate AI Assessment"}
+      </Button>
+    </div>
   );
 };
