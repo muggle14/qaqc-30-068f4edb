@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Brain, FileText } from "lucide-react";
 import { useState } from "react";
 import { apiClient } from "@/services/apiClient";
@@ -43,34 +44,19 @@ export const AIGenerationControls = ({
 
     setIsFormatting(true);
     try {
-      // Check if transcript needs formatting
-      if (isTranscriptFormatted(transcript)) {
-        toast({
-          title: "Transcript Already Formatted",
-          description: "The transcript is already in the correct format.",
-          variant: "info",
-        });
-        return;
-      }
-
       const formattedTranscript = await apiClient.formatTranscript(transcript);
       if (onTranscriptFormatted) {
         onTranscriptFormatted(formattedTranscript);
       }
-      
       toast({
-        title: "Success",
+        title: "Transcript Formatted",
         description: "The transcript has been formatted successfully.",
       });
-
-      // Log the formatted transcript for debugging
-      console.log("Formatted transcript:", formattedTranscript);
-
     } catch (error) {
       console.error("Error formatting transcript:", error);
       toast({
         title: "Formatting Failed",
-        description: "Please ensure each line of dialogue is on a new line.",
+        description: error instanceof Error ? error.message : "Failed to format transcript",
         variant: "destructive",
       });
     } finally {
@@ -92,7 +78,7 @@ export const AIGenerationControls = ({
       toast({
         title: "Unformatted Transcript",
         description: "Please format the transcript before generating the assessment.",
-        variant: "info",
+        variant: "destructive",
       });
       return;
     }
@@ -121,7 +107,7 @@ export const AIGenerationControls = ({
       console.error("Error generating assessment:", error);
       toast({
         title: "Generation Failed",
-        description: "Failed to generate AI assessment. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate assessment",
         variant: "destructive",
       });
     } finally {
