@@ -50,7 +50,9 @@ export const AIRelevantSnippets = ({
       console.log("Snippets data:", snippetsData);
       return snippetsData;
     },
-    enabled: !!contactId && snippetIds.length > 0
+    enabled: !!contactId && snippetIds.length > 0,
+    retry: 2, // Retry failed requests up to 2 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   if (error) {

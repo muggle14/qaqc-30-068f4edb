@@ -24,6 +24,9 @@ export const apiClient = {
     console.log("Calling API endpoint:", url);
     
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -31,7 +34,10 @@ export const apiClient = {
           "Accept": "application/json"
         },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -63,13 +69,19 @@ export const apiClient = {
     console.log("Making GET request to:", url);
     
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorText = await response.text();
