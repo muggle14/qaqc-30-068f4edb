@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -39,13 +38,19 @@ const GroupedAssessmentDetails = () => {
     initialData.isSpecialServiceTeam || "no"
   );
   const [transcript, setTranscript] = useState(initialData.transcript || "");
+  const [overallSummary, setOverallSummary] = useState(initialData.overallSummary || "");
+  const [detailedSummaryPoints, setDetailedSummaryPoints] = useState<string[]>(
+    initialData.detailedSummaryPoints || []
+  );
 
   // Assessment questions state
-  const [assessmentQuestions, setAssessmentQuestions] = useState<AssessmentQuestion[]>([
-    { id: "Q1", aiAssessment: "", assessorFeedback: "" },
-    { id: "Q2", aiAssessment: "", assessorFeedback: "" },
-    { id: "Q3", aiAssessment: "", assessorFeedback: "" },
-  ]);
+  const [assessmentQuestions, setAssessmentQuestions] = useState<AssessmentQuestion[]>(
+    initialData.assessmentQuestions || [
+      { id: "Q1", aiAssessment: "", assessorFeedback: "" },
+      { id: "Q2", aiAssessment: "", assessorFeedback: "" },
+      { id: "Q3", aiAssessment: "", assessorFeedback: "" },
+    ]
+  );
 
   // UI states
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -71,6 +76,14 @@ const GroupedAssessmentDetails = () => {
     enabled: !!contactId
   });
 
+  // Update effect to set summary from AI assessment
+  useEffect(() => {
+    if (aiAssessment) {
+      setOverallSummary(aiAssessment.overall_summary || "");
+      setDetailedSummaryPoints(aiAssessment.detailed_summary_points || []);
+    }
+  }, [aiAssessment]);
+
   // Track changes
   useEffect(() => {
     if (transcript || evaluator || isSpecialServiceTeam !== "no" || 
@@ -86,9 +99,11 @@ const GroupedAssessmentDetails = () => {
       evaluator,
       transcript,
       isSpecialServiceTeam,
+      overallSummary,
+      detailedSummaryPoints,
       assessmentQuestions
     });
-  }, [contactId, evaluator, transcript, isSpecialServiceTeam, assessmentQuestions]);
+  }, [contactId, evaluator, transcript, isSpecialServiceTeam, assessmentQuestions, overallSummary, detailedSummaryPoints]);
 
   const handleContactIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newId = e.target.value;
@@ -107,6 +122,8 @@ const GroupedAssessmentDetails = () => {
     setTranscript("");
     setEvaluator("");
     setIsSpecialServiceTeam("no");
+    setOverallSummary("");
+    setDetailedSummaryPoints([]);
     setAssessmentQuestions([
       { id: "Q1", aiAssessment: "", assessorFeedback: "" },
       { id: "Q2", aiAssessment: "", assessorFeedback: "" },
@@ -212,8 +229,8 @@ const GroupedAssessmentDetails = () => {
         <CollapsibleSection title="Summary & Transcript">
           <div className="grid grid-cols-2 gap-6 mb-6">
             <SummarySection
-              overallSummary={aiAssessment?.overall_summary || "No summary available"}
-              detailedSummaryPoints={aiAssessment?.detailed_summary_points || []}
+              overallSummary={overallSummary}
+              detailedSummaryPoints={detailedSummaryPoints}
               isLoading={isLoadingAI}
             />
             <TranscriptCard
