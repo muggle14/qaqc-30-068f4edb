@@ -1,3 +1,4 @@
+
 import logging
 import os
 import json
@@ -26,6 +27,60 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse("ok", status_code=204, headers=cors_headers)
 
     try:
+        if req.method == "POST":
+            try:
+                req_body = req.get_json()
+                if not req_body or 'data' not in req_body:
+                    return func.HttpResponse(
+                        json.dumps({"error": "No data provided"}),
+                        status_code=400,
+                        headers=cors_headers
+                    )
+
+                # Connect to Azure PostgreSQL
+                conn = psycopg2.connect(
+                    host=os.environ["PGHOST"],
+                    user=os.environ["PGUSER"],
+                    password=os.environ["PGPASSWORD"],
+                    dbname=os.environ["PGDATABASE"],
+                    port=os.environ.get("PGPORT", 5432),
+                    sslmode="require"
+                )
+                cur = conn.cursor()
+
+                # Insert the data
+                for item in req_body['data']:
+                    cur.execute("""
+                        INSERT INTO upload_details 
+                        (contact_id, evaluator, transcript, admin_id, special_service_team) 
+                        VALUES (%s, %s, %s, %s, %s)
+                        """, 
+                        (item['contact_id'], 
+                         item['evaluator'], 
+                         item.get('transcript', ''),
+                         item.get('admin_id'),
+                         item.get('special_service_team', False))
+                    )
+
+                conn.commit()
+                cur.close()
+                conn.close()
+
+                return func.HttpResponse(
+                    json.dumps({"success": True}),
+                    status_code=200,
+                    headers=cors_headers
+                )
+
+            except Exception as e:
+                logging.error(f"Error processing POST request: {str(e)}")
+                return func.HttpResponse(
+                    json.dumps({"error": str(e)}),
+                    status_code=500,
+                    headers=cors_headers
+                )
+
+        # GET request handling
         logging.info("Fetching joined data from upload_details and contact_conversations")
 
         # Connect to Azure PostgreSQL
@@ -39,10 +94,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         )
         cur = conn.cursor()
 
-        # Example join:
-        #  - 'upload_details' has contact_id, evaluator, upload_timestamp
-        #  - 'contact_conversations' has contact_id, transcript, updated_at
-        # Adjust table/column names as needed
         query = """
         SELECT 
             ud.contact_id,
@@ -57,10 +108,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         cur.execute(query)
         rows = cur.fetchall()
 
-        # We can map each row to an object
         result = []
         for row in rows:
-            # row = (contact_id, evaluator, upload_timestamp, transcript, updated_at)
             result.append({
                 "contact_id": row[0],
                 "evaluator": row[1],
