@@ -4,12 +4,13 @@ import { QualityAssessmentCard } from "./QualityAssessmentCard";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { AIGenerationControls } from "./AIGenerationControls";
 import { useQuery } from "@tanstack/react-query";
 import { getVAndCAssessment } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
 
 interface AssessmentSectionProps {
   complaints: string[];
@@ -46,6 +47,8 @@ export const AssessmentSection = ({
   const isManualRoute = location.pathname === '/contact/manual';
   const [isAIOpen, setIsAIOpen] = useState(true);
   const [assessmentKey, setAssessmentKey] = useState(0);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const { toast } = useToast();
 
   const { 
@@ -65,6 +68,31 @@ export const AssessmentSection = ({
     enabled: false,
     retry: 1,
   });
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    if (isAssessmentLoading) {
+      setLoadingMessage("Fetching transcript data... Generating summary...");
+      setLoadingProgress(25);
+
+      timeoutId = setTimeout(() => {
+        if (isAssessmentLoading) {
+          setLoadingMessage("Still processing... This may take a few moments.");
+          setLoadingProgress(75);
+        }
+      }, 5000);
+    } else {
+      setLoadingProgress(0);
+      setLoadingMessage("");
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isAssessmentLoading]);
 
   const handleGenerateAssessment = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -91,12 +119,7 @@ export const AssessmentSection = ({
       setAssessmentKey(prev => prev + 1);
     } catch (error) {
       console.error("V&C Assessment generation failed:", error);
-      toast({
-        title: "Generation Failed",
-        description: "Failed to generate V&C assessment. Please try again.",
-        variant: "destructive",
-        duration: 5000,
-      });
+      setLoadingMessage("Assessment generation failed. Please try again.");
     }
   };
 
@@ -145,6 +168,14 @@ export const AssessmentSection = ({
             )}
           </Button>
         </div>
+
+        {isLoading && loadingMessage && (
+          <div className="mt-4 space-y-2">
+            <p className="text-sm text-muted-foreground">{loadingMessage}</p>
+            <Progress value={loadingProgress} className="h-1" />
+          </div>
+        )}
+
         <CollapsibleContent className="mt-4">
           <AIAssessment 
             key={assessmentKey}
