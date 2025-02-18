@@ -60,11 +60,31 @@ export const getSummary = async (conversation: string): Promise<SummaryResponse>
   if (response.data.error) {
     throw new Error(response.data.error);
   }
-  
-  return {
-    short_summary: response.data.short_summary || "No summary available",
-    detailed_bullet_summary: response.data.detailed_bullet_summary || []
-  };
+
+  // Handle the double-encoded JSON response
+  try {
+    let parsedData;
+    if (typeof response.data.detailed_bullet_summary === 'string') {
+      // Remove potential JSON code fence markers
+      const cleanJson = response.data.detailed_bullet_summary.replace(/```json\n|```/g, '');
+      parsedData = JSON.parse(cleanJson);
+    }
+
+    return {
+      short_summary: parsedData?.short_summary || response.data.short_summary || "No summary available",
+      detailed_bullet_summary: Array.isArray(parsedData?.detailed_bullet_summary) 
+        ? parsedData.detailed_bullet_summary 
+        : typeof parsedData?.detailed_bullet_summary === 'string'
+          ? parsedData.detailed_bullet_summary.split('\n').filter(Boolean).map(line => line.trim().replace(/^- /, ''))
+          : []
+    };
+  } catch (error) {
+    console.error('Error parsing summary response:', error);
+    return {
+      short_summary: response.data.short_summary || "No summary available",
+      detailed_bullet_summary: []
+    };
+  }
 };
 
 export const getVAndCAssessment = async (conversation: string) => {
