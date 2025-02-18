@@ -33,13 +33,18 @@ const ManualContactDetails = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Query setup with manual triggering
+  // Query setup with manual triggering and logging
   const { data: summaryData, isLoading: isSummaryLoading, error: summaryError, refetch: refetchSummary } = useQuery({
     queryKey: ['chat-summary', transcript],
-    queryFn: () => getSummary(transcript),
-    enabled: false, // Don't auto-fetch
+    queryFn: async () => {
+      const data = await getSummary(transcript);
+      console.log('Summary data received:', data);
+      return data;
+    },
+    enabled: false,
     meta: {
       onSettled: (data, error) => {
+        console.log('Summary onSettled - data:', data, 'error:', error);
         if (error) {
           console.error("Summary Query Error:", error);
           toast({
@@ -54,10 +59,15 @@ const ManualContactDetails = () => {
 
   const { data: vcAssessment, isLoading: isVCLoading, error: vcError, refetch: refetchVC } = useQuery({
     queryKey: ['vc-assessment', transcript],
-    queryFn: () => getVAndCAssessment(transcript),
-    enabled: false, // Don't auto-fetch
+    queryFn: async () => {
+      const data = await getVAndCAssessment(transcript);
+      console.log('V&C Assessment data received:', data);
+      return data;
+    },
+    enabled: false,
     meta: {
       onSettled: (data, error) => {
+        console.log('V&C Assessment onSettled - data:', data, 'error:', error);
         if (error) {
           console.error("V&C Assessment Query Error:", error);
           toast({
@@ -69,6 +79,15 @@ const ManualContactDetails = () => {
       }
     }
   });
+
+  // Log data updates
+  useEffect(() => {
+    console.log('Summary data updated:', summaryData);
+  }, [summaryData]);
+
+  useEffect(() => {
+    console.log('V&C Assessment data updated:', vcAssessment);
+  }, [vcAssessment]);
 
   const handleGenerateAssessment = async () => {
     if (!transcript) {
@@ -82,7 +101,9 @@ const ManualContactDetails = () => {
 
     setIsGenerating(true);
     try {
-      await Promise.all([refetchSummary(), refetchVC()]);
+      console.log('Starting assessment generation...');
+      const [summaryResult, vcResult] = await Promise.all([refetchSummary(), refetchVC()]);
+      console.log('Assessment generation completed:', { summaryResult, vcResult });
     } catch (error) {
       console.error("Generation failed:", error);
       toast({
@@ -97,14 +118,16 @@ const ManualContactDetails = () => {
 
   // Save to session storage when data changes
   useEffect(() => {
-    saveToStorage({
+    const dataToSave = {
       contactId,
       evaluator,
       transcript,
       isSpecialServiceTeam,
       overallSummary: summaryData?.short_summary || "",
       detailedSummaryPoints: summaryData?.detailed_bullet_summary || [],
-    });
+    };
+    console.log('Saving to storage:', dataToSave);
+    saveToStorage(dataToSave);
   }, [contactId, evaluator, transcript, isSpecialServiceTeam, summaryData]);
 
   // Track form changes
@@ -214,6 +237,12 @@ const ManualContactDetails = () => {
   };
 
   const renderSummaryContent = () => {
+    console.log('Rendering summary content with:', {
+      summaryData,
+      isLoading: isSummaryLoading || isVCLoading,
+      error: summaryError || vcError
+    });
+
     if (isSummaryLoading || isVCLoading) {
       return (
         <Card className="h-full">
@@ -245,12 +274,18 @@ const ManualContactDetails = () => {
 
     return (
       <SummarySection
-        overallSummary={summaryData?.short_summary || ""}
+        overallSummary={summaryData?.short_summary || "No summary available"}
         detailedSummaryPoints={summaryData?.detailed_bullet_summary || []}
         isLoading={isSummaryLoading || isVCLoading}
       />
     );
   };
+
+  console.log('Rendering ManualContactDetails with:', {
+    summaryData,
+    vcAssessment,
+    isLoading: isSummaryLoading || isVCLoading
+  });
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -295,12 +330,12 @@ const ManualContactDetails = () => {
           specialServiceTeam={isSpecialServiceTeam === "yes"}
           complaintsData={vcAssessment ? {
             hasComplaints: vcAssessment.complaint || false,
-            reasoning: vcAssessment.complaint_reason || "",
+            reasoning: vcAssessment.complaint_reason || "No complaint reasoning provided",
             snippets: vcAssessment.complaint_snippet ? [vcAssessment.complaint_snippet] : []
           } : undefined}
           vulnerabilityData={vcAssessment ? {
             hasVulnerability: vcAssessment.financial_vulnerability || false,
-            reasoning: vcAssessment.vulnerability_reason || "",
+            reasoning: vcAssessment.vulnerability_reason || "No vulnerability reasoning provided",
             snippets: vcAssessment.vulnerability_snippet ? [vcAssessment.vulnerability_snippet] : []
           } : undefined}
           isLoading={isSummaryLoading || isVCLoading}
