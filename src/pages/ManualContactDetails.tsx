@@ -1,241 +1,227 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { apiClient } from "@/integrations/supabase/client";
-import { AssessmentSection } from "@/components/contact-details/AssessmentSection";
-import { SummarySection } from "@/components/contact-details/SummarySection";
-import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
-import { CollapsibleSection } from "@/components/contact-details/CollapsibleSection";
-import { ContactFormHeader } from "@/components/contact-details/ContactFormHeader";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Save } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useSessionStorage } from "@/hooks/useSessionStorage";
 
-const ManualContactDetails = () => {
-  const { loadFromStorage, saveToStorage, clearStorage } = useSessionStorage();
-  const initialData = loadFromStorage();
-
-  const [transcript, setTranscript] = useState(initialData.transcript);
-  const [contactId, setContactId] = useState(initialData.contactId);
-  const [evaluator, setEvaluator] = useState(initialData.evaluator);
-  const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState(initialData.isSpecialServiceTeam);
-  const [overallSummary, setOverallSummary] = useState(initialData.overallSummary);
-  const [detailedSummaryPoints, setDetailedSummaryPoints] = useState(initialData.detailedSummaryPoints);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
-  const [newContactId, setNewContactId] = useState("");
-  const [highlightedSnippetId, setHighlightedSnippetId] = useState<string>();
-
-  const navigate = useNavigate();
+export function ManualContactDetails() {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  // Save to session storage when data changes
-  useEffect(() => {
-    saveToStorage({
-      contactId,
-      evaluator,
-      transcript,
-      isSpecialServiceTeam,
-      overallSummary,
-      detailedSummaryPoints,
-    });
-  }, [contactId, evaluator, transcript, isSpecialServiceTeam, overallSummary, detailedSummaryPoints]);
+  const [awsRefId, setAwsRefId] = useState("");
+  const [tracksmartId, setTracksmartId] = useState("");
+  const [specialServiceTeam, setSpecialServiceTeam] = useState(false);
+  const [transcript, setTranscript] = useState("");
 
-  // AI Assessment query with streaming support
-  const { data: aiAssessment } = useQuery({
-    queryKey: ['ai-assessment', contactId],
-    queryFn: async () => {
-      if (!contactId) return null;
-      
-      const response = await apiClient.invoke('contact-assessment', {
-        contact_id: contactId
-      });
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to fetch AI assessment");
-      }
-
-      return response.data;
-    },
-    enabled: !!contactId
+  // Query for chat summary
+  const summaryQuery = useQuery({
+    queryKey: ['chat-summary', transcript],
+    queryFn: () => api.getChatSummary(transcript),
+    enabled: transcript.length > 0,
   });
 
-  // Track form changes
-  useEffect(() => {
-    if (transcript || evaluator || isSpecialServiceTeam !== "no") {
-      setHasUnsavedChanges(true);
-    }
-  }, [transcript, evaluator, isSpecialServiceTeam]);
+  // Query for V&C assessment
+  const vcAssessmentQuery = useQuery({
+    queryKey: ['vc-assessment', transcript],
+    queryFn: () => api.getVCAssessment(transcript),
+    enabled: transcript.length > 0,
+  });
 
-  const handleContactIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newId = e.target.value;
-    if (hasUnsavedChanges) {
-      setNewContactId(newId);
-      setShowUnsavedDialog(true);
-    } else {
-      setContactId(newId);
-    }
-  };
-
-  const handleProceedWithoutSaving = () => {
-    setShowUnsavedDialog(false);
-    setContactId(newContactId);
-    setHasUnsavedChanges(false);
-    setTranscript("");
-    setEvaluator("");
-    setIsSpecialServiceTeam("no");
-    clearStorage();
-  };
-
-  const handleSnippetClick = (snippetId: string) => {
-    setHighlightedSnippetId(snippetId);
-  };
-
-  const validateForm = () => {
-    if (!transcript) {
+  // Mutation for saving assessment
+  const saveMutation = useMutation({
+    mutationFn: (data: any) => api.saveAssessmentDetails(data),
+    onSuccess: () => {
       toast({
-        title: "Missing Transcript",
-        description: "Please provide the conversation transcript",
+        title: "Success",
+        description: "Assessment saved successfully",
+      });
+      navigate("/");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to save assessment. Please try again.",
         variant: "destructive",
       });
-      return false;
-    }
+      console.error("Save error:", error);
+    },
+  });
 
-    if (!contactId) {
+  const handleSave = () => {
+    if (!awsRefId || !tracksmartId || !transcript) {
       toast({
-        title: "Missing AWS Ref ID",
-        description: "Please enter the AWS Ref ID",
+        title: "Validation Error",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
-      return false;
-    }
-
-    if (!evaluator) {
-      toast({
-        title: "Missing TrackSmart ID",
-        description: "Please enter your TrackSmart ID",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
       return;
     }
 
-    try {
-      const response = await apiClient.invoke("upload-details", {
-        data: [{
-          contact_id: contactId,
-          evaluator: evaluator,
-          transcript: transcript,
-          admin_id: null,
-          special_service_team: isSpecialServiceTeam === "yes"
-        }]
-      });
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to save contact details");
-      }
-
-      clearStorage();
-      setHasUnsavedChanges(false);
-
-      toast({
-        title: "Success",
-        description: "Contact details saved successfully",
-      });
-
-      navigate("/contact/view", {
-        state: {
-          contactData: {
-            contact_id: contactId,
-            evaluator: evaluator,
-          }
-        }
-      });
-    } catch (error) {
-      console.error("Error saving contact details:", error);
+    if (!summaryQuery.data || !vcAssessmentQuery.data) {
       toast({
         title: "Error",
-        description: "Failed to save contact details",
+        description: "Please wait for AI assessment to complete",
         variant: "destructive",
       });
+      return;
     }
+
+    const assessmentData = {
+      awsRefId,
+      tracksmartId,
+      specialServiceTeamFlag: specialServiceTeam,
+      transcript,
+      overallSummary: summaryQuery.data.short_summary,
+      detailedSummary: summaryQuery.data.detailed_bullet_summary,
+      complaints: {
+        hasComplaints: vcAssessmentQuery.data.complaint,
+        reason: vcAssessmentQuery.data.complaint_reason,
+        analysisEvidence: vcAssessmentQuery.data.complaint_snippet,
+      },
+      vulnerability: {
+        hasVulnerability: vcAssessmentQuery.data.financial_vulnerability,
+        reason: vcAssessmentQuery.data.vulnerability_reason,
+        analysisEvidence: vcAssessmentQuery.data.vulnerability_snippet,
+      },
+    };
+
+    saveMutation.mutate(assessmentData);
   };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <form onSubmit={handleSave}>
-        <ContactFormHeader
-          contactId={contactId}
-          evaluator={evaluator}
-          isSpecialServiceTeam={isSpecialServiceTeam}
-          onContactIdChange={handleContactIdChange}
-          onEvaluatorChange={(e) => setEvaluator(e.target.value)}
-          onSpecialServiceTeamChange={setIsSpecialServiceTeam}
-        />
-
-        <CollapsibleSection title="Summary & Transcript">
-          <div className="grid grid-cols-2 gap-6 mb-6">
-            <SummarySection 
-              overallSummary={overallSummary}
-              detailedSummaryPoints={detailedSummaryPoints}
-            />
-            
-            <TranscriptCard
-              transcript={transcript}
-              onTranscriptChange={setTranscript}
-              snippetsMetadata={aiAssessment?.snippets}
-              highlightedSnippetId={highlightedSnippetId}
-            />
+      <Card>
+        <CardContent className="pt-6 space-y-6">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="awsRefId">AWS Ref ID</Label>
+              <Input
+                id="awsRefId"
+                value={awsRefId}
+                onChange={(e) => setAwsRefId(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tracksmartId">TrackSmart ID</Label>
+              <Input
+                id="tracksmartId"
+                value={tracksmartId}
+                onChange={(e) => setTracksmartId(e.target.value)}
+                required
+              />
+            </div>
           </div>
-        </CollapsibleSection>
 
-        <AssessmentSection 
-          complaints={aiAssessment?.complaints?.items || []}
-          vulnerabilities={aiAssessment?.vulnerability?.items || []}
-          contactId={contactId}
-          transcript={transcript || ""}
-          onSnippetClick={handleSnippetClick}
-          specialServiceTeam={isSpecialServiceTeam === "yes"}
-        />
+          <div className="space-y-2">
+            <Label>Special Service Team Flag</Label>
+            <RadioGroup
+              value={specialServiceTeam ? "yes" : "no"}
+              onValueChange={(value) => setSpecialServiceTeam(value === "yes")}
+              className="flex space-x-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="yes" id="yes" />
+                <Label htmlFor="yes">Yes</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="no" id="no" />
+                <Label htmlFor="no">No</Label>
+              </div>
+            </RadioGroup>
+          </div>
 
-        <div className="flex justify-end mt-6">
-          <Button type="submit" className="flex items-center gap-2">
-            <Save className="h-4 w-4" />
-            Save Assessment Details
+          <div className="space-y-2">
+            <Label htmlFor="transcript">Transcript</Label>
+            <div className="max-h-[400px] overflow-y-auto border rounded-md">
+              <Textarea
+                id="transcript"
+                value={transcript}
+                onChange={(e) => setTranscript(e.target.value)}
+                className="min-h-[200px] resize-none"
+                placeholder="Paste conversation transcript here..."
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Summary</h3>
+            {summaryQuery.isLoading ? (
+              <LoadingSpinner />
+            ) : summaryQuery.data ? (
+              <div className="space-y-4">
+                <div>
+                  <Label>Overall Summary</Label>
+                  <p className="mt-1 text-gray-700">{summaryQuery.data.short_summary}</p>
+                </div>
+                <div>
+                  <Label>Detailed Summary Points</Label>
+                  <ul className="mt-1 list-disc pl-4 space-y-1">
+                    {summaryQuery.data.detailed_bullet_summary.map((point, index) => (
+                      <li key={index} className="text-gray-700">{point}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">AI Assessment</h3>
+            {vcAssessmentQuery.isLoading ? (
+              <LoadingSpinner />
+            ) : vcAssessmentQuery.data ? (
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label>Complaints Assessment</Label>
+                  <p className="font-medium">{vcAssessmentQuery.data.complaint ? "Yes" : "No"}</p>
+                  {vcAssessmentQuery.data.complaint && (
+                    <>
+                      <Label>Reasoning</Label>
+                      <p className="text-gray-700">{vcAssessmentQuery.data.complaint_reason}</p>
+                      <Label>Evidence</Label>
+                      <p className="text-gray-700">{vcAssessmentQuery.data.complaint_snippet}</p>
+                    </>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label>Vulnerability Assessment</Label>
+                  <p className="font-medium">
+                    {vcAssessmentQuery.data.financial_vulnerability ? "Yes" : "No"}
+                  </p>
+                  {vcAssessmentQuery.data.financial_vulnerability && (
+                    <>
+                      <Label>Reasoning</Label>
+                      <p className="text-gray-700">{vcAssessmentQuery.data.vulnerability_reason}</p>
+                      <Label>Evidence</Label>
+                      <p className="text-gray-700">{vcAssessmentQuery.data.vulnerability_snippet}</p>
+                    </>
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <Button
+            onClick={handleSave}
+            disabled={saveMutation.isPending}
+            className="w-full"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            {saveMutation.isPending ? "Saving..." : "Save Assessment Details"}
           </Button>
-        </div>
-      </form>
-
-      <AlertDialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
-            <AlertDialogDescription>
-              Your responses are not yet saved to the database. Do you want to save your changes before proceeding?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleProceedWithoutSaving} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Proceed Without Saving
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        </CardContent>
+      </Card>
     </div>
   );
-};
-
-export default ManualContactDetails;
+}
