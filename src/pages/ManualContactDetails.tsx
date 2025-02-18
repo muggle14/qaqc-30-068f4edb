@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSessionStorage } from "@/hooks/useSessionStorage";
 import { getSummary, getVAndCAssessment } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
+import { QualityAssessorSection } from "@/components/contact-details/QualityAssessorSection";
 
 const ManualContactDetails = () => {
   const { loadFromStorage, saveToStorage, clearStorage } = useSessionStorage();
@@ -323,6 +325,10 @@ const ManualContactDetails = () => {
           } : undefined}
           isLoading={isSummaryLoading || isVCLoading}
         />
+
+        <CollapsibleSection title="Quality Assessor Feedback">
+          <QualityAssessorSection />
+        </CollapsibleSection>
 
         <div className="flex justify-end mt-6">
           <Button type="submit" className="flex items-center gap-2">
