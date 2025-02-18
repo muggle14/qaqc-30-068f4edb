@@ -12,15 +12,29 @@ interface AIAssessmentProps {
   hasPhysicalDisability: boolean;
   contactId: string;
   onSnippetClick?: (snippetId: string) => void;
+  complaintsData?: {
+    hasComplaints: boolean;
+    reasoning: string;
+    snippets: string[];
+  };
+  vulnerabilityData?: {
+    hasVulnerability: boolean;
+    reasoning: string;
+    snippets: string[];
+  };
+  isLoading?: boolean;
 }
 
 export const AIAssessment = ({ 
   complaints, 
   vulnerabilities, 
   contactId,
-  onSnippetClick
+  onSnippetClick,
+  complaintsData,
+  vulnerabilityData,
+  isLoading: externalIsLoading
 }: AIAssessmentProps) => {
-  const { data: aiAssessment, isLoading, error } = useQuery({
+  const { data: aiAssessment, isLoading: internalIsLoading, error } = useQuery({
     queryKey: ['ai-assessment', contactId],
     queryFn: async () => {
       console.log("Fetching AI assessment for contact:", contactId);
@@ -48,10 +62,12 @@ export const AIAssessment = ({
       };
     },
     retry: 1,
-    enabled: !!contactId
+    enabled: !!contactId && !complaintsData && !vulnerabilityData // Only fetch if we don't have external data
   });
 
-  const bothFlagsTrue = aiAssessment?.complaints_flag && aiAssessment?.vulnerability_flag;
+  const isLoading = externalIsLoading || internalIsLoading;
+  const bothFlagsTrue = (complaintsData?.hasComplaints || aiAssessment?.complaints_flag) && 
+                       (vulnerabilityData?.hasVulnerability || aiAssessment?.vulnerability_flag);
 
   if (isLoading) {
     return (
@@ -63,7 +79,7 @@ export const AIAssessment = ({
     );
   }
 
-  if (error) {
+  if (error && !complaintsData && !vulnerabilityData) {
     return (
       <Card className="w-full min-h-[600px]">
         <CardContent className="flex flex-col items-center justify-center h-[600px] space-y-4">
@@ -89,14 +105,14 @@ export const AIAssessment = ({
           <AIAssessmentSection
             complaints={complaints}
             vulnerabilities={vulnerabilities}
-            complaintsFlag={aiAssessment?.complaints_flag || false}
-            vulnerabilityFlag={aiAssessment?.vulnerability_flag || false}
-            complaintsReasoning={aiAssessment?.complaints_reasoning}
-            vulnerabilityReasoning={aiAssessment?.vulnerability_reasoning}
+            complaintsFlag={complaintsData?.hasComplaints || aiAssessment?.complaints_flag || false}
+            vulnerabilityFlag={vulnerabilityData?.hasVulnerability || aiAssessment?.vulnerability_flag || false}
+            complaintsReasoning={complaintsData?.reasoning || aiAssessment?.complaints_reasoning}
+            vulnerabilityReasoning={vulnerabilityData?.reasoning || aiAssessment?.vulnerability_reasoning}
             bothFlagsTrue={bothFlagsTrue}
             contactId={contactId}
-            complaintsSnippetIds={aiAssessment?.relevant_snippet_ids || []}
-            vulnerabilitySnippetIds={aiAssessment?.vulnerability_snippet_ids || []}
+            complaintsSnippetIds={complaintsData?.snippets || aiAssessment?.relevant_snippet_ids || []}
+            vulnerabilitySnippetIds={vulnerabilityData?.snippets || aiAssessment?.vulnerability_snippet_ids || []}
             onSnippetClick={onSnippetClick}
           />
         </div>
