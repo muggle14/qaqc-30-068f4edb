@@ -34,43 +34,13 @@ export const AIAssessment = ({
   vulnerabilityData,
   isLoading: externalIsLoading
 }: AIAssessmentProps) => {
-  const { data: aiAssessment, isLoading: internalIsLoading, error } = useQuery({
-    queryKey: ['ai-assessment', contactId],
-    queryFn: async () => {
-      console.log("Fetching V&C assessment for contact:", contactId);
-      
-      try {
-        const response = await getVAndCAssessment(contactId);
-        console.log("V&C assessment data:", response);
-        
-        return {
-          complaints_flag: response.complaint || false,
-          complaints_reasoning: response.complaint_reason,
-          relevant_snippet_ids: response.complaint_snippet ? [response.complaint_snippet] : [],
-          physical_disability_flag: false,
-          physical_disability_reasoning: "",
-          vulnerability_flag: response.financial_vulnerability || false,
-          vulnerability_reasoning: response.vulnerability_reason,
-          vulnerability_snippet_ids: response.vulnerability_snippet ? [response.vulnerability_snippet] : []
-        };
-      } catch (error) {
-        console.error("V&C Assessment Error Details:", {
-          error,
-          contactId,
-          timestamp: new Date().toISOString()
-        });
-        throw error;
-      }
-    },
-    retry: 2,
-    enabled: !!contactId && !complaintsData && !vulnerabilityData
+  console.log('AIAssessment rendered with:', {
+    complaintsData,
+    vulnerabilityData,
+    externalIsLoading
   });
 
-  const isLoading = externalIsLoading || internalIsLoading;
-  const bothFlagsTrue = (complaintsData?.hasComplaints || aiAssessment?.complaints_flag) && 
-                       (vulnerabilityData?.hasVulnerability || aiAssessment?.vulnerability_flag);
-
-  if (isLoading) {
+  if (externalIsLoading) {
     return (
       <Card className="w-full min-h-[600px]">
         <CardContent className="flex items-center justify-center h-[600px]">
@@ -80,40 +50,21 @@ export const AIAssessment = ({
     );
   }
 
-  if (error && !complaintsData && !vulnerabilityData) {
-    return (
-      <Card className="w-full min-h-[600px]">
-        <CardContent className="flex flex-col items-center justify-center h-[600px] space-y-4">
-          <AlertCircle className="h-8 w-8 text-red-500" />
-          <div className="text-red-500 font-medium">Error loading assessment</div>
-          <div className="text-sm text-gray-500 max-w-md text-center">
-            {error instanceof Error ? error.message : 'An unexpected error occurred'}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card className="w-full min-h-[600px]">
       <CardContent>
         <div className="space-y-6">
-          <PhysicalDisabilitySection
-            physicalDisabilityFlag={aiAssessment?.physical_disability_flag || false}
-            physicalDisabilityReasoning={aiAssessment?.physical_disability_reasoning}
-          />
-
           <AIAssessmentSection
             complaints={complaints}
             vulnerabilities={vulnerabilities}
-            complaintsFlag={complaintsData?.hasComplaints || aiAssessment?.complaints_flag || false}
-            vulnerabilityFlag={vulnerabilityData?.hasVulnerability || aiAssessment?.vulnerability_flag || false}
-            complaintsReasoning={complaintsData?.reasoning || aiAssessment?.complaints_reasoning}
-            vulnerabilityReasoning={vulnerabilityData?.reasoning || aiAssessment?.vulnerability_reasoning}
-            bothFlagsTrue={bothFlagsTrue}
+            complaintsFlag={complaintsData?.hasComplaints || false}
+            vulnerabilityFlag={vulnerabilityData?.hasVulnerability || false}
+            complaintsReasoning={complaintsData?.reasoning || "No complaint reasoning provided"}
+            vulnerabilityReasoning={vulnerabilityData?.reasoning || "No vulnerability reasoning provided"}
+            bothFlagsTrue={!!(complaintsData?.hasComplaints && vulnerabilityData?.hasVulnerability)}
             contactId={contactId}
-            complaintsSnippetIds={complaintsData?.snippets || aiAssessment?.relevant_snippet_ids || []}
-            vulnerabilitySnippetIds={vulnerabilityData?.snippets || aiAssessment?.vulnerability_snippet_ids || []}
+            complaintsSnippetIds={complaintsData?.snippets || []}
+            vulnerabilitySnippetIds={vulnerabilityData?.snippets || []}
             onSnippetClick={onSnippetClick}
           />
         </div>

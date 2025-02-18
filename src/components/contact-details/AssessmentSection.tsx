@@ -39,6 +39,12 @@ export const AssessmentSection = ({
   vulnerabilityData,
   isLoading
 }: AssessmentSectionProps) => {
+  console.log('AssessmentSection rendered with:', {
+    complaintsData,
+    vulnerabilityData,
+    isLoading
+  });
+
   const location = useLocation();
   const isManualRoute = location.pathname === '/contact/manual';
   const [isAIOpen, setIsAIOpen] = useState(true);
@@ -58,44 +64,28 @@ export const AssessmentSection = ({
               <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isAIOpen ? "" : "-rotate-90"}`} />
             </Button>
           </CollapsibleTrigger>
-          <h2 className="text-xl font-semibold">AI Assessment</h2>
-        </div>
-        <CollapsibleContent className="mt-4">
-          {!isManualRoute && (
-            <AIGenerationControls
-              transcript={transcript}
-              contactId={contactId}
-              specialServiceTeam={specialServiceTeam}
-              onAssessmentGenerated={handleAssessmentGenerated}
-            />
-          )}
-          <div className={!isManualRoute ? "mt-4" : ""}>
-            <AIAssessment 
-              key={assessmentKey}
-              complaints={complaints}
-              vulnerabilities={vulnerabilities}
-              hasPhysicalDisability={false}
-              contactId={contactId}
-              onSnippetClick={onSnippetClick}
-              complaintsData={complaintsData}
-              vulnerabilityData={vulnerabilityData}
-              isLoading={isLoading}
-            />
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-
-      <Collapsible open={isQualityOpen} onOpenChange={setIsQualityOpen}>
-        <div className="flex items-center gap-2">
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="p-0 hover:bg-transparent">
-              <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isQualityOpen ? "" : "-rotate-90"}`} />
-            </Button>
-          </CollapsibleTrigger>
           <h2 className="text-xl font-semibold">Assessor Feedback</h2>
         </div>
         <CollapsibleContent className="mt-4">
-          <QualityAssessmentCard />
+          <AIAssessment 
+            key={assessmentKey}
+            complaints={complaints}
+            vulnerabilities={vulnerabilities}
+            hasPhysicalDisability={false}
+            contactId={contactId}
+            onSnippetClick={onSnippetClick}
+            complaintsData={complaintsData && {
+              hasComplaints: complaintsData.hasComplaints,
+              reasoning: complaintsData.reasoning || "No complaint reasoning provided",
+              snippets: complaintsData.snippets || []
+            }}
+            vulnerabilityData={vulnerabilityData && {
+              hasVulnerability: vulnerabilityData.hasVulnerability,
+              reasoning: vulnerabilityData.reasoning || "No vulnerability reasoning provided",
+              snippets: vulnerabilityData.snippets || []
+            }}
+            isLoading={isLoading}
+          />
         </CollapsibleContent>
       </Collapsible>
     </div>
