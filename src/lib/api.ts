@@ -50,8 +50,8 @@ chatSummaryApi.interceptors.response.use(
   }
 );
 
-// Fallback data for testing when API is unavailable
-const FALLBACK_SUMMARY = {
+// Test data - only used in development/testing environments
+const TEST_SUMMARY = {
   short_summary: "Test summary of the conversation",
   detailed_bullet_summary: [
     "Customer contacted regarding account inquiry",
@@ -60,7 +60,7 @@ const FALLBACK_SUMMARY = {
   ]
 };
 
-const FALLBACK_VC_ASSESSMENT = {
+const TEST_VC_ASSESSMENT = {
   complaint: false,
   complaint_reason: "No complaints identified in conversation",
   financial_vulnerability: true,
@@ -70,57 +70,53 @@ const FALLBACK_VC_ASSESSMENT = {
 };
 
 export const getSummary = async (conversation: string) => {
-  try {
-    console.log("Calling getSummary with conversation:", conversation.substring(0, 100) + "...");
-    
-    // For testing, return fallback data if API is not available
-    if (!API_BASE_URL) {
-      console.log("Using fallback summary data");
-      return FALLBACK_SUMMARY;
-    }
-
-    const response = await chatSummaryApi.post("/chat-summary", {
-      conversation,
-    });
-    
-    return {
-      short_summary: response.data.short_summary || "",
-      detailed_bullet_summary: Array.isArray(response.data.detailed_bullet_summary) 
-        ? response.data.detailed_bullet_summary 
-        : []
-    };
-  } catch (error) {
-    console.error("getSummary error:", error);
-    console.log("Falling back to test data due to API error");
-    return FALLBACK_SUMMARY;
+  if (!API_BASE_URL) {
+    throw new Error("API_BASE_URL is not defined in environment variables");
   }
+
+  // Only use test data if explicitly in test mode
+  if (import.meta.env.MODE === 'test') {
+    console.log("Test mode: Using test summary data");
+    return TEST_SUMMARY;
+  }
+
+  console.log("Calling getSummary with conversation:", conversation.substring(0, 100) + "...");
+  
+  const response = await chatSummaryApi.post("/chat-summary", {
+    conversation,
+  });
+  
+  return {
+    short_summary: response.data.short_summary || "",
+    detailed_bullet_summary: Array.isArray(response.data.detailed_bullet_summary) 
+      ? response.data.detailed_bullet_summary 
+      : []
+  };
 };
 
 export const getVAndCAssessment = async (conversation: string) => {
-  try {
-    console.log("Calling getVAndCAssessment with conversation:", conversation.substring(0, 100) + "...");
-    
-    // For testing, return fallback data if API is not available
-    if (!API_BASE_URL) {
-      console.log("Using fallback V&C assessment data");
-      return FALLBACK_VC_ASSESSMENT;
-    }
-
-    const response = await chatSummaryApi.post("/vAndCAssessment", {
-      conversation,
-    });
-    
-    return {
-      complaint: response.data.complaint || false,
-      complaint_reason: response.data.complaint_reason || "",
-      financial_vulnerability: response.data.financial_vulnerability || false,
-      vulnerability_reason: response.data.vulnerability_reason || "",
-      complaint_snippet: response.data.complaint_snippet || "",
-      vulnerability_snippet: response.data.vulnerability_snippet || ""
-    };
-  } catch (error) {
-    console.error("getVAndCAssessment error:", error);
-    console.log("Falling back to test data due to API error");
-    return FALLBACK_VC_ASSESSMENT;
+  if (!API_BASE_URL) {
+    throw new Error("API_BASE_URL is not defined in environment variables");
   }
+
+  // Only use test data if explicitly in test mode
+  if (import.meta.env.MODE === 'test') {
+    console.log("Test mode: Using test V&C assessment data");
+    return TEST_VC_ASSESSMENT;
+  }
+
+  console.log("Calling getVAndCAssessment with conversation:", conversation.substring(0, 100) + "...");
+  
+  const response = await chatSummaryApi.post("/vAndCAssessment", {
+    conversation,
+  });
+  
+  return {
+    complaint: response.data.complaint || false,
+    complaint_reason: response.data.complaint_reason || "",
+    financial_vulnerability: response.data.financial_vulnerability || false,
+    vulnerability_reason: response.data.vulnerability_reason || "",
+    complaint_snippet: response.data.complaint_snippet || "",
+    vulnerability_snippet: response.data.vulnerability_snippet || ""
+  };
 };
