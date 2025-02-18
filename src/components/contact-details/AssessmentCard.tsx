@@ -1,4 +1,3 @@
-
 import { LucideIcon, Plus, Trash2 } from "lucide-react";
 import { QualityReasoningSection } from "./QualityReasoningSection";
 import { CardHeader } from "./CardHeader";
@@ -98,7 +97,6 @@ export const AssessmentCard = ({
   const handleRemoveCustomReason = (index: number, type: 'complaint' | 'vulnerability') => {
     if (type === 'complaint') {
       setCustomComplaintReasons(customComplaintReasons.filter((_, i) => i !== index));
-      // Remove associated assessment data
       setAssessmentData(prev => ({
         ...prev,
         complaints: prev.complaints.filter(c => c.custom_reason !== customComplaintReasons[index])
@@ -335,28 +333,6 @@ export const AssessmentCard = ({
                 )}
               </CollapsibleSection>
             )}
-
-            <div className="flex-1 flex flex-col space-y-6">
-              <div className="flex-1 space-y-3">
-                <Label className="text-base font-medium text-gray-700">Assessment Reasoning:</Label>
-                <Textarea
-                  value={reasoning || ""}
-                  onChange={(e) => onReasoningChange?.(e.target.value)}
-                  placeholder="Enter your assessment reasoning..."
-                  className="flex-1 h-[calc(100vh-600px)] min-h-[200px] resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200 bg-white"
-                />
-              </div>
-
-              <div className="flex-1 space-y-3">
-                <Label className="text-base font-medium text-gray-700">Review Evidence:</Label>
-                <Textarea
-                  value={reviewEvidence}
-                  onChange={(e) => onReviewEvidenceChange?.(e.target.value)}
-                  placeholder="Enter relevant conversation excerpts..."
-                  className="flex-1 h-[calc(100vh-600px)] min-h-[200px] resize-none border-gray-200 focus:border-gray-300 focus:ring-gray-200 bg-white"
-                />
-              </div>
-            </div>
           </div>
         )}
 
