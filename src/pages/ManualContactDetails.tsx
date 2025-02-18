@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +14,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useSessionStorage } from "@/hooks/useSessionStorage";
 import { getSummary, getVAndCAssessment } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
 
 const ManualContactDetails = () => {
   const { loadFromStorage, saveToStorage, clearStorage } = useSessionStorage();
@@ -33,51 +31,48 @@ const ManualContactDetails = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Test function to verify state updates
+  const testSummaryData = () => {
+    console.log('Testing summary data update...');
+    const testData = {
+      short_summary: "This is a test summary",
+      detailed_bullet_summary: ["Test bullet 1", "Test bullet 2"]
+    };
+    console.log('Setting test data:', testData);
+    setSummaryData(testData);
+  };
+
   // Query setup with manual triggering and logging
   const { data: summaryData, isLoading: isSummaryLoading, error: summaryError, refetch: refetchSummary } = useQuery({
     queryKey: ['chat-summary', transcript],
     queryFn: async () => {
-      const data = await getSummary(transcript);
-      console.log('Summary data received:', data);
-      return data;
+      const response = await getSummary(transcript);
+      console.log('Raw summary response:', response);
+      return {
+        short_summary: response.short_summary || "",
+        detailed_bullet_summary: Array.isArray(response.detailed_bullet_summary) 
+          ? response.detailed_bullet_summary 
+          : []
+      };
     },
     enabled: false,
-    meta: {
-      onSettled: (data, error) => {
-        console.log('Summary onSettled - data:', data, 'error:', error);
-        if (error) {
-          console.error("Summary Query Error:", error);
-          toast({
-            title: "Summary Generation Failed",
-            description: error instanceof Error ? error.message : "Failed to generate summary",
-            variant: "destructive",
-          });
-        }
-      }
-    }
   });
 
   const { data: vcAssessment, isLoading: isVCLoading, error: vcError, refetch: refetchVC } = useQuery({
     queryKey: ['vc-assessment', transcript],
     queryFn: async () => {
-      const data = await getVAndCAssessment(transcript);
-      console.log('V&C Assessment data received:', data);
-      return data;
+      const response = await getVAndCAssessment(transcript);
+      console.log('Raw V&C assessment response:', response);
+      return {
+        complaint: response.complaint || false,
+        complaint_reason: response.complaint_reason || "",
+        financial_vulnerability: response.financial_vulnerability || false,
+        vulnerability_reason: response.vulnerability_reason || "",
+        complaint_snippet: response.complaint_snippet || "",
+        vulnerability_snippet: response.vulnerability_snippet || ""
+      };
     },
     enabled: false,
-    meta: {
-      onSettled: (data, error) => {
-        console.log('V&C Assessment onSettled - data:', data, 'error:', error);
-        if (error) {
-          console.error("V&C Assessment Query Error:", error);
-          toast({
-            title: "Assessment Failed",
-            description: error instanceof Error ? error.message : "Failed to generate assessment",
-            variant: "destructive",
-          });
-        }
-      }
-    }
   });
 
   // Log data updates
@@ -103,7 +98,10 @@ const ManualContactDetails = () => {
     try {
       console.log('Starting assessment generation...');
       const [summaryResult, vcResult] = await Promise.all([refetchSummary(), refetchVC()]);
-      console.log('Assessment generation completed:', { summaryResult, vcResult });
+      console.log('Assessment generation completed:', {
+        summaryData: summaryResult.data,
+        vcData: vcResult.data
+      });
     } catch (error) {
       console.error("Generation failed:", error);
       toast({
@@ -114,6 +112,31 @@ const ManualContactDetails = () => {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const renderSummaryContent = () => {
+    console.log('Rendering summary content with:', {
+      summaryData,
+      isLoading: isSummaryLoading || isVCLoading
+    });
+
+    if (isSummaryLoading || isVCLoading) {
+      return (
+        <Card className="h-full">
+          <CardContent className="h-full flex items-center justify-center">
+            <p className="text-muted-foreground">Generating assessment...</p>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <SummarySection
+        overallSummary={summaryData?.short_summary || ""}
+        detailedSummaryPoints={summaryData?.detailed_bullet_summary || []}
+        isLoading={isSummaryLoading || isVCLoading}
+      />
+    );
   };
 
   // Save to session storage when data changes
@@ -236,51 +259,6 @@ const ManualContactDetails = () => {
     }
   };
 
-  const renderSummaryContent = () => {
-    console.log('Rendering summary content with:', {
-      summaryData,
-      isLoading: isSummaryLoading || isVCLoading,
-      error: summaryError || vcError
-    });
-
-    if (isSummaryLoading || isVCLoading) {
-      return (
-        <Card className="h-full">
-          <CardContent className="h-full flex items-center justify-center">
-            <p className="text-muted-foreground">Generating assessment...</p>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    if (summaryError || vcError) {
-      return (
-        <Card className="h-full">
-          <CardContent className="h-full flex flex-col items-center justify-center space-y-4">
-            <AlertCircle className="h-8 w-8 text-red-500" />
-            <p className="text-red-500 font-medium">Failed to generate assessment</p>
-            <p className="text-sm text-gray-500 max-w-md text-center">
-              {(summaryError || vcError) instanceof Error 
-                ? (summaryError || vcError)?.message 
-                : 'An unexpected error occurred while generating the assessment'}
-            </p>
-            <p className="text-xs text-gray-400">
-              Please check the console for more details
-            </p>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    return (
-      <SummarySection
-        overallSummary={summaryData?.short_summary || "No summary available"}
-        detailedSummaryPoints={summaryData?.detailed_bullet_summary || []}
-        isLoading={isSummaryLoading || isVCLoading}
-      />
-    );
-  };
-
   console.log('Rendering ManualContactDetails with:', {
     summaryData,
     vcAssessment,
@@ -302,14 +280,25 @@ const ManualContactDetails = () => {
         <CollapsibleSection 
           title="Summary & Transcript"
           action={
-            <Button
-              type="button"
-              onClick={handleGenerateAssessment}
-              disabled={isGenerating || !transcript}
-              className="ml-auto"
-            >
-              {isGenerating ? "Generating..." : "Generate AI Assessment"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                onClick={testSummaryData}
+                variant="outline"
+                size="sm"
+                className="hidden" // Hidden in production, useful for testing
+              >
+                Test Data
+              </Button>
+              <Button
+                type="button"
+                onClick={handleGenerateAssessment}
+                disabled={isGenerating || !transcript}
+                className="ml-auto"
+              >
+                {isGenerating ? "Generating..." : "Generate AI Assessment"}
+              </Button>
+            </div>
           }
         >
           <div className="grid grid-cols-2 gap-6 mb-6">
@@ -329,13 +318,13 @@ const ManualContactDetails = () => {
           transcript={transcript}
           specialServiceTeam={isSpecialServiceTeam === "yes"}
           complaintsData={vcAssessment ? {
-            hasComplaints: vcAssessment.complaint || false,
-            reasoning: vcAssessment.complaint_reason || "No complaint reasoning provided",
+            hasComplaints: vcAssessment.complaint,
+            reasoning: vcAssessment.complaint_reason,
             snippets: vcAssessment.complaint_snippet ? [vcAssessment.complaint_snippet] : []
           } : undefined}
           vulnerabilityData={vcAssessment ? {
-            hasVulnerability: vcAssessment.financial_vulnerability || false,
-            reasoning: vcAssessment.vulnerability_reason || "No vulnerability reasoning provided",
+            hasVulnerability: vcAssessment.financial_vulnerability,
+            reasoning: vcAssessment.vulnerability_reason,
             snippets: vcAssessment.vulnerability_snippet ? [vcAssessment.vulnerability_snippet] : []
           } : undefined}
           isLoading={isSummaryLoading || isVCLoading}
