@@ -1,6 +1,5 @@
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Brain, FileText } from "lucide-react";
 import { useState } from "react";
 import { apiClient } from "@/services/apiClient";
@@ -42,22 +41,35 @@ export const AIGenerationControls = ({
       return;
     }
 
+    // Check if transcript is already formatted
+    if (isTranscriptFormatted(transcript)) {
+      toast({
+        title: "Already Formatted",
+        description: "The transcript is already in the correct format.",
+        variant: "info",
+      });
+      return;
+    }
+
     setIsFormatting(true);
     try {
       const formattedTranscript = await apiClient.formatTranscript(transcript);
+      
+      // Update the transcript in the parent component
       if (onTranscriptFormatted) {
         onTranscriptFormatted(formattedTranscript);
       }
+      
       toast({
-        title: "Transcript Formatted",
-        description: "The transcript has been formatted successfully.",
+        title: "Success",
+        description: "Transcript has been formatted successfully.",
       });
     } catch (error) {
       console.error("Error formatting transcript:", error);
       toast({
-        title: "Formatting Failed",
-        description: error instanceof Error ? error.message : "Failed to format transcript",
-        variant: "destructive",
+        title: "Formatting Issue",
+        description: "Please ensure each line of dialogue is on a new line and try again.",
+        variant: "info",
       });
     } finally {
       setIsFormatting(false);
@@ -78,7 +90,7 @@ export const AIGenerationControls = ({
       toast({
         title: "Unformatted Transcript",
         description: "Please format the transcript before generating the assessment.",
-        variant: "destructive",
+        variant: "info",
       });
       return;
     }
@@ -107,7 +119,7 @@ export const AIGenerationControls = ({
       console.error("Error generating assessment:", error);
       toast({
         title: "Generation Failed",
-        description: error instanceof Error ? error.message : "Failed to generate assessment",
+        description: "Failed to generate AI assessment. Please try again.",
         variant: "destructive",
       });
     } finally {
