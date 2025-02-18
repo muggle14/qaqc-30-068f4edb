@@ -31,18 +31,21 @@ const ManualContactDetails = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Test function to verify state updates
-  const testSummaryData = () => {
+  const testSummaryData = async () => {
     console.log('Testing summary data update...');
-    const testData = {
-      short_summary: "This is a test summary",
-      detailed_bullet_summary: ["Test bullet 1", "Test bullet 2"]
-    };
-    console.log('Setting test data:', testData);
-    setSummaryData(testData);
+    try {
+      const testResponse = {
+        short_summary: "This is a test summary",
+        detailed_bullet_summary: ["Test bullet 1", "Test bullet 2"]
+      };
+      console.log('Setting test data:', testResponse);
+      const result = await refetchSummary();
+      console.log('Test data result:', result);
+    } catch (error) {
+      console.error('Test data error:', error);
+    }
   };
 
-  // Query setup with manual triggering and logging
   const { data: summaryData, isLoading: isSummaryLoading, error: summaryError, refetch: refetchSummary } = useQuery({
     queryKey: ['chat-summary', transcript],
     queryFn: async () => {
@@ -75,7 +78,6 @@ const ManualContactDetails = () => {
     enabled: false,
   });
 
-  // Log data updates
   useEffect(() => {
     console.log('Summary data updated:', summaryData);
   }, [summaryData]);
@@ -139,7 +141,6 @@ const ManualContactDetails = () => {
     );
   };
 
-  // Save to session storage when data changes
   useEffect(() => {
     const dataToSave = {
       contactId,
@@ -153,7 +154,6 @@ const ManualContactDetails = () => {
     saveToStorage(dataToSave);
   }, [contactId, evaluator, transcript, isSpecialServiceTeam, summaryData]);
 
-  // Track form changes
   useEffect(() => {
     if (transcript || evaluator || isSpecialServiceTeam !== "no") {
       setHasUnsavedChanges(true);
@@ -258,12 +258,6 @@ const ManualContactDetails = () => {
       });
     }
   };
-
-  console.log('Rendering ManualContactDetails with:', {
-    summaryData,
-    vcAssessment,
-    isLoading: isSummaryLoading || isVCLoading
-  });
 
   return (
     <div className="container mx-auto p-6 space-y-6">
