@@ -67,7 +67,19 @@ export const getSummary = async (conversation: string): Promise<SummaryResponse>
     if (typeof response.data.detailed_bullet_summary === 'string') {
       // Remove potential JSON code fence markers
       const cleanJson = response.data.detailed_bullet_summary.replace(/```json\n|```/g, '');
-      parsedData = JSON.parse(cleanJson);
+      try {
+        parsedData = JSON.parse(cleanJson);
+      } catch (parseError) {
+        console.error('Error parsing detailed_bullet_summary:', parseError);
+        // If parsing fails, try to split the string into bullet points
+        const bulletPoints = cleanJson.split('\n')
+          .filter(line => line.trim())
+          .map(line => line.trim().replace(/^- /, ''));
+        return {
+          short_summary: response.data.short_summary || "No summary available",
+          detailed_bullet_summary: bulletPoints
+        };
+      }
     }
 
     return {

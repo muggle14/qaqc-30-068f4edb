@@ -55,11 +55,6 @@ export const TranscriptSection = ({
       if (summaryError) {
         throw summaryError;
       }
-
-      toast({
-        title: "Success",
-        description: "AI assessment generated successfully",
-      });
       
       console.log('Assessment generation completed:', { summaryData });
     } catch (error) {
