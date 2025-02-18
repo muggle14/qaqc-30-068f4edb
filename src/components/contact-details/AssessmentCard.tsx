@@ -1,54 +1,12 @@
-import { LucideIcon, Plus, Trash2 } from "lucide-react";
-import { QualityReasoningSection } from "./QualityReasoningSection";
+
+import { LucideIcon } from "lucide-react";
 import { CardHeader } from "./CardHeader";
 import { ItemsList } from "./ItemsList";
 import { AIRelevantSnippets } from "./AIRelevantSnippets";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { VulnerabilityCategories } from "./VulnerabilityCategories";
-import { ComplaintsReasons } from "./ComplaintsReasons";
-import { useState, useEffect } from "react";
-import { CollapsibleSection } from "./CollapsibleSection";
-
-interface AssessmentEntry {
-  type: string;
-  custom_reason?: string;
-  assessment_reasoning: string;
-  review_evidence: string;
-}
-
-interface AssessmentData {
-  complaints: AssessmentEntry[];
-  vulnerabilities: AssessmentEntry[];
-}
-
-interface AssessmentCardProps {
-  title: string;
-  icon: LucideIcon;
-  items: string[];
-  flag: boolean;
-  reasoning?: string | null;
-  bothFlagsTrue: boolean;
-  isAIAssessment?: boolean;
-  onFlagChange?: (value: boolean) => void;
-  onReasoningChange?: (value: string) => void;
-  contactId?: string;
-  snippetIds?: string[];
-  onSnippetClick?: (snippetId: string) => void;
-  isVulnerability?: boolean;
-  selectedCategories?: string[];
-  otherCategory?: string;
-  onCategoriesChange?: (categories: string[]) => void;
-  onOtherCategoryChange?: (value: string) => void;
-  selectedReasons?: string[];
-  otherReason?: string;
-  onReasonsChange?: (reasons: string[]) => void;
-  onOtherReasonChange?: (value: string) => void;
-  reviewEvidence?: string;
-  onReviewEvidenceChange?: (value: string) => void;
-}
+import { ComplaintAssessmentForm } from "./ComplaintAssessmentForm";
+import { VulnerabilityAssessmentForm } from "./VulnerabilityAssessmentForm";
+import { useState } from "react";
+import { AssessmentCardProps, AssessmentData } from "./types";
 
 export const AssessmentCard = ({
   title,
@@ -72,8 +30,6 @@ export const AssessmentCard = ({
   otherReason = "",
   onReasonsChange,
   onOtherReasonChange,
-  reviewEvidence = "",
-  onReviewEvidenceChange,
 }: AssessmentCardProps) => {
   const [assessmentData, setAssessmentData] = useState<AssessmentData>({
     complaints: [],
@@ -159,179 +115,35 @@ export const AssessmentCard = ({
         {!isAIAssessment && (
           <div className="flex-1 flex flex-col space-y-6">
             {!isVulnerability && (
-              <CollapsibleSection title="Complaints Assessment">
-                <ComplaintsReasons 
-                  selectedReasons={selectedReasons}
-                  otherReason={otherReason}
-                  onReasonsChange={onReasonsChange}
-                  onOtherReasonChange={onOtherReasonChange}
-                />
-                
-                {selectedReasons.map(reason => (
-                  <div key={reason} className="mt-4 space-y-4">
-                    <Label>{reason}</Label>
-                    <div className="space-y-2">
-                      <Label className="text-sm">Assessment Reasoning:</Label>
-                      <Textarea
-                        value={assessmentData.complaints.find(c => c.type === reason)?.assessment_reasoning || ""}
-                        onChange={(e) => updateAssessmentEntry('complaints', reason, 'assessment_reasoning', e.target.value)}
-                        placeholder="Enter assessment reasoning..."
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm">Review Evidence:</Label>
-                      <Textarea
-                        value={assessmentData.complaints.find(c => c.type === reason)?.review_evidence || ""}
-                        onChange={(e) => updateAssessmentEntry('complaints', reason, 'review_evidence', e.target.value)}
-                        placeholder="Enter conversation snippets..."
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                {selectedReasons.includes("Other") && (
-                  <div className="mt-4 space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={newCustomReason}
-                        onChange={(e) => setNewCustomReason(e.target.value)}
-                        placeholder="Enter new custom reason..."
-                        className="max-w-md"
-                      />
-                      <Button 
-                        type="button" 
-                        onClick={() => handleAddCustomReason('complaint')}
-                        size="icon"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    {customComplaintReasons.map((reason, index) => (
-                      <div key={index} className="mt-4 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <Label>{reason}</Label>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleRemoveCustomReason(index, 'complaint')}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm">Assessment Reasoning:</Label>
-                          <Textarea
-                            value={assessmentData.complaints.find(c => c.custom_reason === reason)?.assessment_reasoning || ""}
-                            onChange={(e) => updateAssessmentEntry('complaints', 'Other', 'assessment_reasoning', e.target.value, reason)}
-                            placeholder="Enter assessment reasoning..."
-                            className="min-h-[100px]"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm">Review Evidence:</Label>
-                          <Textarea
-                            value={assessmentData.complaints.find(c => c.custom_reason === reason)?.review_evidence || ""}
-                            onChange={(e) => updateAssessmentEntry('complaints', 'Other', 'review_evidence', e.target.value, reason)}
-                            placeholder="Enter conversation snippets..."
-                            className="min-h-[100px]"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CollapsibleSection>
+              <ComplaintAssessmentForm
+                selectedReasons={selectedReasons}
+                otherReason={otherReason}
+                onReasonsChange={onReasonsChange}
+                onOtherReasonChange={onOtherReasonChange}
+                assessmentData={assessmentData}
+                customReasons={customComplaintReasons}
+                newCustomReason={newCustomReason}
+                onNewCustomReasonChange={setNewCustomReason}
+                onAddCustomReason={() => handleAddCustomReason('complaint')}
+                onRemoveCustomReason={(index) => handleRemoveCustomReason(index, 'complaint')}
+                onUpdateAssessmentEntry={updateAssessmentEntry}
+              />
             )}
 
             {isVulnerability && (
-              <CollapsibleSection title="Vulnerability Assessment">
-                <VulnerabilityCategories 
-                  selectedCategories={selectedCategories}
-                  otherCategory={otherCategory}
-                  onCategoriesChange={onCategoriesChange}
-                  onOtherCategoryChange={onOtherCategoryChange}
-                />
-                
-                {selectedCategories.map(category => (
-                  <div key={category} className="mt-4 space-y-4">
-                    <Label>{category}</Label>
-                    <div className="space-y-2">
-                      <Label className="text-sm">Assessment Reasoning:</Label>
-                      <Textarea
-                        value={assessmentData.vulnerabilities.find(v => v.type === category)?.assessment_reasoning || ""}
-                        onChange={(e) => updateAssessmentEntry('vulnerabilities', category, 'assessment_reasoning', e.target.value)}
-                        placeholder="Enter assessment reasoning..."
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm">Review Evidence:</Label>
-                      <Textarea
-                        value={assessmentData.vulnerabilities.find(v => v.type === category)?.review_evidence || ""}
-                        onChange={(e) => updateAssessmentEntry('vulnerabilities', category, 'review_evidence', e.target.value)}
-                        placeholder="Enter conversation snippets..."
-                        className="min-h-[100px]"
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                {selectedCategories.includes("Other") && (
-                  <div className="mt-4 space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={newCustomReason}
-                        onChange={(e) => setNewCustomReason(e.target.value)}
-                        placeholder="Enter new custom category..."
-                        className="max-w-md"
-                      />
-                      <Button 
-                        type="button" 
-                        onClick={() => handleAddCustomReason('vulnerability')}
-                        size="icon"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    {customVulnerabilityCategories.map((category, index) => (
-                      <div key={index} className="mt-4 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <Label>{category}</Label>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleRemoveCustomReason(index, 'vulnerability')}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm">Assessment Reasoning:</Label>
-                          <Textarea
-                            value={assessmentData.vulnerabilities.find(v => v.custom_reason === category)?.assessment_reasoning || ""}
-                            onChange={(e) => updateAssessmentEntry('vulnerabilities', 'Other', 'assessment_reasoning', e.target.value, category)}
-                            placeholder="Enter assessment reasoning..."
-                            className="min-h-[100px]"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm">Review Evidence:</Label>
-                          <Textarea
-                            value={assessmentData.vulnerabilities.find(v => v.custom_reason === category)?.review_evidence || ""}
-                            onChange={(e) => updateAssessmentEntry('vulnerabilities', 'Other', 'review_evidence', e.target.value, category)}
-                            placeholder="Enter conversation snippets..."
-                            className="min-h-[100px]"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CollapsibleSection>
+              <VulnerabilityAssessmentForm
+                selectedCategories={selectedCategories}
+                otherCategory={otherCategory}
+                onCategoriesChange={onCategoriesChange}
+                onOtherCategoryChange={onOtherCategoryChange}
+                assessmentData={assessmentData}
+                customCategories={customVulnerabilityCategories}
+                newCustomReason={newCustomReason}
+                onNewCustomReasonChange={setNewCustomReason}
+                onAddCustomReason={() => handleAddCustomReason('vulnerability')}
+                onRemoveCustomReason={(index) => handleRemoveCustomReason(index, 'vulnerability')}
+                onUpdateAssessmentEntry={updateAssessmentEntry}
+              />
             )}
           </div>
         )}
