@@ -31,7 +31,11 @@ export const AIGenerationControls = ({
     );
   };
 
-  const handleFormatTranscript = async () => {
+  const handleFormatTranscript = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent any default navigation behavior
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!transcript) {
       toast({
         title: "Missing Transcript",
@@ -55,9 +59,12 @@ export const AIGenerationControls = ({
     try {
       const formattedTranscript = await apiClient.formatTranscript(transcript);
       
-      // Update the transcript in the parent component
+      // Ensure we're updating the transcript in the parent component
       if (onTranscriptFormatted) {
         onTranscriptFormatted(formattedTranscript);
+        
+        // Log successful formatting for debugging
+        console.log("Transcript formatted successfully");
       }
       
       toast({
@@ -76,7 +83,11 @@ export const AIGenerationControls = ({
     }
   };
 
-  const handleGenerateAssessment = async () => {
+  const handleGenerateAssessment = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent any default navigation behavior
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!transcript || !contactId) {
       toast({
         title: "Missing Information",
@@ -135,6 +146,7 @@ export const AIGenerationControls = ({
         className="flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         variant="outline"
         size="lg"
+        type="button" // Explicitly set type to prevent form submission
       >
         <FileText className="h-4 w-4" />
         {isFormatting ? "Formatting..." : "Format & Parse Transcript"}
@@ -144,6 +156,7 @@ export const AIGenerationControls = ({
         disabled={isGenerating || !transcript.trim() || !contactId || !isTranscriptFormatted(transcript)}
         className="flex items-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
         size="lg"
+        type="button" // Explicitly set type to prevent form submission
       >
         <Brain className="h-4 w-4" />
         {isGenerating ? "Generating..." : "Generate AI Assessment"}
