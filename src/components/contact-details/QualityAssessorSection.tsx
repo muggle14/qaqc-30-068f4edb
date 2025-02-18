@@ -29,8 +29,15 @@ export const QualityAssessorSection = () => {
   const [otherReason, setOtherReason] = useState("");
   const [complaintsEvidence, setComplaintsEvidence] = useState("");
   const [vulnerabilityEvidence, setVulnerabilityEvidence] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = async () => {
+  const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Prevent default form submission
+    
+    if (isSaving) return; // Prevent double submission
+    
+    setIsSaving(true);
+    
     try {
       console.log("Saving quality assessor feedback...");
       const response = await apiClient.invoke("qa-feedback", {
@@ -64,15 +71,31 @@ export const QualityAssessorSection = () => {
         description: "Failed to save quality assessor feedback",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
     <div className="space-y-2">
       <div className="flex justify-end mb-1">
-        <Button onClick={handleSave} size="sm" className="flex items-center gap-1.5">
-          <Save className="h-3.5 w-3.5" />
-          Save Feedback
+        <Button 
+          onClick={handleSave} 
+          size="sm" 
+          className="flex items-center gap-1.5"
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <>
+              <span className="animate-spin">⏳</span>
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="h-3.5 w-3.5" />
+              Save Feedback
+            </>
+          )}
         </Button>
       </div>
       
