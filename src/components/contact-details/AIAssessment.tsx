@@ -39,22 +39,31 @@ export const AIAssessment = ({
     queryFn: async () => {
       console.log("Fetching V&C assessment for contact:", contactId);
       
-      const response = await getVAndCAssessment(contactId);
-      console.log("V&C assessment data:", response);
-      
-      return {
-        complaints_flag: response.complaint || false,
-        complaints_reasoning: response.complaint_reason,
-        relevant_snippet_ids: response.complaint_snippet ? [response.complaint_snippet] : [],
-        physical_disability_flag: false,
-        physical_disability_reasoning: "",
-        vulnerability_flag: response.financial_vulnerability || false,
-        vulnerability_reasoning: response.vulnerability_reason,
-        vulnerability_snippet_ids: response.vulnerability_snippet ? [response.vulnerability_snippet] : []
-      };
+      try {
+        const response = await getVAndCAssessment(contactId);
+        console.log("V&C assessment data:", response);
+        
+        return {
+          complaints_flag: response.complaint || false,
+          complaints_reasoning: response.complaint_reason,
+          relevant_snippet_ids: response.complaint_snippet ? [response.complaint_snippet] : [],
+          physical_disability_flag: false,
+          physical_disability_reasoning: "",
+          vulnerability_flag: response.financial_vulnerability || false,
+          vulnerability_reasoning: response.vulnerability_reason,
+          vulnerability_snippet_ids: response.vulnerability_snippet ? [response.vulnerability_snippet] : []
+        };
+      } catch (error) {
+        console.error("V&C Assessment Error Details:", {
+          error,
+          contactId,
+          timestamp: new Date().toISOString()
+        });
+        throw error;
+      }
     },
     retry: 2,
-    enabled: !!contactId && !complaintsData && !vulnerabilityData // Only fetch if we don't have external data
+    enabled: !!contactId && !complaintsData && !vulnerabilityData
   });
 
   const isLoading = externalIsLoading || internalIsLoading;

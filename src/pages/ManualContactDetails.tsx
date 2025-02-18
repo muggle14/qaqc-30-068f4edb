@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -32,20 +31,36 @@ const ManualContactDetails = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Chat Summary Query
+  // Chat Summary Query with better error handling
   const { data: summaryData, isLoading: isSummaryLoading, error: summaryError } = useQuery({
     queryKey: ['chat-summary', transcript],
     queryFn: () => getSummary(transcript),
     enabled: transcript.length > 0,
     retry: 2,
+    onError: (error) => {
+      console.error("Summary Query Error:", error);
+      toast({
+        title: "Summary Generation Failed",
+        description: error instanceof Error ? error.message : "Failed to generate summary",
+        variant: "destructive",
+      });
+    }
   });
 
-  // V&C Assessment Query
+  // V&C Assessment Query with better error handling
   const { data: vcAssessment, isLoading: isVCLoading, error: vcError } = useQuery({
     queryKey: ['vc-assessment', transcript],
     queryFn: () => getVAndCAssessment(transcript),
     enabled: transcript.length > 0,
     retry: 2,
+    onError: (error) => {
+      console.error("V&C Assessment Query Error:", error);
+      toast({
+        title: "Assessment Failed",
+        description: error instanceof Error ? error.message : "Failed to generate assessment",
+        variant: "destructive",
+      });
+    }
   });
 
   // Save to session storage when data changes
@@ -182,7 +197,15 @@ const ManualContactDetails = () => {
         <Card className="h-full">
           <CardContent className="h-full flex flex-col items-center justify-center space-y-4">
             <AlertCircle className="h-8 w-8 text-red-500" />
-            <p className="text-muted-foreground">Failed to generate summary. Please try again.</p>
+            <p className="text-red-500 font-medium">Failed to generate summary</p>
+            <p className="text-sm text-gray-500 max-w-md text-center">
+              {summaryError instanceof Error 
+                ? summaryError.message 
+                : 'An unexpected error occurred while generating the summary'}
+            </p>
+            <p className="text-xs text-gray-400">
+              Please check the console for more details
+            </p>
           </CardContent>
         </Card>
       );
