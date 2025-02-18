@@ -273,7 +273,7 @@ const ManualContactDetails = () => {
               disabled={isGenerating || !transcript}
               className="ml-auto"
             >
-              Generate AI Assessment
+              {isGenerating ? "Generating..." : "Generate AI Assessment"}
             </Button>
           }
         >
