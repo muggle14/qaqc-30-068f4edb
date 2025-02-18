@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -27,41 +28,72 @@ const ManualContactDetails = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [newContactId, setNewContactId] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Chat Summary Query with better error handling
-  const { data: summaryData, isLoading: isSummaryLoading, error: summaryError } = useQuery({
+  // Query setup with manual triggering
+  const { data: summaryData, isLoading: isSummaryLoading, error: summaryError, refetch: refetchSummary } = useQuery({
     queryKey: ['chat-summary', transcript],
     queryFn: () => getSummary(transcript),
-    enabled: transcript.length > 0,
-    retry: 2,
-    onError: (error) => {
-      console.error("Summary Query Error:", error);
-      toast({
-        title: "Summary Generation Failed",
-        description: error instanceof Error ? error.message : "Failed to generate summary",
-        variant: "destructive",
-      });
+    enabled: false, // Don't auto-fetch
+    meta: {
+      onSettled: (data, error) => {
+        if (error) {
+          console.error("Summary Query Error:", error);
+          toast({
+            title: "Summary Generation Failed",
+            description: error instanceof Error ? error.message : "Failed to generate summary",
+            variant: "destructive",
+          });
+        }
+      }
     }
   });
 
-  // V&C Assessment Query with better error handling
-  const { data: vcAssessment, isLoading: isVCLoading, error: vcError } = useQuery({
+  const { data: vcAssessment, isLoading: isVCLoading, error: vcError, refetch: refetchVC } = useQuery({
     queryKey: ['vc-assessment', transcript],
     queryFn: () => getVAndCAssessment(transcript),
-    enabled: transcript.length > 0,
-    retry: 2,
-    onError: (error) => {
-      console.error("V&C Assessment Query Error:", error);
-      toast({
-        title: "Assessment Failed",
-        description: error instanceof Error ? error.message : "Failed to generate assessment",
-        variant: "destructive",
-      });
+    enabled: false, // Don't auto-fetch
+    meta: {
+      onSettled: (data, error) => {
+        if (error) {
+          console.error("V&C Assessment Query Error:", error);
+          toast({
+            title: "Assessment Failed",
+            description: error instanceof Error ? error.message : "Failed to generate assessment",
+            variant: "destructive",
+          });
+        }
+      }
     }
   });
+
+  const handleGenerateAssessment = async () => {
+    if (!transcript) {
+      toast({
+        title: "Missing Transcript",
+        description: "Please provide a conversation transcript first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      await Promise.all([refetchSummary(), refetchVC()]);
+    } catch (error) {
+      console.error("Generation failed:", error);
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate AI assessment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   // Save to session storage when data changes
   useEffect(() => {
@@ -182,26 +214,26 @@ const ManualContactDetails = () => {
   };
 
   const renderSummaryContent = () => {
-    if (isSummaryLoading) {
+    if (isSummaryLoading || isVCLoading) {
       return (
         <Card className="h-full">
           <CardContent className="h-full flex items-center justify-center">
-            <p className="text-muted-foreground">Generating summary...</p>
+            <p className="text-muted-foreground">Generating assessment...</p>
           </CardContent>
         </Card>
       );
     }
 
-    if (summaryError) {
+    if (summaryError || vcError) {
       return (
         <Card className="h-full">
           <CardContent className="h-full flex flex-col items-center justify-center space-y-4">
             <AlertCircle className="h-8 w-8 text-red-500" />
-            <p className="text-red-500 font-medium">Failed to generate summary</p>
+            <p className="text-red-500 font-medium">Failed to generate assessment</p>
             <p className="text-sm text-gray-500 max-w-md text-center">
-              {summaryError instanceof Error 
-                ? summaryError.message 
-                : 'An unexpected error occurred while generating the summary'}
+              {(summaryError || vcError) instanceof Error 
+                ? (summaryError || vcError)?.message 
+                : 'An unexpected error occurred while generating the assessment'}
             </p>
             <p className="text-xs text-gray-400">
               Please check the console for more details
@@ -215,7 +247,7 @@ const ManualContactDetails = () => {
       <SummarySection
         overallSummary={summaryData?.short_summary || ""}
         detailedSummaryPoints={summaryData?.detailed_bullet_summary || []}
-        isLoading={isSummaryLoading}
+        isLoading={isSummaryLoading || isVCLoading}
       />
     );
   };
@@ -232,13 +264,25 @@ const ManualContactDetails = () => {
           onSpecialServiceTeamChange={setIsSpecialServiceTeam}
         />
 
-        <CollapsibleSection title="Summary & Transcript">
+        <CollapsibleSection 
+          title="Summary & Transcript"
+          action={
+            <Button
+              type="button"
+              onClick={handleGenerateAssessment}
+              disabled={isGenerating || !transcript}
+              className="ml-auto"
+            >
+              Generate AI Assessment
+            </Button>
+          }
+        >
           <div className="grid grid-cols-2 gap-6 mb-6">
             {renderSummaryContent()}
             <TranscriptCard
               transcript={transcript}
               onTranscriptChange={setTranscript}
-              isLoading={isSummaryLoading}
+              isLoading={isSummaryLoading || isVCLoading}
             />
           </div>
         </CollapsibleSection>
@@ -259,7 +303,7 @@ const ManualContactDetails = () => {
             reasoning: vcAssessment.vulnerability_reason || "",
             snippets: vcAssessment.vulnerability_snippet ? [vcAssessment.vulnerability_snippet] : []
           } : undefined}
-          isLoading={isVCLoading}
+          isLoading={isSummaryLoading || isVCLoading}
         />
 
         <div className="flex justify-end mt-6">
