@@ -29,38 +29,28 @@ export const AIRelevantSnippets = ({
         return [];
       }
 
-      try {
-        // For testing, return dummy data if API fails
-        const dummySnippets = snippetIds.map(id => ({
-          id,
-          content: id,
-          timestamp: new Date().toISOString()
-        }));
+      // Ensure we're sending data in the format expected by the Azure Function
+      const response = await apiClient.invoke('vAndCAssessment', {
+        conversation: snippetIds.join('\n'),
+        contact_id: contactId
+      });
 
-        // Try to fetch from API, fall back to dummy data if it fails
-        const response = await apiClient.invoke('vAndCAssessment', {
-          conversation: snippetIds.join('\n'),
-          contact_id: contactId
-        });
-
-        if (!response.success) {
-          console.log("API call failed, using dummy data");
-          return dummySnippets;
-        }
-
-        return response.data || dummySnippets;
-      } catch (error) {
-        console.error("Error fetching snippets:", error);
-        return snippetIds.map(id => ({
-          id,
-          content: id,
-          timestamp: new Date().toISOString()
-        }));
+      if (!response.success) {
+        console.error("Error fetching snippets:", response.error);
+        throw new Error(response.error || "Failed to fetch snippets");
       }
+
+      // Transform the response into the expected format
+      const snippetsData = snippetIds.map(id => ({
+        id,
+        content: id,
+        timestamp: null
+      }));
+
+      console.log("Snippets data:", snippetsData);
+      return snippetsData;
     },
-    enabled: !!contactId && snippetIds.length > 0,
-    retry: 1,
-    retryDelay: 1000,
+    enabled: !!contactId && snippetIds.length > 0
   });
 
   if (error) {
