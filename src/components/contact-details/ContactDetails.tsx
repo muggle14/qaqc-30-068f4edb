@@ -28,12 +28,14 @@ export const ContactDetails = ({
           <CardTitle>Contact Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Textarea
-            value={contact.transcript}
-            onChange={(e) => onTranscriptChange(e.target.value)}
-            placeholder="Enter transcript..."
-            className="min-h-[200px]"
-          />
+          <div className="max-h-[400px] overflow-y-auto border rounded-md">
+            <Textarea
+              value={contact.transcript}
+              onChange={(e) => onTranscriptChange(e.target.value)}
+              placeholder="Enter transcript..."
+              className="min-h-[200px] border-0 rounded-none resize-none"
+            />
+          </div>
           <Button 
             onClick={onSave} 
             disabled={isSaving}
