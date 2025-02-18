@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 // Create an axios instance with common configuration
@@ -6,7 +5,6 @@ export const chatSummaryApi = axios.create({
   baseURL: "https://chat-summary.azurewebsites.net/api",
   headers: {
     "Content-Type": "application/json",
-    // Add CORS headers
     "Accept": "application/json"
   },
 });
@@ -49,63 +47,24 @@ chatSummaryApi.interceptors.response.use(
   }
 );
 
-const parseJsonString = (jsonString: string) => {
-  try {
-    // Remove markdown code block if present
-    const cleanJson = jsonString.replace(/```json\n|\n```/g, '');
-    return JSON.parse(cleanJson);
-  } catch (error) {
-    console.error("Error parsing JSON:", error);
-    return null;
-  }
-};
-
+// Dummy function for getSummary
 export const getSummary = async (conversation: string) => {
-  try {
-    console.log("Calling getSummary with conversation:", conversation.substring(0, 100) + "...");
-    const response = await chatSummaryApi.post("/chat-summary", {
-      conversation,
-    });
-    
-    const parsedData = parseJsonString(response.data);
-    if (!parsedData) {
-      throw new Error("Failed to parse summary response");
-    }
-    
-    return {
-      short_summary: parsedData.short_summary || "",
-      detailed_bullet_summary: Array.isArray(parsedData.detailed_bullet_summary) 
-        ? parsedData.detailed_bullet_summary 
-        : []
-    };
-  } catch (error) {
-    console.error("getSummary error:", error);
-    throw error;
-  }
+  // TODO: Implement actual summary functionality
+  return {
+    short_summary: "This is a placeholder summary",
+    detailed_bullet_summary: ["Placeholder bullet point 1", "Placeholder bullet point 2"]
+  };
 };
 
+// Dummy function for getVAndCAssessment
 export const getVAndCAssessment = async (conversation: string) => {
-  try {
-    console.log("Calling getVAndCAssessment with conversation:", conversation.substring(0, 100) + "...");
-    const response = await chatSummaryApi.post("/vAndCAssessment", {
-      conversation,
-    });
-    
-    const parsedData = parseJsonString(response.data);
-    if (!parsedData) {
-      throw new Error("Failed to parse V&C assessment response");
-    }
-    
-    return {
-      complaint: parsedData.complaint || false,
-      complaint_reason: parsedData.complaint_reason || "",
-      financial_vulnerability: parsedData.financial_vulnerability || false,
-      vulnerability_reason: parsedData.vulnerability_reason || "",
-      complaint_snippet: parsedData.complaint_snippet || "",
-      vulnerability_snippet: parsedData.vulnerability_snippet || ""
-    };
-  } catch (error) {
-    console.error("getVAndCAssessment error:", error);
-    throw error;
-  }
+  // TODO: Implement actual V&C assessment functionality
+  return {
+    complaint: false,
+    complaint_reason: "Placeholder complaint reason",
+    financial_vulnerability: false,
+    vulnerability_reason: "Placeholder vulnerability reason",
+    complaint_snippet: "Placeholder complaint snippet",
+    vulnerability_snippet: "Placeholder vulnerability snippet"
+  };
 };
