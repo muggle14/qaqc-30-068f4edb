@@ -1,9 +1,8 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Brain, FileText } from "lucide-react";
 import { useState } from "react";
-import { apiClient } from "@/integrations/supabase/client";
+import { apiClient } from "@/services/apiClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface AIGenerationControlsProps {

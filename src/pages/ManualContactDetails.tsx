@@ -1,9 +1,10 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { apiClient } from "@/integrations/supabase/client";
+import { apiClient } from "@/services/apiClient";
 import { AssessmentSection } from "@/components/contact-details/AssessmentSection";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { SummarySection } from "@/components/contact-details/SummarySection";

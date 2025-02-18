@@ -9,7 +9,7 @@ import { CollapsibleSection } from "@/components/contact-details/CollapsibleSect
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
 import { SummarySection } from "@/components/contact-details/SummarySection";
 import { useSessionStorage } from "@/hooks/useSessionStorage";
-import { apiClient } from "@/integrations/supabase/client";
+import { apiClient } from "@/services/apiClient";
 import {
   AlertDialog,
   AlertDialogAction,
