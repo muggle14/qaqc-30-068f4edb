@@ -30,6 +30,10 @@ export const SummarySection = ({
       );
     }
 
+    const summaryPoints = Array.isArray(detailedSummaryPoints) 
+      ? detailedSummaryPoints 
+      : [];
+
     return (
       <div className="space-y-6">
         <div>
@@ -40,9 +44,9 @@ export const SummarySection = ({
         </div>
         <div>
           <h3 className="font-semibold mb-2">Detailed Summary Points</h3>
-          {detailedSummaryPoints && detailedSummaryPoints.length > 0 ? (
+          {summaryPoints.length > 0 ? (
             <ul className="list-disc pl-4 space-y-2">
-              {detailedSummaryPoints.map((point, index) => (
+              {summaryPoints.map((point, index) => (
                 <li key={index} className="text-sm text-muted-foreground">
                   {point}
                 </li>
