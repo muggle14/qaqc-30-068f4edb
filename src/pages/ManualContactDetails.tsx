@@ -1,241 +1,84 @@
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import useSWR from "swr";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { apiClient } from "@/integrations/supabase/client";
-import { AssessmentSection } from "@/components/contact-details/AssessmentSection";
-import { SummarySection } from "@/components/contact-details/SummarySection";
-import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
-import { CollapsibleSection } from "@/components/contact-details/CollapsibleSection";
-import { ContactFormHeader } from "@/components/contact-details/ContactFormHeader";
-import { Save } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useSessionStorage } from "@/hooks/useSessionStorage";
+import { ContactDetails } from "@/components/contact-details/ContactDetails";
+import { toast } from "@/components/ui/use-toast";
 
-const ManualContactDetails = () => {
-  const { loadFromStorage, saveToStorage, clearStorage } = useSessionStorage();
-  const initialData = loadFromStorage();
+export function ManualContactDetails() {
+  const [searchParams] = useSearchParams();
+  const contactId = searchParams.get("id") || "";
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [transcript, setTranscript] = useState(initialData.transcript);
-  const [contactId, setContactId] = useState(initialData.contactId);
-  const [evaluator, setEvaluator] = useState(initialData.evaluator);
-  const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState(initialData.isSpecialServiceTeam);
-  const [overallSummary, setOverallSummary] = useState(initialData.overallSummary);
-  const [detailedSummaryPoints, setDetailedSummaryPoints] = useState(initialData.detailedSummaryPoints);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
-  const [newContactId, setNewContactId] = useState("");
-  const [highlightedSnippetId, setHighlightedSnippetId] = useState<string>();
-
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  // Save to session storage when data changes
-  useEffect(() => {
-    saveToStorage({
-      contactId,
-      evaluator,
-      transcript,
-      isSpecialServiceTeam,
-      overallSummary,
-      detailedSummaryPoints,
-    });
-  }, [contactId, evaluator, transcript, isSpecialServiceTeam, overallSummary, detailedSummaryPoints]);
-
-  // AI Assessment query with streaming support
-  const { data: aiAssessment } = useQuery({
-    queryKey: ['ai-assessment', contactId],
-    queryFn: async () => {
-      if (!contactId) return null;
-      
-      const response = await apiClient.invoke('contact-assessment', {
-        contact_id: contactId
-      });
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to fetch AI assessment");
-      }
-
+  const { data: contact, mutate } = useSWR(
+    contactId ? `/contacts/${contactId}` : null,
+    async (url: string) => {
+      const response = await apiClient.get(url);
       return response.data;
-    },
-    enabled: !!contactId
-  });
-
-  // Track form changes
-  useEffect(() => {
-    if (transcript || evaluator || isSpecialServiceTeam !== "no") {
-      setHasUnsavedChanges(true);
     }
-  }, [transcript, evaluator, isSpecialServiceTeam]);
+  );
 
-  const handleContactIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newId = e.target.value;
-    if (hasUnsavedChanges) {
-      setNewContactId(newId);
-      setShowUnsavedDialog(true);
-    } else {
-      setContactId(newId);
-    }
+  const onTranscriptChange = (transcript: string) => {
+    mutate({ ...contact, transcript }, false);
   };
 
-  const handleProceedWithoutSaving = () => {
-    setShowUnsavedDialog(false);
-    setContactId(newContactId);
-    setHasUnsavedChanges(false);
-    setTranscript("");
-    setEvaluator("");
-    setIsSpecialServiceTeam("no");
-    clearStorage();
-  };
-
-  const handleSnippetClick = (snippetId: string) => {
-    setHighlightedSnippetId(snippetId);
-  };
-
-  const validateForm = () => {
-    if (!transcript) {
+  const onSave = async () => {
+    if (!contact.transcript) {
       toast({
-        title: "Missing Transcript",
-        description: "Please provide the conversation transcript",
+        title: "Error",
+        description: "Please enter a transcript",
         variant: "destructive",
       });
-      return false;
-    }
-
-    if (!contactId) {
-      toast({
-        title: "Missing AWS Ref ID",
-        description: "Please enter the AWS Ref ID",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (!evaluator) {
-      toast({
-        title: "Missing TrackSmart ID",
-        description: "Please enter your TrackSmart ID",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
       return;
     }
 
+    setIsSaving(true);
+
     try {
-      const response = await apiClient.invoke("upload-details", {
-        data: [{
-          contact_id: contactId,
-          evaluator: evaluator,
-          transcript: transcript,
-          admin_id: null,
-          special_service_team: isSpecialServiceTeam === "yes"
-        }]
+      const result = await apiClient.invoke("contact-assessment", {
+        contactId: contact.id,
+        transcript: contact.transcript
       });
 
-      if (!response.success) {
-        throw new Error(response.error || "Failed to save contact details");
+      if (!result.success) {
+        toast({
+          title: "Error",
+          description: "The server at http://localhost:7071/api/vAndCAssessment is returning an error. Please check your v & c assessment function, verify the endpoint, and ensure it's deployed and running.",
+          variant: "destructive",
+        });
+        return;
       }
-
-      clearStorage();
-      setHasUnsavedChanges(false);
 
       toast({
         title: "Success",
-        description: "Contact details saved successfully",
+        description: "Assessment saved successfully",
       });
 
-      navigate("/contact/view", {
-        state: {
-          contactData: {
-            contact_id: contactId,
-            evaluator: evaluator,
-          }
-        }
-      });
+      // Refresh the data
+      void mutate();
     } catch (error) {
-      console.error("Error saving contact details:", error);
+      console.error("Error saving assessment:", error);
       toast({
         title: "Error",
-        description: "Failed to save contact details",
+        description: "Failed to save assessment",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
+  if (!contact) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <form onSubmit={handleSave}>
-        <ContactFormHeader
-          contactId={contactId}
-          evaluator={evaluator}
-          isSpecialServiceTeam={isSpecialServiceTeam}
-          onContactIdChange={handleContactIdChange}
-          onEvaluatorChange={(e) => setEvaluator(e.target.value)}
-          onSpecialServiceTeamChange={setIsSpecialServiceTeam}
-        />
-
-        <CollapsibleSection title="Summary & Transcript">
-          <div className="grid grid-cols-2 gap-6 mb-6">
-            <SummarySection 
-              overallSummary={overallSummary}
-              detailedSummaryPoints={detailedSummaryPoints}
-            />
-            
-            <TranscriptCard
-              transcript={transcript}
-              onTranscriptChange={setTranscript}
-              snippetsMetadata={aiAssessment?.snippets}
-              highlightedSnippetId={highlightedSnippetId}
-            />
-          </div>
-        </CollapsibleSection>
-
-        <AssessmentSection 
-          complaints={aiAssessment?.complaints?.items || []}
-          vulnerabilities={aiAssessment?.vulnerability?.items || []}
-          contactId={contactId}
-          transcript={transcript || ""}
-          onSnippetClick={handleSnippetClick}
-          specialServiceTeam={isSpecialServiceTeam === "yes"}
-        />
-
-        <div className="flex justify-end mt-6">
-          <Button type="submit" className="flex items-center gap-2">
-            <Save className="h-4 w-4" />
-            Save Assessment Details
-          </Button>
-        </div>
-      </form>
-
-      <AlertDialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
-            <AlertDialogDescription>
-              Your responses are not yet saved to the database. Do you want to save your changes before proceeding?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleProceedWithoutSaving} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Proceed Without Saving
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+    <ContactDetails
+      contact={contact}
+      onTranscriptChange={onTranscriptChange}
+      onSave={onSave}
+      isSaving={isSaving}
+    />
   );
-};
-
-export default ManualContactDetails;
+}
