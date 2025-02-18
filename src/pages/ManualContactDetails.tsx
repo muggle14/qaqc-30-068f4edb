@@ -14,6 +14,8 @@ import { Save } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSessionStorage } from "@/hooks/useSessionStorage";
 import { getSummary, getVAndCAssessment } from "@/lib/api";
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 
 const ManualContactDetails = () => {
   const { loadFromStorage, saveToStorage, clearStorage } = useSessionStorage();
@@ -31,17 +33,19 @@ const ManualContactDetails = () => {
   const { toast } = useToast();
 
   // Chat Summary Query
-  const { data: summaryData, isLoading: isSummaryLoading } = useQuery({
+  const { data: summaryData, isLoading: isSummaryLoading, error: summaryError } = useQuery({
     queryKey: ['chat-summary', transcript],
     queryFn: () => getSummary(transcript),
     enabled: transcript.length > 0,
+    retry: 2,
   });
 
   // V&C Assessment Query
-  const { data: vcAssessment, isLoading: isVCLoading } = useQuery({
+  const { data: vcAssessment, isLoading: isVCLoading, error: vcError } = useQuery({
     queryKey: ['vc-assessment', transcript],
     queryFn: () => getVAndCAssessment(transcript),
     enabled: transcript.length > 0,
+    retry: 2,
   });
 
   // Save to session storage when data changes
@@ -162,6 +166,37 @@ const ManualContactDetails = () => {
     }
   };
 
+  const renderSummaryContent = () => {
+    if (isSummaryLoading) {
+      return (
+        <Card className="h-full">
+          <CardContent className="h-full flex items-center justify-center">
+            <p className="text-muted-foreground">Generating summary...</p>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    if (summaryError) {
+      return (
+        <Card className="h-full">
+          <CardContent className="h-full flex flex-col items-center justify-center space-y-4">
+            <AlertCircle className="h-8 w-8 text-red-500" />
+            <p className="text-muted-foreground">Failed to generate summary. Please try again.</p>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <SummarySection
+        overallSummary={summaryData?.short_summary || ""}
+        detailedSummaryPoints={summaryData?.detailed_bullet_summary || []}
+        isLoading={isSummaryLoading}
+      />
+    );
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <form onSubmit={handleSave}>
@@ -176,14 +211,10 @@ const ManualContactDetails = () => {
 
         <CollapsibleSection title="Summary & Transcript">
           <div className="grid grid-cols-2 gap-6 mb-6">
+            {renderSummaryContent()}
             <TranscriptCard
               transcript={transcript}
               onTranscriptChange={setTranscript}
-              isLoading={isSummaryLoading}
-            />
-            <SummarySection
-              overallSummary={summaryData?.short_summary || ""}
-              detailedSummaryPoints={summaryData?.detailed_bullet_summary || []}
               isLoading={isSummaryLoading}
             />
           </div>
@@ -195,16 +226,16 @@ const ManualContactDetails = () => {
           contactId={contactId}
           transcript={transcript}
           specialServiceTeam={isSpecialServiceTeam === "yes"}
-          complaintsData={{
-            hasComplaints: vcAssessment?.complaint || false,
-            reasoning: vcAssessment?.complaint_reason || "",
-            snippets: vcAssessment?.complaint_snippet ? [vcAssessment.complaint_snippet] : []
-          }}
-          vulnerabilityData={{
-            hasVulnerability: vcAssessment?.financial_vulnerability || false,
-            reasoning: vcAssessment?.vulnerability_reason || "",
-            snippets: vcAssessment?.vulnerability_snippet ? [vcAssessment.vulnerability_snippet] : []
-          }}
+          complaintsData={vcAssessment ? {
+            hasComplaints: vcAssessment.complaint || false,
+            reasoning: vcAssessment.complaint_reason || "",
+            snippets: vcAssessment.complaint_snippet ? [vcAssessment.complaint_snippet] : []
+          } : undefined}
+          vulnerabilityData={vcAssessment ? {
+            hasVulnerability: vcAssessment.financial_vulnerability || false,
+            reasoning: vcAssessment.vulnerability_reason || "",
+            snippets: vcAssessment.vulnerability_snippet ? [vcAssessment.vulnerability_snippet] : []
+          } : undefined}
           isLoading={isVCLoading}
         />
 
