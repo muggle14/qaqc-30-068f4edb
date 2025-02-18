@@ -4,13 +4,12 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+import { SummarySection } from "@/components/contact-details/SummarySection";
+import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
+import { ContactInfo } from "@/components/contact-details/ContactInfo";
+import { AssessmentSection } from "@/components/contact-details/AssessmentSection";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Save } from "lucide-react";
 
 export function ManualContactDetails() {
@@ -101,116 +100,31 @@ export function ManualContactDetails() {
     <div className="container mx-auto p-6 space-y-6">
       <Card>
         <CardContent className="pt-6 space-y-6">
+          <ContactInfo
+            contactId=""
+            evaluator=""
+            isSpecialServiceTeam={specialServiceTeam ? "yes" : "no"}
+            onSpecialServiceTeamChange={(value) => setSpecialServiceTeam(value === "yes")}
+          />
+          
           <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="awsRefId">AWS Ref ID</Label>
-              <Input
-                id="awsRefId"
-                value={awsRefId}
-                onChange={(e) => setAwsRefId(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tracksmartId">TrackSmart ID</Label>
-              <Input
-                id="tracksmartId"
-                value={tracksmartId}
-                onChange={(e) => setTracksmartId(e.target.value)}
-                required
-              />
-            </div>
+            <TranscriptCard
+              transcript={transcript}
+              onTranscriptChange={setTranscript}
+            />
+            <SummarySection
+              overallSummary={summaryQuery.data?.short_summary || ""}
+              detailedSummaryPoints={summaryQuery.data?.detailed_bullet_summary || []}
+            />
           </div>
 
-          <div className="space-y-2">
-            <Label>Special Service Team Flag</Label>
-            <RadioGroup
-              value={specialServiceTeam ? "yes" : "no"}
-              onValueChange={(value) => setSpecialServiceTeam(value === "yes")}
-              className="flex space-x-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="yes" id="yes" />
-                <Label htmlFor="yes">Yes</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="no" id="no" />
-                <Label htmlFor="no">No</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="transcript">Transcript</Label>
-            <div className="max-h-[400px] overflow-y-auto border rounded-md">
-              <Textarea
-                id="transcript"
-                value={transcript}
-                onChange={(e) => setTranscript(e.target.value)}
-                className="min-h-[200px] resize-none"
-                placeholder="Paste conversation transcript here..."
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Summary</h3>
-            {summaryQuery.isLoading ? (
-              <LoadingSpinner />
-            ) : summaryQuery.data ? (
-              <div className="space-y-4">
-                <div>
-                  <Label>Overall Summary</Label>
-                  <p className="mt-1 text-gray-700">{summaryQuery.data.short_summary}</p>
-                </div>
-                <div>
-                  <Label>Detailed Summary Points</Label>
-                  <ul className="mt-1 list-disc pl-4 space-y-1">
-                    {summaryQuery.data.detailed_bullet_summary.map((point, index) => (
-                      <li key={index} className="text-gray-700">{point}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">AI Assessment</h3>
-            {vcAssessmentQuery.isLoading ? (
-              <LoadingSpinner />
-            ) : vcAssessmentQuery.data ? (
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>Complaints Assessment</Label>
-                  <p className="font-medium">{vcAssessmentQuery.data.complaint ? "Yes" : "No"}</p>
-                  {vcAssessmentQuery.data.complaint && (
-                    <>
-                      <Label>Reasoning</Label>
-                      <p className="text-gray-700">{vcAssessmentQuery.data.complaint_reason}</p>
-                      <Label>Evidence</Label>
-                      <p className="text-gray-700">{vcAssessmentQuery.data.complaint_snippet}</p>
-                    </>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>Vulnerability Assessment</Label>
-                  <p className="font-medium">
-                    {vcAssessmentQuery.data.financial_vulnerability ? "Yes" : "No"}
-                  </p>
-                  {vcAssessmentQuery.data.financial_vulnerability && (
-                    <>
-                      <Label>Reasoning</Label>
-                      <p className="text-gray-700">{vcAssessmentQuery.data.vulnerability_reason}</p>
-                      <Label>Evidence</Label>
-                      <p className="text-gray-700">{vcAssessmentQuery.data.vulnerability_snippet}</p>
-                    </>
-                  )}
-                </div>
-              </div>
-            ) : null}
-          </div>
+          <AssessmentSection
+            complaints={[]}
+            vulnerabilities={[]}
+            contactId=""
+            transcript={transcript}
+            specialServiceTeam={specialServiceTeam}
+          />
 
           <Button
             onClick={handleSave}
