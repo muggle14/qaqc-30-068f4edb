@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import Admin from "./pages/Admin";
 import ContactDetails from "./pages/ContactDetails";
-import { ManualContactDetails } from "./pages/ManualContactDetails";
+import ManualContactDetails from "./pages/ManualContactDetails";
 
 const queryClient = new QueryClient({
   defaultOptions: {
