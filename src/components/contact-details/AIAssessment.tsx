@@ -1,10 +1,10 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/integrations/supabase/client";
 import { PhysicalDisabilitySection } from "./PhysicalDisabilitySection";
 import { AIAssessmentSection } from "./AIAssessmentSection";
 import { AlertCircle } from "lucide-react";
+import { getVAndCAssessment } from "@/lib/api";
 
 interface AIAssessmentProps {
   complaints: string[];
@@ -37,31 +37,23 @@ export const AIAssessment = ({
   const { data: aiAssessment, isLoading: internalIsLoading, error } = useQuery({
     queryKey: ['ai-assessment', contactId],
     queryFn: async () => {
-      console.log("Fetching AI assessment for contact:", contactId);
+      console.log("Fetching V&C assessment for contact:", contactId);
       
-      const response = await apiClient.invoke('contact-assessment', {
-        contact_id: contactId
-      });
-
-      if (!response.success) {
-        console.error("Error fetching assessment:", response.error);
-        throw new Error(response.error || "Failed to fetch assessment");
-      }
-
-      console.log("AI assessment data:", response.data);
+      const response = await getVAndCAssessment(contactId);
+      console.log("V&C assessment data:", response);
       
       return {
-        complaints_flag: response.data.complaints?.complaints_flag || false,
-        complaints_reasoning: response.data.complaints?.complaints_reasoning,
-        relevant_snippet_ids: response.data.complaints?.relevant_snippet_ids || [],
-        physical_disability_flag: response.data.complaints?.physical_disability_flag || false,
-        physical_disability_reasoning: response.data.complaints?.physical_disability_reasoning,
-        vulnerability_flag: response.data.vulnerability?.vulnerability_flag || false,
-        vulnerability_reasoning: response.data.vulnerability?.vulnerability_reasoning,
-        vulnerability_snippet_ids: response.data.vulnerability?.relevant_snippet_ids || []
+        complaints_flag: response.complaint || false,
+        complaints_reasoning: response.complaint_reason,
+        relevant_snippet_ids: response.complaint_snippet ? [response.complaint_snippet] : [],
+        physical_disability_flag: false,
+        physical_disability_reasoning: "",
+        vulnerability_flag: response.financial_vulnerability || false,
+        vulnerability_reasoning: response.vulnerability_reason,
+        vulnerability_snippet_ids: response.vulnerability_snippet ? [response.vulnerability_snippet] : []
       };
     },
-    retry: 1,
+    retry: 2,
     enabled: !!contactId && !complaintsData && !vulnerabilityData // Only fetch if we don't have external data
   });
 
