@@ -24,7 +24,7 @@ export const TranscriptSection = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
 
-  const { data: summaryData, isLoading: isSummaryLoading, refetch: refetchSummary } = useQuery({
+  const { data: summaryData, isLoading: isSummaryLoading, refetch: refetchSummary, error: summaryError } = useQuery({
     queryKey: ['chat-summary', transcript],
     queryFn: async () => {
       const response = await getSummary(transcript);
@@ -34,6 +34,7 @@ export const TranscriptSection = ({
       };
     },
     enabled: false,
+    retry: 1,
   });
 
   const handleGenerateAssessment = async () => {
@@ -48,8 +49,18 @@ export const TranscriptSection = ({
 
     setIsGenerating(true);
     try {
-      console.log('Starting assessment generation...');
+      console.log('Starting assessment generation with transcript:', transcript);
       await refetchSummary();
+      
+      if (summaryError) {
+        throw summaryError;
+      }
+
+      toast({
+        title: "Success",
+        description: "AI assessment generated successfully",
+      });
+      
       console.log('Assessment generation completed:', { summaryData });
     } catch (error) {
       console.error("Generation failed:", error);

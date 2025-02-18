@@ -53,7 +53,7 @@ interface SummaryResponse {
 }
 
 export const getSummary = async (conversation: string): Promise<SummaryResponse> => {
-  const response = await chatSummaryApi.post("/GetItems", {
+  const response = await chatSummaryApi.post("/chat-summary", {
     conversation: conversation
   });
   
