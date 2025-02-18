@@ -1,36 +1,41 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { apiClient } from "@/integrations/supabase/client";
 import { AssessmentSection } from "@/components/contact-details/AssessmentSection";
-import { SummarySection } from "@/components/contact-details/SummarySection";
 import { TranscriptCard } from "@/components/contact-details/TranscriptCard";
+import { SummarySection } from "@/components/contact-details/SummarySection";
 import { CollapsibleSection } from "@/components/contact-details/CollapsibleSection";
 import { ContactFormHeader } from "@/components/contact-details/ContactFormHeader";
 import { Save } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSessionStorage } from "@/hooks/useSessionStorage";
+import { getSummary } from "@/lib/api";
 
 const ManualContactDetails = () => {
   const { loadFromStorage, saveToStorage, clearStorage } = useSessionStorage();
   const initialData = loadFromStorage();
 
-  const [transcript, setTranscript] = useState(initialData.transcript);
-  const [contactId, setContactId] = useState(initialData.contactId);
-  const [evaluator, setEvaluator] = useState(initialData.evaluator);
-  const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState(initialData.isSpecialServiceTeam);
-  const [overallSummary, setOverallSummary] = useState(initialData.overallSummary);
-  const [detailedSummaryPoints, setDetailedSummaryPoints] = useState(initialData.detailedSummaryPoints);
+  const [transcript, setTranscript] = useState(initialData.transcript || "");
+  const [contactId, setContactId] = useState(initialData.contactId || "");
+  const [evaluator, setEvaluator] = useState(initialData.evaluator || "");
+  const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState(initialData.isSpecialServiceTeam || "no");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [newContactId, setNewContactId] = useState("");
-  const [highlightedSnippetId, setHighlightedSnippetId] = useState<string>();
 
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Chat Summary Query
+  const { data: summaryData, isLoading: isSummaryLoading } = useQuery({
+    queryKey: ['chat-summary', transcript],
+    queryFn: () => getSummary(transcript),
+    enabled: transcript.length > 0,
+  });
 
   // Save to session storage when data changes
   useEffect(() => {
@@ -39,29 +44,8 @@ const ManualContactDetails = () => {
       evaluator,
       transcript,
       isSpecialServiceTeam,
-      overallSummary,
-      detailedSummaryPoints,
     });
-  }, [contactId, evaluator, transcript, isSpecialServiceTeam, overallSummary, detailedSummaryPoints]);
-
-  // AI Assessment query with streaming support
-  const { data: aiAssessment } = useQuery({
-    queryKey: ['ai-assessment', contactId],
-    queryFn: async () => {
-      if (!contactId) return null;
-      
-      const response = await apiClient.invoke('contact-assessment', {
-        contact_id: contactId
-      });
-
-      if (!response.success) {
-        throw new Error(response.error || "Failed to fetch AI assessment");
-      }
-
-      return response.data;
-    },
-    enabled: !!contactId
-  });
+  }, [contactId, evaluator, transcript, isSpecialServiceTeam]);
 
   // Track form changes
   useEffect(() => {
@@ -88,10 +72,6 @@ const ManualContactDetails = () => {
     setEvaluator("");
     setIsSpecialServiceTeam("no");
     clearStorage();
-  };
-
-  const handleSnippetClick = (snippetId: string) => {
-    setHighlightedSnippetId(snippetId);
   };
 
   const validateForm = () => {
@@ -187,26 +167,24 @@ const ManualContactDetails = () => {
 
         <CollapsibleSection title="Summary & Transcript">
           <div className="grid grid-cols-2 gap-6 mb-6">
-            <SummarySection 
-              overallSummary={overallSummary}
-              detailedSummaryPoints={detailedSummaryPoints}
-            />
-            
             <TranscriptCard
               transcript={transcript}
               onTranscriptChange={setTranscript}
-              snippetsMetadata={aiAssessment?.snippets}
-              highlightedSnippetId={highlightedSnippetId}
+              isLoading={isSummaryLoading}
+            />
+            <SummarySection
+              overallSummary={summaryData?.short_summary || ""}
+              detailedSummaryPoints={summaryData?.detailed_bullet_summary || []}
+              isLoading={isSummaryLoading}
             />
           </div>
         </CollapsibleSection>
 
         <AssessmentSection 
-          complaints={aiAssessment?.complaints?.items || []}
-          vulnerabilities={aiAssessment?.vulnerability?.items || []}
+          complaints={[]}
+          vulnerabilities={[]}
           contactId={contactId}
-          transcript={transcript || ""}
-          onSnippetClick={handleSnippetClick}
+          transcript={transcript}
           specialServiceTeam={isSpecialServiceTeam === "yes"}
         />
 
