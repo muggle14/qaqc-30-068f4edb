@@ -227,10 +227,6 @@ const ManualContactDetails = () => {
         specialServiceTeam: isSpecialServiceTeam === "yes"
       });
 
-      if (!response.success) {
-        throw new Error(response.error || "Failed to save assessment details");
-      }
-
       clearStorage();
       setHasUnsavedChanges(false);
 

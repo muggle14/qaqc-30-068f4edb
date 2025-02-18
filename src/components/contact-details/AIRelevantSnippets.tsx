@@ -29,26 +29,25 @@ export const AIRelevantSnippets = ({
         return [];
       }
 
-      // Ensure we're sending data in the format expected by the Azure Function
-      const response = await apiClient.invoke('vAndCAssessment', {
-        conversation: snippetIds.join('\n'),
-        contact_id: contactId
-      });
+      try {
+        const response = await apiClient.invoke('vAndCAssessment', {
+          conversation: snippetIds.join('\n'),
+          contact_id: contactId
+        });
 
-      if (!response.success) {
-        console.error("Error fetching snippets:", response.error);
-        throw new Error(response.error || "Failed to fetch snippets");
+        // Transform the response into the expected format
+        const snippetsData = snippetIds.map(id => ({
+          id,
+          content: id,
+          timestamp: null
+        }));
+
+        console.log("Snippets data:", snippetsData);
+        return snippetsData;
+      } catch (error) {
+        console.error("Error processing snippets:", error);
+        throw error;
       }
-
-      // Transform the response into the expected format
-      const snippetsData = snippetIds.map(id => ({
-        id,
-        content: id,
-        timestamp: null
-      }));
-
-      console.log("Snippets data:", snippetsData);
-      return snippetsData;
     },
     enabled: !!contactId && snippetIds.length > 0
   });
@@ -57,7 +56,7 @@ export const AIRelevantSnippets = ({
     console.error("Error in AIRelevantSnippets:", error);
     return (
       <div className="text-red-500">
-        Error loading snippets: {error.message}
+        Error loading snippets: {error instanceof Error ? error.message : 'Unknown error'}
       </div>
     );
   }
