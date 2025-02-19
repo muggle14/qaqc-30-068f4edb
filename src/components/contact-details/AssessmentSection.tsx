@@ -2,7 +2,7 @@
 import { AIAssessment } from "./AIAssessment";
 import { QualityAssessmentCard } from "./QualityAssessmentCard";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, RefreshCw, AlertCircle } from "lucide-react";
+import { ChevronDown, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
@@ -11,7 +11,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getVAndCAssessment } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AssessmentSectionProps {
   complaints: string[];
@@ -110,72 +109,40 @@ export const AssessmentSection = ({
 
     try {
       console.log('Starting V&C assessment generation...');
-      await refetchAssessment();
+      const result = await refetchAssessment();
+      
+      if (assessmentError) {
+        throw assessmentError;
+      }
+
+      console.log('V&C Assessment generated:', result.data);
+      setAssessmentKey(prev => prev + 1);
     } catch (error) {
       console.error("V&C Assessment generation failed:", error);
-      setLoadingMessage("");
-      setLoadingProgress(0);
+      setLoadingMessage("Assessment generation failed. Please try again.");
     }
   };
 
   const isLoading = isAssessmentLoading || externalLoading;
 
-  const renderAssessmentContent = () => {
-    if (isLoading) {
-      return (
-        <div className="mt-4 space-y-2">
-          <p className="text-sm text-muted-foreground">{loadingMessage}</p>
-          <Progress value={loadingProgress} className="h-1" />
-        </div>
-      );
-    }
+  const currentComplaintsData = assessmentData ? {
+    hasComplaints: assessmentData.complaint,
+    reasoning: assessmentData.complaint_reason || "No complaints identified",
+    snippets: assessmentData.complaint_snippet ? [assessmentData.complaint_snippet] : []
+  } : complaintsData || {
+    hasComplaints: false,
+    reasoning: "No complaints identified",
+    snippets: []
+  };
 
-    if (assessmentError) {
-      return (
-        <Alert variant="destructive" className="mt-4">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            {assessmentError instanceof Error 
-              ? assessmentError.message 
-              : "Failed to fetch assessment. Please try again."}
-          </AlertDescription>
-        </Alert>
-      );
-    }
-
-    const currentComplaintsData = assessmentData ? {
-      hasComplaints: assessmentData.complaint,
-      reasoning: assessmentData.complaint_reason || "No complaints identified",
-      snippets: assessmentData.complaint_snippet ? [assessmentData.complaint_snippet] : []
-    } : complaintsData || {
-      hasComplaints: false,
-      reasoning: "No complaints identified",
-      snippets: []
-    };
-
-    const currentVulnerabilityData = assessmentData ? {
-      hasVulnerability: assessmentData.financial_vulnerability,
-      reasoning: assessmentData.vulnerability_reason || "No vulnerabilities identified",
-      snippets: assessmentData.vulnerability_snippet ? [assessmentData.vulnerability_snippet] : []
-    } : vulnerabilityData || {
-      hasVulnerability: false,
-      reasoning: "No vulnerabilities identified",
-      snippets: []
-    };
-
-    return (
-      <AIAssessment 
-        key={assessmentKey}
-        complaints={complaints}
-        vulnerabilities={vulnerabilities}
-        hasPhysicalDisability={false}
-        contactId={contactId}
-        onSnippetClick={onSnippetClick}
-        complaintsData={currentComplaintsData}
-        vulnerabilityData={currentVulnerabilityData}
-        isLoading={isLoading}
-      />
-    );
+  const currentVulnerabilityData = assessmentData ? {
+    hasVulnerability: assessmentData.financial_vulnerability,
+    reasoning: assessmentData.vulnerability_reason || "No vulnerabilities identified",
+    snippets: assessmentData.vulnerability_snippet ? [assessmentData.vulnerability_snippet] : []
+  } : vulnerabilityData || {
+    hasVulnerability: false,
+    reasoning: "No vulnerabilities identified",
+    snippets: []
   };
 
   return (
@@ -210,8 +177,25 @@ export const AssessmentSection = ({
           </Button>
         </div>
 
+        {isLoading && loadingMessage && (
+          <div className="mt-4 space-y-2">
+            <p className="text-sm text-muted-foreground">{loadingMessage}</p>
+            <Progress value={loadingProgress} className="h-1" />
+          </div>
+        )}
+
         <CollapsibleContent className="mt-4">
-          {renderAssessmentContent()}
+          <AIAssessment 
+            key={assessmentKey}
+            complaints={complaints}
+            vulnerabilities={vulnerabilities}
+            hasPhysicalDisability={false}
+            contactId={contactId}
+            onSnippetClick={onSnippetClick}
+            complaintsData={currentComplaintsData}
+            vulnerabilityData={currentVulnerabilityData}
+            isLoading={isLoading}
+          />
         </CollapsibleContent>
       </Collapsible>
     </div>
