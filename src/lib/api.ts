@@ -22,7 +22,7 @@ chatSummaryApi.interceptors.request.use(
   },
   (error) => {
     console.error("API Request Error:", error);
-    return Promise.reject(error);
+    throw new Error(error.message || "Failed to make request");
   }
 );
 
@@ -43,7 +43,17 @@ chatSummaryApi.interceptors.response.use(
       status: error.response?.status,
       headers: error.response?.headers
     });
-    return Promise.reject(error);
+    
+    // Enhance error message based on status code
+    if (error.response?.status === 404) {
+      throw new Error("API endpoint not found. Please check the URL.");
+    } else if (error.response?.status === 403) {
+      throw new Error("Access forbidden. CORS issue may be present.");
+    } else if (error.response?.status === 500) {
+      throw new Error("Server error occurred. Please try again later.");
+    }
+    
+    throw new Error(error.response?.data?.error || error.message || "An unknown error occurred");
   }
 );
 
@@ -62,15 +72,19 @@ interface VAndCAssessmentResponse {
 }
 
 export const getSummary = async (conversation: string): Promise<SummaryResponse> => {
-  const response = await chatSummaryApi.post("/chat-summary", {
-    conversation: conversation
-  });
-  
-  if (response.data.error) {
-    throw new Error(response.data.error);
-  }
-
   try {
+    const response = await chatSummaryApi.post("/chat-summary", {
+      conversation: conversation
+    });
+    
+    if (!response.data) {
+      throw new Error("Empty response received from server");
+    }
+
+    if (response.data.error) {
+      throw new Error(response.data.error);
+    }
+
     let parsedData;
     if (typeof response.data.detailed_bullet_summary === 'string') {
       const cleanJson = response.data.detailed_bullet_summary.replace(/```json\n|```/g, '');
@@ -97,30 +111,36 @@ export const getSummary = async (conversation: string): Promise<SummaryResponse>
           : []
     };
   } catch (error) {
-    console.error('Error parsing summary response:', error);
-    return {
-      short_summary: response.data.short_summary || "No summary available",
-      detailed_bullet_summary: []
-    };
+    console.error('Error in getSummary:', error);
+    throw error instanceof Error ? error : new Error('Failed to get summary');
   }
 };
 
 export const getVAndCAssessment = async (conversation: string): Promise<VAndCAssessmentResponse> => {
-  console.log("Fetching V&C assessment for conversation:", conversation);
-  const response = await chatSummaryApi.post("/vandcassessment", {
-    conversation: conversation
-  });
+  try {
+    console.log("Fetching V&C assessment for conversation:", conversation);
+    const response = await chatSummaryApi.post("/vandcassessment", {
+      conversation: conversation
+    });
 
-  if (response.data.error) {
-    throw new Error(response.data.error);
+    if (!response.data) {
+      throw new Error("Empty response received from server");
+    }
+
+    if (response.data.error) {
+      throw new Error(response.data.error);
+    }
+
+    return {
+      financial_vulnerability: response.data.financial_vulnerability || false,
+      vulnerability_reason: response.data.vulnerability_reason || "No vulnerability detected",
+      vulnerability_snippet: response.data.vulnerability_snippet || "No relevant snippets found",
+      complaint: response.data.complaint || false,
+      complaint_reason: response.data.complaint_reason || "No complaints detected",
+      complaint_snippet: response.data.complaint_snippet || "No relevant snippets found"
+    };
+  } catch (error) {
+    console.error('Error in getVAndCAssessment:', error);
+    throw error instanceof Error ? error : new Error('Failed to get V&C assessment');
   }
-
-  return {
-    financial_vulnerability: response.data.financial_vulnerability || false,
-    vulnerability_reason: response.data.vulnerability_reason || "No vulnerability detected",
-    vulnerability_snippet: response.data.vulnerability_snippet || "No relevant snippets found",
-    complaint: response.data.complaint || false,
-    complaint_reason: response.data.complaint_reason || "No complaints detected",
-    complaint_snippet: response.data.complaint_snippet || "No relevant snippets found"
-  };
 };
