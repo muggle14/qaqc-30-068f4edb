@@ -70,17 +70,14 @@ export const getSummary = async (conversation: string): Promise<SummaryResponse>
     throw new Error(response.data.error);
   }
 
-  // Handle the double-encoded JSON response
   try {
     let parsedData;
     if (typeof response.data.detailed_bullet_summary === 'string') {
-      // Remove potential JSON code fence markers
       const cleanJson = response.data.detailed_bullet_summary.replace(/```json\n|```/g, '');
       try {
         parsedData = JSON.parse(cleanJson);
       } catch (parseError) {
         console.error('Error parsing detailed_bullet_summary:', parseError);
-        // If parsing fails, try to split the string into bullet points
         const bulletPoints = cleanJson.split('\n')
           .filter(line => line.trim())
           .map(line => line.trim().replace(/^- /, ''));
@@ -110,7 +107,7 @@ export const getSummary = async (conversation: string): Promise<SummaryResponse>
 
 export const getVAndCAssessment = async (conversation: string): Promise<VAndCAssessmentResponse> => {
   console.log("Fetching V&C assessment for conversation:", conversation);
-  const response = await chatSummaryApi.post("/contact-assessment", {
+  const response = await chatSummaryApi.post("/vandcassessment", {
     conversation: conversation
   });
 
