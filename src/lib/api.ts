@@ -109,31 +109,21 @@ export const getSummary = async (conversation: string): Promise<SummaryResponse>
 };
 
 export const getVAndCAssessment = async (conversation: string): Promise<VAndCAssessmentResponse> => {
-  try {
-    console.log("Fetching V&C Assessment...", { conversation });
-    
-    const response = await chatSummaryApi.post("/contact-assessment", {
-      conversation: conversation
-    });
+  console.log("Fetching V&C assessment for conversation:", conversation);
+  const response = await chatSummaryApi.post("/contact-assessment", {
+    conversation: conversation
+  });
 
-    console.log("V&C Assessment API Response:", response.data);
-
-    if (!response.data || response.data.error) {
-      throw new Error(response.data?.error || "Failed to fetch assessment");
-    }
-
-    return {
-      financial_vulnerability: response.data.financial_vulnerability || false,
-      vulnerability_reason: response.data.vulnerability_reason || "No vulnerability detected",
-      vulnerability_snippet: response.data.vulnerability_snippet || "No relevant snippets found",
-      complaint: response.data.complaint || false,
-      complaint_reason: response.data.complaint_reason || "No complaints detected",
-      complaint_snippet: response.data.complaint_snippet || "No relevant snippets found"
-    };
-  } catch (error) {
-    console.error("V&C Assessment API Error:", 
-      error.response ? error.response.data : error.message
-    );
-    throw new Error("Failed to fetch assessment. Please try again.");
+  if (response.data.error) {
+    throw new Error(response.data.error);
   }
+
+  return {
+    financial_vulnerability: response.data.financial_vulnerability || false,
+    vulnerability_reason: response.data.vulnerability_reason || "No vulnerability detected",
+    vulnerability_snippet: response.data.vulnerability_snippet || "No relevant snippets found",
+    complaint: response.data.complaint || false,
+    complaint_reason: response.data.complaint_reason || "No complaints detected",
+    complaint_snippet: response.data.complaint_snippet || "No relevant snippets found"
+  };
 };
