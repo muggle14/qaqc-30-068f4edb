@@ -117,9 +117,20 @@ export const AssessmentSection = ({
 
       console.log('V&C Assessment generated:', result.data);
       setAssessmentKey(prev => prev + 1);
+      
+      toast({
+        title: "Success",
+        description: "V&C Assessment generated successfully",
+        variant: "success",
+      });
     } catch (error) {
       console.error("V&C Assessment generation failed:", error);
-      setLoadingMessage("Assessment generation failed. Please try again.");
+      setLoadingMessage("");
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate assessment",
+        variant: "destructive",
+      });
     }
   };
 

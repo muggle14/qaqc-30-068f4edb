@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
@@ -26,8 +25,8 @@ export const ManualContactForm = ({
   const [evaluator, setEvaluator] = useState(initialData.evaluator || "");
   const [isSpecialServiceTeam, setIsSpecialServiceTeam] = useState(initialData.isSpecialServiceTeam || "no");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -38,6 +37,15 @@ export const ManualContactForm = ({
 
     setHasUnsavedChanges(hasCriticalChanges);
   }, [transcript, evaluator, isSpecialServiceTeam, initialData]);
+
+  const resetForm = () => {
+    setTranscript("");
+    setContactId("");
+    setEvaluator("");
+    setIsSpecialServiceTeam("no");
+    setHasUnsavedChanges(false);
+    onClearStorage();
+  };
 
   const handleContactIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newId = e.target.value;
@@ -96,10 +104,13 @@ export const ManualContactForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     
-    if (!validateForm()) {
+    if (!validateForm() || isSaving) {
       return;
     }
+
+    setIsSaving(true);
 
     try {
       const response = await apiClient.saveAssessmentDetails({
@@ -109,29 +120,22 @@ export const ManualContactForm = ({
         specialServiceTeam: isSpecialServiceTeam === "yes"
       });
 
-      onClearStorage();
-      setHasUnsavedChanges(false);
-
       toast({
         title: "Success",
         description: "Assessment details saved successfully",
+        variant: "success",
       });
 
-      navigate("/contact/view", {
-        state: {
-          contactData: {
-            contact_id: contactId,
-            evaluator: evaluator,
-          }
-        }
-      });
+      resetForm();
     } catch (error) {
       console.error("Error saving assessment details:", error);
       toast({
         title: "Error",
-        description: "Failed to save assessment details",
+        description: "Failed to save assessment details. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -164,9 +168,13 @@ export const ManualContactForm = ({
       <QualityAssessorSection />
 
       <div className="flex justify-end mt-6">
-        <Button type="submit" className="flex items-center gap-2">
+        <Button 
+          type="submit" 
+          className="flex items-center gap-2"
+          disabled={isSaving}
+        >
           <Save className="h-4 w-4" />
-          Save Assessment Details
+          {isSaving ? "Saving..." : "Save Assessment Details"}
         </Button>
       </div>
     </form>
