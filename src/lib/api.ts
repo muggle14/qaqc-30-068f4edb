@@ -1,3 +1,4 @@
+
 import axios from "axios";
 
 export const chatSummaryApi = axios.create({
@@ -119,10 +120,10 @@ export const getVAndCAssessment = async (conversation: string): Promise<VAndCAss
 
   return {
     financial_vulnerability: response.data.financial_vulnerability || false,
-    vulnerability_reason: response.data.vulnerability_reason || "",
-    vulnerability_snippet: response.data.vulnerability_snippet || "",
+    vulnerability_reason: response.data.vulnerability_reason || "No vulnerability detected",
+    vulnerability_snippet: response.data.vulnerability_snippet || "No relevant snippets found",
     complaint: response.data.complaint || false,
-    complaint_reason: response.data.complaint_reason || "",
-    complaint_snippet: response.data.complaint_snippet || ""
+    complaint_reason: response.data.complaint_reason || "No complaints detected",
+    complaint_snippet: response.data.complaint_snippet || "No relevant snippets found"
   };
 };

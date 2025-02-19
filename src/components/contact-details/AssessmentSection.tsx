@@ -127,15 +127,23 @@ export const AssessmentSection = ({
 
   const currentComplaintsData = assessmentData ? {
     hasComplaints: assessmentData.complaint,
-    reasoning: assessmentData.complaint_reason || "No complaint reasoning provided",
+    reasoning: assessmentData.complaint_reason || "No complaints identified",
     snippets: assessmentData.complaint_snippet ? [assessmentData.complaint_snippet] : []
-  } : complaintsData;
+  } : complaintsData || {
+    hasComplaints: false,
+    reasoning: "No complaints identified",
+    snippets: []
+  };
 
   const currentVulnerabilityData = assessmentData ? {
     hasVulnerability: assessmentData.financial_vulnerability,
-    reasoning: assessmentData.vulnerability_reason || "No vulnerability reasoning provided",
+    reasoning: assessmentData.vulnerability_reason || "No vulnerabilities identified",
     snippets: assessmentData.vulnerability_snippet ? [assessmentData.vulnerability_snippet] : []
-  } : vulnerabilityData;
+  } : vulnerabilityData || {
+    hasVulnerability: false,
+    reasoning: "No vulnerabilities identified",
+    snippets: []
+  };
 
   return (
     <div className="space-y-4">
