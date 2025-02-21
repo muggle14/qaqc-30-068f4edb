@@ -151,13 +151,21 @@ export const AssessmentSection = ({
 
         <CollapsibleContent className="mt-4 space-y-6">
           <ComplaintAssessmentForm
-            complaints={complaints}
-            onChange={onComplaintsChange}
+            selectedReasons={complaints.selectedReasons}
+            otherReason={complaints.otherReason}
+            onReasonsChange={(reasons) => onComplaintsChange({ selectedReasons: reasons })}
+            onOtherReasonChange={(value) => onComplaintsChange({ otherReason: value })}
+            state={complaints}
+            onStateChange={onComplaintsChange}
           />
           
           <VulnerabilityAssessmentForm
-            vulnerabilities={vulnerabilities}
-            onChange={onVulnerabilitiesChange}
+            selectedCategories={vulnerabilities.selectedCategories}
+            otherCategory={vulnerabilities.otherCategory}
+            onCategoriesChange={(categories) => onVulnerabilitiesChange({ selectedCategories: categories })}
+            onOtherCategoryChange={(value) => onVulnerabilitiesChange({ otherCategory: value })}
+            state={vulnerabilities}
+            onStateChange={onVulnerabilitiesChange}
           />
         </CollapsibleContent>
       </Collapsible>

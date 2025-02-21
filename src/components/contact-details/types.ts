@@ -1,3 +1,4 @@
+
 import { LucideIcon } from "lucide-react";
 
 export interface AssessmentEntry {
@@ -73,6 +74,24 @@ export interface AssessmentFormState {
   isSpecialServiceTeam: "yes" | "no";
   complaints: ComplaintAssessmentState;
   vulnerabilities: VulnerabilityAssessmentState;
+}
+
+export interface ComplaintAssessmentFormProps {
+  selectedReasons: string[];
+  otherReason: string;
+  onReasonsChange: (categories: string[]) => void;
+  onOtherReasonChange: (value: string) => void;
+  state: ComplaintAssessmentState;
+  onStateChange: (updates: Partial<ComplaintAssessmentState>) => void;
+}
+
+export interface VulnerabilityAssessmentFormProps {
+  selectedCategories: string[];
+  otherCategory: string;
+  onCategoriesChange: (categories: string[]) => void;
+  onOtherCategoryChange: (value: string) => void;
+  state: VulnerabilityAssessmentState;
+  onStateChange: (updates: Partial<VulnerabilityAssessmentState>) => void;
 }
 
 export const initialComplaintState: ComplaintAssessmentState = {
