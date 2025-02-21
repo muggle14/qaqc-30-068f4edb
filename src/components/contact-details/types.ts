@@ -1,4 +1,3 @@
-
 import { LucideIcon } from "lucide-react";
 
 export interface AssessmentEntry {
@@ -38,3 +37,67 @@ export interface AssessmentCardProps {
   reviewEvidence?: string;
   onReviewEvidenceChange?: (value: string) => void;
 }
+
+export interface ComplaintAssessmentState {
+  hasComplaints: boolean;
+  selectedReasons: string[];
+  otherReason: string;
+  assessments: {
+    [key: string]: {
+      reasoning: string;
+      evidence: string;
+    };
+  };
+  customReasons: string[];
+  newCustomReason: string;
+}
+
+export interface VulnerabilityAssessmentState {
+  hasVulnerability: boolean;
+  selectedCategories: string[];
+  otherCategory: string;
+  assessments: {
+    [key: string]: {
+      reasoning: string;
+      evidence: string;
+    };
+  };
+  customCategories: string[];
+  newCustomCategory: string;
+}
+
+export interface AssessmentFormState {
+  transcript: string;
+  contactId: string;
+  evaluator: string;
+  isSpecialServiceTeam: "yes" | "no";
+  complaints: ComplaintAssessmentState;
+  vulnerabilities: VulnerabilityAssessmentState;
+}
+
+export const initialComplaintState: ComplaintAssessmentState = {
+  hasComplaints: false,
+  selectedReasons: [],
+  otherReason: "",
+  assessments: {},
+  customReasons: [],
+  newCustomReason: ""
+};
+
+export const initialVulnerabilityState: VulnerabilityAssessmentState = {
+  hasVulnerability: false,
+  selectedCategories: [],
+  otherCategory: "",
+  assessments: {},
+  customCategories: [],
+  newCustomCategory: ""
+};
+
+export const initialAssessmentFormState: AssessmentFormState = {
+  transcript: "",
+  contactId: "",
+  evaluator: "",
+  isSpecialServiceTeam: "no",
+  complaints: initialComplaintState,
+  vulnerabilities: initialVulnerabilityState
+};

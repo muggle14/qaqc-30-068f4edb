@@ -8,30 +8,11 @@ import { ContactFormHeader } from "./ContactFormHeader";
 import { TranscriptSection } from "./TranscriptSection";
 import { AssessmentSection } from "./AssessmentSection";
 import { QualityAssessorSection } from "./QualityAssessorSection";
-
-interface FormState {
-  transcript: string;
-  contactId: string;
-  evaluator: string;
-  isSpecialServiceTeam: "yes" | "no";
-  assessmentKey: number;
-  complaints: any[];
-  vulnerabilities: any[];
-}
-
-const initialFormState: FormState = {
-  transcript: "",
-  contactId: "",
-  evaluator: "",
-  isSpecialServiceTeam: "no",
-  assessmentKey: 0,
-  complaints: [],
-  vulnerabilities: [],
-};
+import { AssessmentFormState, initialAssessmentFormState } from "./types";
 
 interface ManualContactFormProps {
-  initialData: any;
-  onSaveToStorage: (data: any) => void;
+  initialData: Partial<AssessmentFormState>;
+  onSaveToStorage: (data: Partial<AssessmentFormState>) => void;
   onClearStorage: () => void;
 }
 
@@ -40,9 +21,9 @@ export const ManualContactForm = ({
   onSaveToStorage,
   onClearStorage,
 }: ManualContactFormProps) => {
-  const [formState, setFormState] = useState<FormState>({
-    ...initialFormState,
-    ...initialData,
+  const [formState, setFormState] = useState<AssessmentFormState>({
+    ...initialAssessmentFormState,
+    ...initialData
   });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -59,33 +40,9 @@ export const ManualContactForm = ({
   }, [formState, initialData]);
 
   const resetForm = () => {
-    setFormState(initialFormState);
+    setFormState(initialAssessmentFormState);
     setHasUnsavedChanges(false);
     onClearStorage();
-  };
-
-  const handleContactIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newId = e.target.value;
-    setFormState(prev => ({ ...prev, contactId: newId }));
-    onSaveToStorage({
-      ...initialData,
-      contactId: newId,
-    });
-  };
-
-  const handleTranscriptChange = (newTranscript: string) => {
-    setFormState(prev => ({ ...prev, transcript: newTranscript }));
-    setHasUnsavedChanges(true);
-  };
-
-  const handleEvaluatorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormState(prev => ({ ...prev, evaluator: e.target.value }));
-    setHasUnsavedChanges(true);
-  };
-
-  const handleSpecialServiceTeamChange = (value: "yes" | "no") => {
-    setFormState(prev => ({ ...prev, isSpecialServiceTeam: value }));
-    setHasUnsavedChanges(true);
   };
 
   const validateForm = () => {
@@ -134,7 +91,9 @@ export const ManualContactForm = ({
         awsRefId: formState.contactId,
         tracksmartId: formState.evaluator,
         transcript: formState.transcript,
-        specialServiceTeam: formState.isSpecialServiceTeam === "yes"
+        specialServiceTeam: formState.isSpecialServiceTeam === "yes",
+        complaints: formState.complaints,
+        vulnerabilities: formState.vulnerabilities
       });
 
       toast({
@@ -156,22 +115,48 @@ export const ManualContactForm = ({
     }
   };
 
+  const updateFormState = (updates: Partial<AssessmentFormState>) => {
+    setFormState(prev => ({
+      ...prev,
+      ...updates
+    }));
+    setHasUnsavedChanges(true);
+  };
+
+  const updateComplaints = (updates: Partial<AssessmentFormState['complaints']>) => {
+    updateFormState({
+      complaints: {
+        ...formState.complaints,
+        ...updates
+      }
+    });
+  };
+
+  const updateVulnerabilities = (updates: Partial<AssessmentFormState['vulnerabilities']>) => {
+    updateFormState({
+      vulnerabilities: {
+        ...formState.vulnerabilities,
+        ...updates
+      }
+    });
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <ContactFormHeader
         contactId={formState.contactId}
         evaluator={formState.evaluator}
         isSpecialServiceTeam={formState.isSpecialServiceTeam}
-        onContactIdChange={handleContactIdChange}
-        onEvaluatorChange={handleEvaluatorChange}
-        onSpecialServiceTeamChange={handleSpecialServiceTeamChange}
+        onContactIdChange={(e) => updateFormState({ contactId: e.target.value })}
+        onEvaluatorChange={(e) => updateFormState({ evaluator: e.target.value })}
+        onSpecialServiceTeamChange={(value) => updateFormState({ isSpecialServiceTeam: value })}
       />
 
       <TranscriptSection
         transcript={formState.transcript}
         contactId={formState.contactId}
         isSpecialServiceTeam={formState.isSpecialServiceTeam === "yes"}
-        onTranscriptChange={handleTranscriptChange}
+        onTranscriptChange={(newTranscript) => updateFormState({ transcript: newTranscript })}
       />
 
       <AssessmentSection 
@@ -180,6 +165,8 @@ export const ManualContactForm = ({
         contactId={formState.contactId}
         transcript={formState.transcript}
         specialServiceTeam={formState.isSpecialServiceTeam === "yes"}
+        onComplaintsChange={updateComplaints}
+        onVulnerabilitiesChange={updateVulnerabilities}
       />
 
       <QualityAssessorSection />

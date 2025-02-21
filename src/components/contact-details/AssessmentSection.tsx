@@ -1,35 +1,25 @@
 
 import { AIAssessment } from "./AIAssessment";
-import { QualityAssessmentCard } from "./QualityAssessmentCard";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { AIGenerationControls } from "./AIGenerationControls";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getVAndCAssessment } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
+import { ComplaintAssessmentForm } from "./ComplaintAssessmentForm";
+import { VulnerabilityAssessmentForm } from "./VulnerabilityAssessmentForm";
+import { ComplaintAssessmentState, VulnerabilityAssessmentState } from "./types";
 
 interface AssessmentSectionProps {
-  complaints: string[];
-  vulnerabilities: string[];
+  complaints: ComplaintAssessmentState;
+  vulnerabilities: VulnerabilityAssessmentState;
   contactId: string;
   transcript: string;
   specialServiceTeam: boolean;
-  onSnippetClick?: (snippetId: string) => void;
-  complaintsData?: {
-    hasComplaints: boolean;
-    reasoning: string;
-    snippets: string[];
-  };
-  vulnerabilityData?: {
-    hasVulnerability: boolean;
-    reasoning: string;
-    snippets: string[];
-  };
-  isLoading?: boolean;
+  onComplaintsChange: (updates: Partial<ComplaintAssessmentState>) => void;
+  onVulnerabilitiesChange: (updates: Partial<VulnerabilityAssessmentState>) => void;
 }
 
 export const AssessmentSection = ({ 
@@ -38,21 +28,15 @@ export const AssessmentSection = ({
   contactId,
   transcript,
   specialServiceTeam,
-  onSnippetClick,
-  complaintsData,
-  vulnerabilityData,
-  isLoading: externalLoading
+  onComplaintsChange,
+  onVulnerabilitiesChange,
 }: AssessmentSectionProps) => {
-  const location = useLocation();
-  const isManualRoute = location.pathname === '/contact/manual';
-  const [isAIOpen, setIsAIOpen] = useState(true);
-  const [assessmentKey, setAssessmentKey] = useState(0);
+  const [isOpen, setIsOpen] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState("");
   const { toast } = useToast();
 
   const { 
-    data: assessmentData,
     isLoading: isAssessmentLoading,
     refetch: refetchAssessment,
     error: assessmentError
@@ -62,37 +46,11 @@ export const AssessmentSection = ({
       if (!transcript) {
         throw new Error("Transcript is required");
       }
-      console.log("Fetching V&C assessment with transcript:", transcript);
       return await getVAndCAssessment(transcript);
     },
     enabled: false,
     retry: 1,
   });
-
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    
-    if (isAssessmentLoading) {
-      setLoadingMessage("Fetching transcript data... Generating summary...");
-      setLoadingProgress(25);
-
-      timeoutId = setTimeout(() => {
-        if (isAssessmentLoading) {
-          setLoadingMessage("Still processing... This may take a few moments.");
-          setLoadingProgress(75);
-        }
-      }, 5000);
-    } else {
-      setLoadingProgress(0);
-      setLoadingMessage("");
-    }
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [isAssessmentLoading]);
 
   const handleGenerateAssessment = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -108,104 +66,98 @@ export const AssessmentSection = ({
     }
 
     try {
-      console.log('Starting V&C assessment generation...');
+      setLoadingMessage("Generating assessment...");
+      setLoadingProgress(25);
+
       const result = await refetchAssessment();
       
       if (assessmentError) {
         throw assessmentError;
       }
 
-      console.log('V&C Assessment generated:', result.data);
-      setAssessmentKey(prev => prev + 1);
-      
+      if (result.data) {
+        // Update complaints and vulnerabilities based on AI assessment
+        onComplaintsChange({
+          hasComplaints: result.data.complaint,
+          selectedReasons: result.data.complaint ? ['Explicit complaints'] : [],
+          assessments: {
+            'Explicit complaints': {
+              reasoning: result.data.complaint_reason || '',
+              evidence: result.data.complaint_snippet || ''
+            }
+          }
+        });
+
+        onVulnerabilitiesChange({
+          hasVulnerability: result.data.financial_vulnerability,
+          selectedCategories: result.data.financial_vulnerability ? ['Financial'] : [],
+          assessments: {
+            'Financial': {
+              reasoning: result.data.vulnerability_reason || '',
+              evidence: result.data.vulnerability_snippet || ''
+            }
+          }
+        });
+      }
+
       toast({
         title: "Success",
-        description: "V&C Assessment generated successfully",
+        description: "Assessment generated successfully",
         variant: "success",
       });
     } catch (error) {
-      console.error("V&C Assessment generation failed:", error);
+      console.error("Assessment generation failed:", error);
       setLoadingMessage("");
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to generate assessment",
         variant: "destructive",
       });
+    } finally {
+      setLoadingProgress(0);
+      setLoadingMessage("");
     }
-  };
-
-  const isLoading = isAssessmentLoading || externalLoading;
-
-  const currentComplaintsData = assessmentData ? {
-    hasComplaints: assessmentData.complaint,
-    reasoning: assessmentData.complaint_reason || "No complaints identified",
-    snippets: assessmentData.complaint_snippet ? [assessmentData.complaint_snippet] : []
-  } : complaintsData || {
-    hasComplaints: false,
-    reasoning: "No complaints identified",
-    snippets: []
-  };
-
-  const currentVulnerabilityData = assessmentData ? {
-    hasVulnerability: assessmentData.financial_vulnerability,
-    reasoning: assessmentData.vulnerability_reason || "No vulnerabilities identified",
-    snippets: assessmentData.vulnerability_snippet ? [assessmentData.vulnerability_snippet] : []
-  } : vulnerabilityData || {
-    hasVulnerability: false,
-    reasoning: "No vulnerabilities identified",
-    snippets: []
   };
 
   return (
     <div className="space-y-4">
-      <Collapsible open={isAIOpen} onOpenChange={setIsAIOpen}>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CollapsibleTrigger asChild>
               <Button variant="ghost" size="sm" className="p-0 hover:bg-transparent">
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isAIOpen ? "" : "-rotate-90"}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? "" : "-rotate-90"}`} />
               </Button>
             </CollapsibleTrigger>
-            <h2 className="text-xl font-semibold">Assessor Feedback</h2>
+            <h2 className="text-xl font-semibold">Assessment</h2>
           </div>
           <Button 
             onClick={handleGenerateAssessment} 
-            disabled={isLoading || !transcript}
+            disabled={isAssessmentLoading || !transcript}
             className="flex items-center gap-2"
             type="button"
           >
-            {isLoading ? (
-              <>
-                <RefreshCw className="h-4 w-4 animate-spin" />
-                Fetching V&C Assessment...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="h-4 w-4" />
-                Generate V&C Assessment
-              </>
-            )}
+            <RefreshCw className={`h-4 w-4 ${isAssessmentLoading ? 'animate-spin' : ''}`} />
+            {isAssessmentLoading ? 'Generating...' : 'Generate Assessment'}
           </Button>
         </div>
 
-        {isLoading && loadingMessage && (
+        {isAssessmentLoading && loadingMessage && (
           <div className="mt-4 space-y-2">
             <p className="text-sm text-muted-foreground">{loadingMessage}</p>
             <Progress value={loadingProgress} className="h-1" />
           </div>
         )}
 
-        <CollapsibleContent className="mt-4">
-          <AIAssessment 
-            key={assessmentKey}
+        <CollapsibleContent className="mt-4 space-y-6">
+          <ComplaintAssessmentForm
             complaints={complaints}
+            onChange={onComplaintsChange}
+          />
+          
+          <VulnerabilityAssessmentForm
             vulnerabilities={vulnerabilities}
-            hasPhysicalDisability={false}
-            contactId={contactId}
-            onSnippetClick={onSnippetClick}
-            complaintsData={currentComplaintsData}
-            vulnerabilityData={currentVulnerabilityData}
-            isLoading={isLoading}
+            onChange={onVulnerabilitiesChange}
           />
         </CollapsibleContent>
       </Collapsible>
