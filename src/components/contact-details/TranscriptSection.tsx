@@ -38,9 +38,15 @@ export const TranscriptSection = ({
     retry: 1,
   });
 
-  // Effect to show success message only after summary data is available
+  // Effect to show success message only after summary data is available and rendered
   useEffect(() => {
-    if (summaryData?.short_summary && !hasShownSuccessMessage && !isSummaryLoading && !isGenerating) {
+    const hasValidSummaryData = Boolean(
+      summaryData?.short_summary &&
+      !isSummaryLoading &&
+      !isGenerating
+    );
+
+    if (hasValidSummaryData && !hasShownSuccessMessage) {
       toast({
         title: "Assessment Generated",
         description: "The AI assessment has been successfully generated!",
