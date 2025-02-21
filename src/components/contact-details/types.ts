@@ -38,3 +38,23 @@ export interface AssessmentCardProps {
   reviewEvidence?: string;
   onReviewEvidenceChange?: (value: string) => void;
 }
+
+export interface FormState {
+  transcript: string;
+  contactId: string;
+  evaluator: string;
+  isSpecialServiceTeam: "yes" | "no";
+  assessmentKey: number;
+  complaints: string[];
+  vulnerabilities: string[];
+}
+
+export const initialFormState: FormState = {
+  transcript: "",
+  contactId: "",
+  evaluator: "",
+  isSpecialServiceTeam: "no",
+  assessmentKey: 0,
+  complaints: [],
+  vulnerabilities: []
+};
