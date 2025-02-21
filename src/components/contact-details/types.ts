@@ -67,22 +67,24 @@ export interface VulnerabilityAssessmentState {
   newCustomCategory: string;
 }
 
-export interface AssessmentFormState {
-  transcript: string;
-  contactId: string;
-  evaluator: string;
-  isSpecialServiceTeam: "yes" | "no";
-  complaints: ComplaintAssessmentState;
-  vulnerabilities: VulnerabilityAssessmentState;
-}
-
 export interface ComplaintAssessmentFormProps {
   selectedReasons: string[];
   otherReason: string;
-  onReasonsChange: (categories: string[]) => void;
+  onReasonsChange: (reasons: string[]) => void;
   onOtherReasonChange: (value: string) => void;
-  state: ComplaintAssessmentState;
-  onStateChange: (updates: Partial<ComplaintAssessmentState>) => void;
+  assessmentData: AssessmentData;
+  customReasons: string[];
+  newCustomReason: string;
+  onNewCustomReasonChange: (value: string) => void;
+  onAddCustomReason: () => void;
+  onRemoveCustomReason: (index: number) => void;
+  onUpdateAssessmentEntry: (
+    type: 'complaints' | 'vulnerabilities',
+    reasonType: string,
+    field: 'assessment_reasoning' | 'review_evidence',
+    value: string,
+    customReason?: string
+  ) => void;
 }
 
 export interface VulnerabilityAssessmentFormProps {
@@ -90,8 +92,28 @@ export interface VulnerabilityAssessmentFormProps {
   otherCategory: string;
   onCategoriesChange: (categories: string[]) => void;
   onOtherCategoryChange: (value: string) => void;
-  state: VulnerabilityAssessmentState;
-  onStateChange: (updates: Partial<VulnerabilityAssessmentState>) => void;
+  assessmentData: AssessmentData;
+  customCategories: string[];
+  newCustomReason: string;
+  onNewCustomReasonChange: (value: string) => void;
+  onAddCustomReason: () => void;
+  onRemoveCustomReason: (index: number) => void;
+  onUpdateAssessmentEntry: (
+    type: 'complaints' | 'vulnerabilities',
+    reasonType: string,
+    field: 'assessment_reasoning' | 'review_evidence',
+    value: string,
+    customReason?: string
+  ) => void;
+}
+
+export interface AssessmentFormState {
+  transcript: string;
+  contactId: string;
+  evaluator: string;
+  isSpecialServiceTeam: "yes" | "no";
+  complaints: ComplaintAssessmentState;
+  vulnerabilities: VulnerabilityAssessmentState;
 }
 
 export const initialComplaintState: ComplaintAssessmentState = {

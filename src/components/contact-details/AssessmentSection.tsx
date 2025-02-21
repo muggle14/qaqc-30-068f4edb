@@ -1,4 +1,3 @@
-
 import { AIAssessment } from "./AIAssessment";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, RefreshCw } from "lucide-react";
@@ -10,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { ComplaintAssessmentForm } from "./ComplaintAssessmentForm";
 import { VulnerabilityAssessmentForm } from "./VulnerabilityAssessmentForm";
-import { ComplaintAssessmentState, VulnerabilityAssessmentState } from "./types";
+import { ComplaintAssessmentState, VulnerabilityAssessmentState, AssessmentData } from "./types";
 
 interface AssessmentSectionProps {
   complaints: ComplaintAssessmentState;
@@ -34,6 +33,10 @@ export const AssessmentSection = ({
   const [isOpen, setIsOpen] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [assessmentData, setAssessmentData] = useState<AssessmentData>({
+    complaints: [],
+    vulnerabilities: []
+  });
   const { toast } = useToast();
 
   const { 
@@ -76,7 +79,6 @@ export const AssessmentSection = ({
       }
 
       if (result.data) {
-        // Update complaints and vulnerabilities based on AI assessment
         onComplaintsChange({
           hasComplaints: result.data.complaint,
           selectedReasons: result.data.complaint ? ['Explicit complaints'] : [],
@@ -119,6 +121,38 @@ export const AssessmentSection = ({
     }
   };
 
+  const handleUpdateAssessmentEntry = (
+    type: 'complaints' | 'vulnerabilities',
+    reasonType: string,
+    field: 'assessment_reasoning' | 'review_evidence',
+    value: string,
+    customReason?: string
+  ) => {
+    const updates = [...assessmentData[type]];
+    const existingIndex = updates.findIndex(entry => 
+      entry.type === reasonType && (!customReason || entry.custom_reason === customReason)
+    );
+
+    if (existingIndex >= 0) {
+      updates[existingIndex] = {
+        ...updates[existingIndex],
+        [field]: value
+      };
+    } else {
+      updates.push({
+        type: reasonType,
+        custom_reason: customReason,
+        assessment_reasoning: field === 'assessment_reasoning' ? value : '',
+        review_evidence: field === 'review_evidence' ? value : ''
+      });
+    }
+
+    setAssessmentData(prev => ({
+      ...prev,
+      [type]: updates
+    }));
+  };
+
   return (
     <div className="space-y-4">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -155,8 +189,24 @@ export const AssessmentSection = ({
             otherReason={complaints.otherReason}
             onReasonsChange={(reasons) => onComplaintsChange({ selectedReasons: reasons })}
             onOtherReasonChange={(value) => onComplaintsChange({ otherReason: value })}
-            state={complaints}
-            onStateChange={onComplaintsChange}
+            assessmentData={assessmentData}
+            customReasons={complaints.customReasons}
+            newCustomReason={complaints.newCustomReason}
+            onNewCustomReasonChange={(value) => onComplaintsChange({ newCustomReason: value })}
+            onAddCustomReason={() => {
+              if (complaints.newCustomReason) {
+                onComplaintsChange({
+                  customReasons: [...complaints.customReasons, complaints.newCustomReason],
+                  newCustomReason: ''
+                });
+              }
+            }}
+            onRemoveCustomReason={(index) => {
+              const newCustomReasons = [...complaints.customReasons];
+              newCustomReasons.splice(index, 1);
+              onComplaintsChange({ customReasons: newCustomReasons });
+            }}
+            onUpdateAssessmentEntry={handleUpdateAssessmentEntry}
           />
           
           <VulnerabilityAssessmentForm
@@ -164,8 +214,24 @@ export const AssessmentSection = ({
             otherCategory={vulnerabilities.otherCategory}
             onCategoriesChange={(categories) => onVulnerabilitiesChange({ selectedCategories: categories })}
             onOtherCategoryChange={(value) => onVulnerabilitiesChange({ otherCategory: value })}
-            state={vulnerabilities}
-            onStateChange={onVulnerabilitiesChange}
+            assessmentData={assessmentData}
+            customCategories={vulnerabilities.customCategories}
+            newCustomReason={vulnerabilities.newCustomCategory}
+            onNewCustomReasonChange={(value) => onVulnerabilitiesChange({ newCustomCategory: value })}
+            onAddCustomReason={() => {
+              if (vulnerabilities.newCustomCategory) {
+                onVulnerabilitiesChange({
+                  customCategories: [...vulnerabilities.customCategories, vulnerabilities.newCustomCategory],
+                  newCustomCategory: ''
+                });
+              }
+            }}
+            onRemoveCustomReason={(index) => {
+              const newCustomCategories = [...vulnerabilities.customCategories];
+              newCustomCategories.splice(index, 1);
+              onVulnerabilitiesChange({ customCategories: newCustomCategories });
+            }}
+            onUpdateAssessmentEntry={handleUpdateAssessmentEntry}
           />
         </CollapsibleContent>
       </Collapsible>
