@@ -203,8 +203,8 @@ export const ManualContactForm = ({
       />
 
       <AssessmentSection 
-        complaints={formState.complaints}
-        vulnerabilities={formState.vulnerabilities}
+        complaints={formState.complaints || []}
+        vulnerabilities={formState.vulnerabilities || []}
         contactId={formState.contactId}
         transcript={formState.transcript}
         specialServiceTeam={formState.isSpecialServiceTeam === "yes"}
