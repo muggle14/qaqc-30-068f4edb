@@ -2,24 +2,32 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Save, RefreshCw } from "lucide-react";
+import { Save } from "lucide-react";
 import { apiClient } from "@/services/apiClient";
 import { ContactFormHeader } from "./ContactFormHeader";
 import { TranscriptSection } from "./TranscriptSection";
 import { AssessmentSection } from "./AssessmentSection";
 import { QualityAssessorSection } from "./QualityAssessorSection";
-import { FormState, initialFormState } from "./types";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
+interface FormState {
+  transcript: string;
+  contactId: string;
+  evaluator: string;
+  isSpecialServiceTeam: "yes" | "no";
+  assessmentKey: number;
+  complaints: any[];
+  vulnerabilities: any[];
+}
+
+const initialFormState: FormState = {
+  transcript: "",
+  contactId: "",
+  evaluator: "",
+  isSpecialServiceTeam: "no",
+  assessmentKey: 0,
+  complaints: [],
+  vulnerabilities: [],
+};
 
 interface ManualContactFormProps {
   initialData: any;
@@ -51,17 +59,9 @@ export const ManualContactForm = ({
   }, [formState, initialData]);
 
   const resetForm = () => {
-    // Preserve the contact ID when resetting
-    const contactId = formState.contactId;
-    setFormState({ ...initialFormState, contactId });
+    setFormState(initialFormState);
     setHasUnsavedChanges(false);
     onClearStorage();
-
-    toast({
-      title: "Form Reset",
-      description: "All form fields have been reset to their default values",
-      variant: "info",
-    });
   };
 
   const handleContactIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,7 +134,7 @@ export const ManualContactForm = ({
         awsRefId: formState.contactId,
         tracksmartId: formState.evaluator,
         transcript: formState.transcript,
-        specialServiceTeam: formState.isSpecialServiceTeam === "yes",
+        specialServiceTeam: formState.isSpecialServiceTeam === "yes"
       });
 
       toast({
@@ -158,34 +158,6 @@ export const ManualContactForm = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button 
-              type="button"
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Reset Form
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Reset Form Fields</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will reset all form fields to their default values. This action cannot be undone. 
-                Are you sure you want to continue?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={resetForm}>Reset</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-
       <ContactFormHeader
         contactId={formState.contactId}
         evaluator={formState.evaluator}
@@ -203,8 +175,8 @@ export const ManualContactForm = ({
       />
 
       <AssessmentSection 
-        complaints={formState.complaints || []}
-        vulnerabilities={formState.vulnerabilities || []}
+        complaints={formState.complaints}
+        vulnerabilities={formState.vulnerabilities}
         contactId={formState.contactId}
         transcript={formState.transcript}
         specialServiceTeam={formState.isSpecialServiceTeam === "yes"}
