@@ -1,24 +1,35 @@
+
 import { AIAssessment } from "./AIAssessment";
+import { QualityAssessmentCard } from "./QualityAssessmentCard";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { AIGenerationControls } from "./AIGenerationControls";
 import { useQuery } from "@tanstack/react-query";
 import { getVAndCAssessment } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
-import { ComplaintAssessmentForm } from "./ComplaintAssessmentForm";
-import { VulnerabilityAssessmentForm } from "./VulnerabilityAssessmentForm";
-import { ComplaintAssessmentState, VulnerabilityAssessmentState, AssessmentData } from "./types";
 
 interface AssessmentSectionProps {
-  complaints: ComplaintAssessmentState;
-  vulnerabilities: VulnerabilityAssessmentState;
+  complaints: string[];
+  vulnerabilities: string[];
   contactId: string;
   transcript: string;
   specialServiceTeam: boolean;
-  onComplaintsChange: (updates: Partial<ComplaintAssessmentState>) => void;
-  onVulnerabilitiesChange: (updates: Partial<VulnerabilityAssessmentState>) => void;
+  onSnippetClick?: (snippetId: string) => void;
+  complaintsData?: {
+    hasComplaints: boolean;
+    reasoning: string;
+    snippets: string[];
+  };
+  vulnerabilityData?: {
+    hasVulnerability: boolean;
+    reasoning: string;
+    snippets: string[];
+  };
+  isLoading?: boolean;
 }
 
 export const AssessmentSection = ({ 
@@ -27,19 +38,21 @@ export const AssessmentSection = ({
   contactId,
   transcript,
   specialServiceTeam,
-  onComplaintsChange,
-  onVulnerabilitiesChange,
+  onSnippetClick,
+  complaintsData,
+  vulnerabilityData,
+  isLoading: externalLoading
 }: AssessmentSectionProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const location = useLocation();
+  const isManualRoute = location.pathname === '/contact/manual';
+  const [isAIOpen, setIsAIOpen] = useState(true);
+  const [assessmentKey, setAssessmentKey] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState("");
-  const [assessmentData, setAssessmentData] = useState<AssessmentData>({
-    complaints: [],
-    vulnerabilities: []
-  });
   const { toast } = useToast();
 
   const { 
+    data: assessmentData,
     isLoading: isAssessmentLoading,
     refetch: refetchAssessment,
     error: assessmentError
@@ -49,11 +62,37 @@ export const AssessmentSection = ({
       if (!transcript) {
         throw new Error("Transcript is required");
       }
+      console.log("Fetching V&C assessment with transcript:", transcript);
       return await getVAndCAssessment(transcript);
     },
     enabled: false,
     retry: 1,
   });
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    if (isAssessmentLoading) {
+      setLoadingMessage("Fetching transcript data... Generating summary...");
+      setLoadingProgress(25);
+
+      timeoutId = setTimeout(() => {
+        if (isAssessmentLoading) {
+          setLoadingMessage("Still processing... This may take a few moments.");
+          setLoadingProgress(75);
+        }
+      }, 5000);
+    } else {
+      setLoadingProgress(0);
+      setLoadingMessage("");
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isAssessmentLoading]);
 
   const handleGenerateAssessment = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -69,169 +108,104 @@ export const AssessmentSection = ({
     }
 
     try {
-      setLoadingMessage("Generating assessment...");
-      setLoadingProgress(25);
-
+      console.log('Starting V&C assessment generation...');
       const result = await refetchAssessment();
       
       if (assessmentError) {
         throw assessmentError;
       }
 
-      if (result.data) {
-        onComplaintsChange({
-          hasComplaints: result.data.complaint,
-          selectedReasons: result.data.complaint ? ['Explicit complaints'] : [],
-          assessments: {
-            'Explicit complaints': {
-              reasoning: result.data.complaint_reason || '',
-              evidence: result.data.complaint_snippet || ''
-            }
-          }
-        });
-
-        onVulnerabilitiesChange({
-          hasVulnerability: result.data.financial_vulnerability,
-          selectedCategories: result.data.financial_vulnerability ? ['Financial'] : [],
-          assessments: {
-            'Financial': {
-              reasoning: result.data.vulnerability_reason || '',
-              evidence: result.data.vulnerability_snippet || ''
-            }
-          }
-        });
-      }
-
+      console.log('V&C Assessment generated:', result.data);
+      setAssessmentKey(prev => prev + 1);
+      
       toast({
         title: "Success",
-        description: "Assessment generated successfully",
+        description: "V&C Assessment generated successfully",
         variant: "success",
       });
     } catch (error) {
-      console.error("Assessment generation failed:", error);
+      console.error("V&C Assessment generation failed:", error);
       setLoadingMessage("");
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to generate assessment",
         variant: "destructive",
       });
-    } finally {
-      setLoadingProgress(0);
-      setLoadingMessage("");
     }
   };
 
-  const handleUpdateAssessmentEntry = (
-    type: 'complaints' | 'vulnerabilities',
-    reasonType: string,
-    field: 'assessment_reasoning' | 'review_evidence',
-    value: string,
-    customReason?: string
-  ) => {
-    const updates = [...assessmentData[type]];
-    const existingIndex = updates.findIndex(entry => 
-      entry.type === reasonType && (!customReason || entry.custom_reason === customReason)
-    );
+  const isLoading = isAssessmentLoading || externalLoading;
 
-    if (existingIndex >= 0) {
-      updates[existingIndex] = {
-        ...updates[existingIndex],
-        [field]: value
-      };
-    } else {
-      updates.push({
-        type: reasonType,
-        custom_reason: customReason,
-        assessment_reasoning: field === 'assessment_reasoning' ? value : '',
-        review_evidence: field === 'review_evidence' ? value : ''
-      });
-    }
+  const currentComplaintsData = assessmentData ? {
+    hasComplaints: assessmentData.complaint,
+    reasoning: assessmentData.complaint_reason || "No complaints identified",
+    snippets: assessmentData.complaint_snippet ? [assessmentData.complaint_snippet] : []
+  } : complaintsData || {
+    hasComplaints: false,
+    reasoning: "No complaints identified",
+    snippets: []
+  };
 
-    setAssessmentData(prev => ({
-      ...prev,
-      [type]: updates
-    }));
+  const currentVulnerabilityData = assessmentData ? {
+    hasVulnerability: assessmentData.financial_vulnerability,
+    reasoning: assessmentData.vulnerability_reason || "No vulnerabilities identified",
+    snippets: assessmentData.vulnerability_snippet ? [assessmentData.vulnerability_snippet] : []
+  } : vulnerabilityData || {
+    hasVulnerability: false,
+    reasoning: "No vulnerabilities identified",
+    snippets: []
   };
 
   return (
     <div className="space-y-4">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible open={isAIOpen} onOpenChange={setIsAIOpen}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CollapsibleTrigger asChild>
               <Button variant="ghost" size="sm" className="p-0 hover:bg-transparent">
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isOpen ? "" : "-rotate-90"}`} />
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isAIOpen ? "" : "-rotate-90"}`} />
               </Button>
             </CollapsibleTrigger>
-            <h2 className="text-xl font-semibold">Assessment</h2>
+            <h2 className="text-xl font-semibold">Assessor Feedback</h2>
           </div>
           <Button 
             onClick={handleGenerateAssessment} 
-            disabled={isAssessmentLoading || !transcript}
+            disabled={isLoading || !transcript}
             className="flex items-center gap-2"
             type="button"
           >
-            <RefreshCw className={`h-4 w-4 ${isAssessmentLoading ? 'animate-spin' : ''}`} />
-            {isAssessmentLoading ? 'Generating...' : 'Generate Assessment'}
+            {isLoading ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Fetching V&C Assessment...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-4 w-4" />
+                Generate V&C Assessment
+              </>
+            )}
           </Button>
         </div>
 
-        {isAssessmentLoading && loadingMessage && (
+        {isLoading && loadingMessage && (
           <div className="mt-4 space-y-2">
             <p className="text-sm text-muted-foreground">{loadingMessage}</p>
             <Progress value={loadingProgress} className="h-1" />
           </div>
         )}
 
-        <CollapsibleContent className="mt-4 space-y-6">
-          <ComplaintAssessmentForm
-            selectedReasons={complaints.selectedReasons}
-            otherReason={complaints.otherReason}
-            onReasonsChange={(reasons) => onComplaintsChange({ selectedReasons: reasons })}
-            onOtherReasonChange={(value) => onComplaintsChange({ otherReason: value })}
-            assessmentData={assessmentData}
-            customReasons={complaints.customReasons}
-            newCustomReason={complaints.newCustomReason}
-            onNewCustomReasonChange={(value) => onComplaintsChange({ newCustomReason: value })}
-            onAddCustomReason={() => {
-              if (complaints.newCustomReason) {
-                onComplaintsChange({
-                  customReasons: [...complaints.customReasons, complaints.newCustomReason],
-                  newCustomReason: ''
-                });
-              }
-            }}
-            onRemoveCustomReason={(index) => {
-              const newCustomReasons = [...complaints.customReasons];
-              newCustomReasons.splice(index, 1);
-              onComplaintsChange({ customReasons: newCustomReasons });
-            }}
-            onUpdateAssessmentEntry={handleUpdateAssessmentEntry}
-          />
-          
-          <VulnerabilityAssessmentForm
-            selectedCategories={vulnerabilities.selectedCategories}
-            otherCategory={vulnerabilities.otherCategory}
-            onCategoriesChange={(categories) => onVulnerabilitiesChange({ selectedCategories: categories })}
-            onOtherCategoryChange={(value) => onVulnerabilitiesChange({ otherCategory: value })}
-            assessmentData={assessmentData}
-            customCategories={vulnerabilities.customCategories}
-            newCustomReason={vulnerabilities.newCustomCategory}
-            onNewCustomReasonChange={(value) => onVulnerabilitiesChange({ newCustomCategory: value })}
-            onAddCustomReason={() => {
-              if (vulnerabilities.newCustomCategory) {
-                onVulnerabilitiesChange({
-                  customCategories: [...vulnerabilities.customCategories, vulnerabilities.newCustomCategory],
-                  newCustomCategory: ''
-                });
-              }
-            }}
-            onRemoveCustomReason={(index) => {
-              const newCustomCategories = [...vulnerabilities.customCategories];
-              newCustomCategories.splice(index, 1);
-              onVulnerabilitiesChange({ customCategories: newCustomCategories });
-            }}
-            onUpdateAssessmentEntry={handleUpdateAssessmentEntry}
+        <CollapsibleContent className="mt-4">
+          <AIAssessment 
+            key={assessmentKey}
+            complaints={complaints}
+            vulnerabilities={vulnerabilities}
+            hasPhysicalDisability={false}
+            contactId={contactId}
+            onSnippetClick={onSnippetClick}
+            complaintsData={currentComplaintsData}
+            vulnerabilityData={currentVulnerabilityData}
+            isLoading={isLoading}
           />
         </CollapsibleContent>
       </Collapsible>

@@ -1,17 +1,8 @@
+
 interface AssessmentQuestion {
   id: string;
   aiAssessment: string;
   assessorFeedback: string;
-}
-
-interface SaveAssessmentPayload {
-  awsRefId: string;
-  tracksmartId: string;
-  transcript: string;
-  specialServiceTeam: boolean;
-  assessmentQuestions?: AssessmentQuestion[];
-  complaints?: any;
-  vulnerabilities?: any;
 }
 
 export const apiClient = {
@@ -51,7 +42,13 @@ export const apiClient = {
     throw new Error("Failed to format transcript");
   },
 
-  async saveAssessmentDetails(payload: SaveAssessmentPayload): Promise<any> {
+  async saveAssessmentDetails(payload: {
+    awsRefId: string;
+    tracksmartId: string;
+    transcript: string;
+    specialServiceTeam: boolean;
+    assessmentQuestions?: AssessmentQuestion[];
+  }): Promise<any> {
     console.log("Saving assessment details:", payload);
     return {
       success: true,
