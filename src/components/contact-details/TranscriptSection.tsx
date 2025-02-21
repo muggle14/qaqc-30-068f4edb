@@ -6,7 +6,7 @@ import { AIGenerationControls } from "./AIGenerationControls";
 import { useQuery } from "@tanstack/react-query";
 import { getSummary } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface TranscriptSectionProps {
   transcript: string;
@@ -22,6 +22,7 @@ export const TranscriptSection = ({
   onTranscriptChange,
 }: TranscriptSectionProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [hasShownSuccessMessage, setHasShownSuccessMessage] = useState(false);
   const { toast } = useToast();
 
   const { data: summaryData, isLoading: isSummaryLoading, refetch: refetchSummary, error: summaryError } = useQuery({
@@ -37,6 +38,23 @@ export const TranscriptSection = ({
     retry: 1,
   });
 
+  // Effect to show success message only after summary data is available
+  useEffect(() => {
+    if (summaryData?.short_summary && !hasShownSuccessMessage && !isSummaryLoading && !isGenerating) {
+      toast({
+        title: "Assessment Generated",
+        description: "The AI assessment has been successfully generated!",
+        variant: "success",
+      });
+      setHasShownSuccessMessage(true);
+    }
+  }, [summaryData, isSummaryLoading, isGenerating, hasShownSuccessMessage, toast]);
+
+  // Reset the success message flag when transcript changes
+  useEffect(() => {
+    setHasShownSuccessMessage(false);
+  }, [transcript]);
+
   const handleGenerateAssessment = async () => {
     if (!transcript) {
       toast({
@@ -48,6 +66,8 @@ export const TranscriptSection = ({
     }
 
     setIsGenerating(true);
+    setHasShownSuccessMessage(false);
+    
     try {
       console.log('Starting assessment generation with transcript:', transcript);
       await refetchSummary();
