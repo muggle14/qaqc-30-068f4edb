@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import {
   Dialog,
   DialogContent,
@@ -19,7 +21,7 @@ import {
   Eye,
   EyeOff,
   X,
-  Plus,
+  CheckSquare,
 } from 'lucide-react';
 
 // Sample transcript data
@@ -68,7 +70,7 @@ const sampleTranscript = {
   ]
 };
 
-type EmotionCategory = 'Excited' | 'Curious' | 'Nostalgic' | null;
+type EmotionCategory = 'Excited' | 'Curious' | 'Nostalgic' | 'Upset' | 'Vulnerable' | null;
 
 interface SnippetComment {
   snippetIds: string[];
@@ -89,6 +91,9 @@ export const TranscriptReview = () => {
   const [comments, setComments] = useState<SnippetComment[]>([]);
   const [emotionHighlights, setEmotionHighlights] = useState<EmotionHighlight[]>([]);
   const [selectedEmotion, setSelectedEmotion] = useState<EmotionCategory>(null);
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+  const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<EmotionCategory>(null);
 
   const toggleSnippet = (snippetId: string) => {
     if (selectedSnippets.includes(snippetId)) {
@@ -115,32 +120,23 @@ export const TranscriptReview = () => {
     setComments(comments.filter(comment => comment.id !== commentId));
   };
 
-  const toggleEmotionHighlight = (snippetId: string) => {
-    if (!selectedEmotion) return;
+  const applyEmotionToSelected = (emotion: EmotionCategory) => {
+    if (!emotion || selectedSnippets.length === 0) return;
 
-    const existingHighlightIndex = emotionHighlights.findIndex(
-      highlight => highlight.snippetId === snippetId
-    );
-
-    if (existingHighlightIndex >= 0) {
-      // If the snippet already has the same emotion, remove it
-      if (emotionHighlights[existingHighlightIndex].emotion === selectedEmotion) {
-        setEmotionHighlights(
-          emotionHighlights.filter(highlight => highlight.snippetId !== snippetId)
-        );
+    const updatedHighlights = [...emotionHighlights];
+    
+    selectedSnippets.forEach(snippetId => {
+      const existingIndex = updatedHighlights.findIndex(h => h.snippetId === snippetId);
+      
+      if (existingIndex >= 0) {
+        updatedHighlights[existingIndex].emotion = emotion;
       } else {
-        // If the snippet has a different emotion, update it
-        const updatedHighlights = [...emotionHighlights];
-        updatedHighlights[existingHighlightIndex].emotion = selectedEmotion;
-        setEmotionHighlights(updatedHighlights);
+        updatedHighlights.push({ snippetId, emotion });
       }
-    } else {
-      // If the snippet has no emotion yet, add it
-      setEmotionHighlights([
-        ...emotionHighlights,
-        { snippetId, emotion: selectedEmotion }
-      ]);
-    }
+    });
+    
+    setEmotionHighlights(updatedHighlights);
+    setIsTagDialogOpen(false);
   };
 
   const getEmotionColor = (snippetId: string) => {
@@ -154,8 +150,29 @@ export const TranscriptReview = () => {
         return 'bg-blue-100 border-blue-300';
       case 'Nostalgic':
         return 'bg-purple-100 border-purple-300';
+      case 'Upset':
+        return 'bg-red-100 border-red-300';
+      case 'Vulnerable':
+        return 'bg-green-100 border-green-300';
       default:
         return '';
+    }
+  };
+
+  const getEmotionBadge = (emotion: EmotionCategory) => {
+    switch (emotion) {
+      case 'Excited':
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Excited</Badge>;
+      case 'Curious':
+        return <Badge className="bg-blue-500 hover:bg-blue-600">Curious</Badge>;
+      case 'Nostalgic':
+        return <Badge className="bg-purple-500 hover:bg-purple-600">Nostalgic</Badge>;
+      case 'Upset':
+        return <Badge className="bg-red-500 hover:bg-red-600">Upset</Badge>;
+      case 'Vulnerable':
+        return <Badge className="bg-green-500 hover:bg-green-600">Vulnerable</Badge>;
+      default:
+        return null;
     }
   };
 
@@ -163,104 +180,144 @@ export const TranscriptReview = () => {
     return comments.filter(comment => comment.snippetIds.includes(snippetId));
   };
 
+  const getSpeakerRole = (index: number) => {
+    return index % 2 === 0 ? "Agent" : "Customer";
+  };
+
+  const filterByEmotion = (snippets: typeof sampleTranscript.snippets) => {
+    if (!activeFilter) return snippets;
+    
+    return snippets.filter(snippet => {
+      const highlight = emotionHighlights.find(h => h.snippetId === snippet.id);
+      return highlight && highlight.emotion === activeFilter;
+    });
+  };
+
+  const displayedSnippets = filterByEmotion(sampleTranscript.snippets);
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Transcript Review (AI)</h2>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setShowIds(!showIds)}
-              className="flex items-center gap-1"
-            >
-              {showIds ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              {showIds ? 'Hide IDs' : 'Show IDs'}
-            </Button>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-sm font-medium">Emotion:</span>
-            <div className="flex gap-1">
-              <Button
-                size="sm"
-                variant={selectedEmotion === 'Excited' ? 'default' : 'outline'}
-                className={selectedEmotion === 'Excited' ? 'bg-yellow-500' : ''}
-                onClick={() => setSelectedEmotion(selectedEmotion === 'Excited' ? null : 'Excited')}
-              >
-                <Tag className="h-3.5 w-3.5 mr-1" />Excited
-              </Button>
-              <Button
-                size="sm"
-                variant={selectedEmotion === 'Curious' ? 'default' : 'outline'}
-                className={selectedEmotion === 'Curious' ? 'bg-blue-500' : ''}
-                onClick={() => setSelectedEmotion(selectedEmotion === 'Curious' ? null : 'Curious')}
-              >
-                <Tag className="h-3.5 w-3.5 mr-1" />Curious
-              </Button>
-              <Button
-                size="sm"
-                variant={selectedEmotion === 'Nostalgic' ? 'default' : 'outline'}
-                className={selectedEmotion === 'Nostalgic' ? 'bg-purple-500' : ''}
-                onClick={() => setSelectedEmotion(selectedEmotion === 'Nostalgic' ? null : 'Nostalgic')}
-              >
-                <Tag className="h-3.5 w-3.5 mr-1" />Nostalgic
-              </Button>
-            </div>
-          </div>
-          <Button
-            onClick={() => setIsCommentDialogOpen(true)}
-            disabled={selectedSnippets.length === 0}
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setIsMultiSelectMode(!isMultiSelectMode)}
+            className={`flex items-center gap-1 ${isMultiSelectMode ? 'bg-primary text-primary-foreground' : ''}`}
+          >
+            <CheckSquare className="h-4 w-4" />
+            {isMultiSelectMode ? 'Exit Select' : 'Select Snippets'}
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowIds(!showIds)}
             className="flex items-center gap-1"
           >
-            <MessageSquare className="h-4 w-4" /> Comment
+            {showIds ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showIds ? 'Hide IDs' : 'Show IDs'}
           </Button>
+          
+          {isMultiSelectMode && selectedSnippets.length > 0 && (
+            <>
+              <Button
+                size="sm"
+                onClick={() => setIsTagDialogOpen(true)}
+                className="flex items-center gap-1"
+                variant="outline"
+              >
+                <Tag className="h-4 w-4" /> Tag Selected
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => setIsCommentDialogOpen(true)}
+                className="flex items-center gap-1"
+              >
+                <MessageSquare className="h-4 w-4" /> Comment
+              </Button>
+            </>
+          )}
         </div>
       </div>
+      
+      {/* Emotion filters */}
+      <div className="flex flex-wrap gap-1">
+        {(['Excited', 'Curious', 'Nostalgic', 'Upset', 'Vulnerable'] as EmotionCategory[]).map(emotion => (
+          <Button
+            key={emotion}
+            size="sm"
+            variant="outline"
+            className={`text-xs ${activeFilter === emotion ? 'ring-2 ring-primary' : ''}`}
+            onClick={() => setActiveFilter(activeFilter === emotion ? null : emotion)}
+          >
+            {getEmotionBadge(emotion)}
+          </Button>
+        ))}
+        {activeFilter && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-xs"
+            onClick={() => setActiveFilter(null)}
+          >
+            Clear Filter
+          </Button>
+        )}
+      </div>
 
-      <Card>
+      <Card className="overflow-hidden">
         <CardContent className="p-0">
-          <ScrollArea className="h-[600px] pr-4">
-            <div className="p-4 space-y-1">
-              {sampleTranscript.snippets.map((snippet, index) => {
+          <ScrollArea className="h-[500px] pr-4">
+            <div className="py-2">
+              {displayedSnippets.map((snippet, index) => {
                 const isSelected = selectedSnippets.includes(snippet.id);
                 const emotionClass = getEmotionColor(snippet.id);
                 const snippetComments = getSnippetComments(snippet.id);
-                const isEven = index % 2 === 0;
+                const speakerRole = getSpeakerRole(index);
+                const emotion = emotionHighlights.find(h => h.snippetId === snippet.id)?.emotion;
 
                 return (
-                  <div key={snippet.id} className="space-y-1">
+                  <div key={snippet.id} className="group">
                     <div 
-                      className={`p-3 rounded-md border transition-colors
-                        ${emotionClass || (isEven ? 'bg-gray-50' : 'bg-blue-50')}
-                        ${isSelected ? 'ring-2 ring-primary' : 'hover:bg-gray-100'}`}
+                      className={`px-3 py-1.5 ${emotionClass || ''} hover:bg-gray-100 transition-colors`}
                     >
                       <div className="flex gap-2">
-                        <Checkbox 
-                          checked={isSelected}
-                          onCheckedChange={() => toggleSnippet(snippet.id)}
-                          className="mt-1"
-                        />
+                        {isMultiSelectMode && (
+                          <Checkbox 
+                            checked={isSelected}
+                            onCheckedChange={() => toggleSnippet(snippet.id)}
+                            className="mt-1"
+                          />
+                        )}
+                        
                         <div className="flex-1">
-                          <div className="flex justify-between">
-                            <span className="font-medium text-sm text-gray-600">{snippet.speaker}</span>
-                            <div className="flex gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="h-5 w-5 p-0"
-                                onClick={() => toggleEmotionHighlight(snippet.id)}
-                              >
-                                <Tag className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
+                          <div className="flex items-baseline">
+                            <span className={`font-medium text-sm ${speakerRole === 'Agent' ? 'text-blue-600' : 'text-green-600'} mr-2`}>
+                              {speakerRole}:
+                            </span>
+                            <span 
+                              className="text-sm text-gray-800"
+                              onClick={() => isMultiSelectMode && toggleSnippet(snippet.id)}
+                            >
+                              {snippet.text}
+                            </span>
+                            
+                            {emotion && (
+                              <HoverCard>
+                                <HoverCardTrigger asChild>
+                                  <div className="ml-2 inline-block">
+                                    {getEmotionBadge(emotion)}
+                                  </div>
+                                </HoverCardTrigger>
+                                <HoverCardContent className="w-auto">
+                                  <p className="text-xs">{emotion} response detected</p>
+                                </HoverCardContent>
+                              </HoverCard>
+                            )}
                           </div>
-                          <p 
-                            className="text-gray-800 my-1" 
-                            onClick={() => toggleSnippet(snippet.id)}
-                          >
-                            {snippet.text}
-                          </p>
+                          
                           {showIds && (
                             <p className="text-xs text-gray-400 mt-1 font-mono">ID: {snippet.id}</p>
                           )}
@@ -269,20 +326,20 @@ export const TranscriptReview = () => {
                     </div>
                     
                     {snippetComments.length > 0 && (
-                      <div className="pl-8 space-y-2 mt-1">
+                      <div className="pl-8 space-y-1 mb-1">
                         {snippetComments.map(comment => (
                           <div 
                             key={comment.id} 
-                            className="bg-gray-100 p-2 rounded-md border-l-4 border-primary flex items-start justify-between"
+                            className="bg-gray-100 p-1.5 rounded border-l-2 border-primary flex items-start justify-between text-xs"
                           >
-                            <p className="text-sm">{comment.comment}</p>
+                            <p>{comment.comment}</p>
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="h-6 w-6 p-0"
+                              className="h-5 w-5 p-0"
                               onClick={() => deleteComment(comment.id)}
                             >
-                              <X className="h-4 w-4" />
+                              <X className="h-3 w-3" />
                             </Button>
                           </div>
                         ))}
@@ -291,11 +348,18 @@ export const TranscriptReview = () => {
                   </div>
                 );
               })}
+              
+              {displayedSnippets.length === 0 && (
+                <div className="p-4 text-center text-gray-500">
+                  No snippets match the selected filter
+                </div>
+              )}
             </div>
           </ScrollArea>
         </CardContent>
       </Card>
 
+      {/* Comment Dialog */}
       <Dialog open={isCommentDialogOpen} onOpenChange={setIsCommentDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -318,6 +382,35 @@ export const TranscriptReview = () => {
             </Button>
             <Button onClick={handleCommentSubmit} disabled={commentText.trim() === ''}>
               Save Comment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Tag Dialog */}
+      <Dialog open={isTagDialogOpen} onOpenChange={setIsTagDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Tag Selected Snippets</DialogTitle>
+            <DialogDescription>
+              Choose an emotion tag for {selectedSnippets.length} selected snippet{selectedSnippets.length > 1 ? 's' : ''}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 grid grid-cols-2 gap-2">
+            {(['Excited', 'Curious', 'Nostalgic', 'Upset', 'Vulnerable'] as EmotionCategory[]).map(emotion => (
+              <Button
+                key={emotion}
+                variant="outline"
+                className="justify-start"
+                onClick={() => applyEmotionToSelected(emotion)}
+              >
+                {getEmotionBadge(emotion)}
+              </Button>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsTagDialogOpen(false)}>
+              Cancel
             </Button>
           </DialogFooter>
         </DialogContent>
