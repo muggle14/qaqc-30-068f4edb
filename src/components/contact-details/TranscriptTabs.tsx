@@ -15,8 +15,15 @@ export const TranscriptTabs = ({
   onTranscriptChange, 
   isLoading = false
 }: TranscriptTabsProps) => {
+  const [activeTab, setActiveTab] = useState("original");
+
   return (
-    <Tabs defaultValue="original" className="w-full">
+    <Tabs 
+      defaultValue="original" 
+      className="w-full"
+      value={activeTab}
+      onValueChange={setActiveTab}
+    >
       <TabsList className="grid grid-cols-2 mb-4">
         <TabsTrigger value="original">Original Transcript</TabsTrigger>
         <TabsTrigger value="ai-review">Transcript Review (AI)</TabsTrigger>
