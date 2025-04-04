@@ -1,6 +1,6 @@
 
 import { CollapsibleSection } from "./CollapsibleSection";
-import { TranscriptCard } from "./TranscriptCard";
+import { TranscriptTabs } from "./TranscriptTabs";
 import { SummarySection } from "./SummarySection";
 import { AIGenerationControls } from "./AIGenerationControls";
 import { useQuery } from "@tanstack/react-query";
@@ -114,7 +114,7 @@ export const TranscriptSection = ({
           detailedSummaryPoints={summaryData?.detailed_bullet_summary || []}
           isLoading={isSummaryLoading || isGenerating}
         />
-        <TranscriptCard
+        <TranscriptTabs
           transcript={transcript}
           onTranscriptChange={onTranscriptChange}
           isLoading={isSummaryLoading || isGenerating}
